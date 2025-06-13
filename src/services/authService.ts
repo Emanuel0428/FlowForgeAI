@@ -212,10 +212,7 @@ export class AuthService {
       }
 
       // Si no hay cache válido, obtener de Supabase
-      const { data: { user }, error } = await Promise.race([
-        supabase.auth.getUser(),
-        this.createTimeoutPromise(5000, 'User fetch timeout')
-      ]);
+      const { data: { user }, error } = await supabase.auth.getUser();
       
       if (error) {
         if (this.isSessionError(error.message)) {
@@ -254,10 +251,7 @@ export class AuthService {
       }
 
       // Si no hay cache válido, obtener de Supabase
-      const { data: { session }, error } = await Promise.race([
-        supabase.auth.getSession(),
-        this.createTimeoutPromise(5000, 'Session fetch timeout')
-      ]);
+      const { data: { session }, error } = await supabase.auth.getSession();
       
       if (error) {
         if (this.isSessionError(error.message)) {

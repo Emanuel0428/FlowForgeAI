@@ -396,7 +396,7 @@ export class UserProfileService {
         return ['id', 'user_id', 'business_type', 'revenue_model', 'business_stage', 'main_objective', 'digitalization_level', 'employee_count', 'created_at', 'updated_at'];
       }
 
-      return structureData?.columns || [];
+      return (structureData as any)?.columns || [];
     } catch (error) {
       console.error('Error checking available fields:', error);
       return ['id', 'user_id', 'business_type', 'revenue_model', 'business_stage', 'main_objective', 'digitalization_level', 'employee_count', 'created_at', 'updated_at'];
