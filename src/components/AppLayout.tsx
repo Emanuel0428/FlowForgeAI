@@ -277,7 +277,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({
         )}
 
         {/* MENÚ FLOTANTE SUPERIOR DERECHO - FUERA DEL SIDEBAR */}
-        <div className="fixed top-6 right-6" style={{ zIndex: 9999 }}>
+        <div className="fixed top-3 right-6" style={{ zIndex: 9999 }}>
           <div className="relative">
             <button
               ref={buttonRef}
@@ -421,8 +421,8 @@ const AppLayout: React.FC<AppLayoutProps> = ({
 
         {/* Sidebar */}
         <aside className={`${
-          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } fixed inset-y-0 left-0 z-50 w-80 backdrop-blur-xl border-r transform transition-all duration-500 ease-out lg:translate-x-0 lg:static lg:inset-0 shadow-2xl flex flex-col liquid-card`}
+          isSidebarOpen ? 'translate-x-0' : 'hidden lg:block'
+        } fixed inset-y-0 left-0 z-50 w-80 backdrop-blur-xl border-r transform transition-transform duration-500 ease-out lg:static lg:inset-0 shadow-2xl flex flex-col liquid-card`}
         style={{ 
           background: isDarkMode ? 'rgba(15, 20, 25, 0.95)' : 'rgba(248, 250, 252, 0.98)',
           borderColor: isDarkMode ? 'rgba(42, 45, 71, 0.6)' : 'rgba(148, 163, 184, 0.3)',
@@ -589,7 +589,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({
               >
                 <Menu className="h-6 w-6" />
               </button>
-              <div className="flex items-center">
+              <div className="flex items-center mr-20">
                 <Cpu className="h-6 w-6 text-iridescent-blue mr-2" />
                 <h1 className="text-lg font-bold iridescent-text">
                   FlowForge AI
@@ -600,36 +600,31 @@ const AppLayout: React.FC<AppLayoutProps> = ({
 
           {/* Content Area */}
           <div className="flex-1 overflow-y-auto relative" style={{ background: 'var(--bg-gradient)' }}>
-            <div className="p-6 lg:p-8 relative z-10">
+            <div className="p-4 sm:p-6 lg:p-8 relative z-10">
               {/* Page Header */}
-              <div className="mb-8">
-                <div className="flex items-center mb-6">
-                  {activeModule && (
-                    <>
-                      {(() => {
-                        const Icon = getIcon(activeModule.icon);
-                        return (
-                          <div className="p-3 rounded-2xl bg-gradient-to-br from-iridescent-blue/20 to-iridescent-violet/20 mr-4 liquid-glow-hover organic-shape">
-                            <Icon className="h-8 w-8 text-iridescent-cyan" />
-                          </div>
-                        );
-                      })()}
-                    </>
-                  )}
-                  <div>
-                    <h1 className="text-4xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
-                      {activeModule ? activeModule.name : 'Selecciona un Módulo'}
-                    </h1>
-                    {activeModule && (
-                      <p className="text-lg" style={{ color: 'var(--text-tertiary)' }}>
-                        {activeModule.description}
-                      </p>
-                    )}
-                  </div>
-                </div>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center mb-6 space-y-4 sm:space-y-0">
                 {activeModule && (
-                  <div className="w-24 h-1 bg-gradient-to-r from-iridescent-blue via-iridescent-violet to-iridescent-cyan rounded-full animate-pulse"></div>
+                  <>
+                    {(() => {
+                      const Icon = getIcon(activeModule.icon);
+                      return (
+                        <div className="p-3 rounded-2xl bg-gradient-to-br from-iridescent-blue/20 to-iridescent-violet/20 mr-4 liquid-glow-hover organic-shape">
+                          <Icon className="h-8 w-8 text-iridescent-cyan" />
+                        </div>
+                      );
+                    })()}
+                  </>
                 )}
+                <div>
+                  <h1 className="text-3xl sm:text-4xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
+                    {activeModule ? activeModule.name : 'Selecciona un Módulo'}
+                  </h1>
+                  {activeModule && (
+                    <p className="text-lg" style={{ color: 'var(--text-tertiary)' }}>
+                      {activeModule.description}
+                    </p>
+                  )}
+                </div>
               </div>
 
               {/* Dynamic Content */}

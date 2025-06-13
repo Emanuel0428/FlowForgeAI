@@ -155,11 +155,11 @@ const ModuleInputForm: React.FC<ModuleInputFormProps> = ({
       <div className="absolute inset-0 bg-glow-gradient opacity-10 rounded-3xl blur-xl"></div>
       
       {/* Module Introduction */}
-      <div className="liquid-card bg-gradient-to-r from-iridescent-blue/10 to-iridescent-violet/10 p-8 mb-8 border border-iridescent-blue/20 relative overflow-hidden">
+      <div className="liquid-card bg-gradient-to-r from-iridescent-blue/10 to-iridescent-violet/10 p-6 sm:p-8 md:p-10 mb-8 border border-iridescent-blue/20 relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-iridescent-blue via-iridescent-violet to-iridescent-cyan"></div>
         
         {/* Header with toggle button */}
-        <div className="flex items-start justify-between relative z-10 mb-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between relative z-10 mb-4 space-y-4 sm:space-y-0">
           <div className="flex items-start flex-1">
             <div className="p-3 rounded-2xl bg-gradient-to-br from-iridescent-blue/20 to-iridescent-violet/20 mr-4 liquid-glow-hover organic-shape">
               <Lightbulb className="h-6 w-6 text-iridescent-cyan" />
@@ -242,7 +242,7 @@ const ModuleInputForm: React.FC<ModuleInputFormProps> = ({
           </div>
         </div>
 
-        <div className="p-8 relative">
+        <div className="p-4 sm:p-6 md:p-8 relative">
           <div className="mb-8">
             <h2 className="text-3xl font-bold text-white mb-3">
               {inputMode === 'options' ? 'Selecciona tu Desafío Principal' : 'Cuéntanos tu Desafío Específico'}

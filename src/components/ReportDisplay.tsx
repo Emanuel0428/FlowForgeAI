@@ -204,7 +204,7 @@ const ReportDisplay: React.FC<ReportDisplayProps> = ({ reportContent, moduleTitl
       <div className="absolute inset-0 bg-glow-gradient opacity-10 rounded-3xl blur-xl"></div>
       
       {/* Header */}
-      <div className="liquid-card bg-gradient-to-r from-iridescent-blue/20 to-iridescent-violet/20 text-white rounded-t-3xl p-8 border border-iridescent-blue/30 relative overflow-hidden">
+      <div className="liquid-card bg-gradient-to-r from-iridescent-blue/20 to-iridescent-violet/20 text-white rounded-t-3xl p-4 sm:p-6 md:p-8 border border-iridescent-blue/30 relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-iridescent-blue via-iridescent-violet to-iridescent-cyan"></div>
         <div className="absolute inset-0 bg-glow-gradient opacity-20"></div>
         
@@ -278,7 +278,7 @@ const ReportDisplay: React.FC<ReportDisplayProps> = ({ reportContent, moduleTitl
       </div>
 
       {/* Key Metrics Dashboard */}
-      <div className="liquid-card bg-liquid-surface/40 backdrop-blur-xl p-8 border-x border-liquid-border" id="metrics-dashboard">
+      <div className="liquid-card bg-liquid-surface/40 backdrop-blur-xl p-4 sm:p-6 md:p-8 border-x border-liquid-border" id="metrics-dashboard">
         <h2 className="text-2xl font-bold text-white mb-6 flex items-center">
           <Target className="w-6 h-6 mr-3 text-iridescent-cyan" />
           Métricas Clave del Proyecto
@@ -559,7 +559,7 @@ const ReportDisplay: React.FC<ReportDisplayProps> = ({ reportContent, moduleTitl
       </div>
 
       {/* Report Content */}
-      <div className="liquid-card bg-liquid-surface/40 backdrop-blur-xl shadow-2xl rounded-b-3xl p-8 lg:p-12 overflow-auto border-x border-b border-liquid-border relative">
+      <div className="liquid-card bg-liquid-surface/40 backdrop-blur-xl shadow-2xl rounded-b-3xl p-4 sm:p-6 md:p-8 lg:p-12 overflow-auto border-x border-b border-liquid-border relative">
         <div className="prose prose-lg max-w-none prose-invert 
           prose-headings:text-white 
           prose-h1:text-4xl prose-h1:font-bold prose-h1:mb-8 prose-h1:pb-4 prose-h1:border-b prose-h1:border-iridescent-blue/30 prose-h1:iridescent-text prose-h1:flex prose-h1:items-center
@@ -668,7 +668,7 @@ const ReportDisplay: React.FC<ReportDisplayProps> = ({ reportContent, moduleTitl
       </div>
 
       {/* Professional Footer */}
-      <div className="liquid-card bg-gradient-to-r from-liquid-surface/30 to-iridescent-blue/5 backdrop-blur-sm rounded-b-2xl p-8 mt-6 border border-liquid-border/50 relative overflow-hidden">
+      <div className="liquid-card bg-gradient-to-r from-liquid-surface/30 to-iridescent-blue/5 backdrop-blur-sm rounded-b-2xl p-4 sm:p-6 md:p-8 mt-6 border border-liquid-border/50 relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-iridescent-blue to-iridescent-violet"></div>
         <div className="text-center relative z-10">
           <div className="flex items-center justify-center mb-6 space-x-8">
