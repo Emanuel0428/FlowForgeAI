@@ -1,0 +1,597 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Variables CSS para modo claro/oscuro */
+:root {
+  /* Modo Oscuro (por defecto) */
+  --liquid-dark: #0a0a0f;
+  --liquid-navy: #0f1419;
+  --liquid-charcoal: #1a1d29;
+  --liquid-surface: rgba(30, 33, 57, 0.4);
+  --liquid-border: rgba(42, 45, 71, 0.6);
+  --text-primary: #ffffff;
+  --text-secondary: #d1d5db;
+  --text-tertiary: #9ca3af;
+  --text-quaternary: #6b7280;
+  --bg-gradient: linear-gradient(135deg, #0a0a0f 0%, #0f1419 50%, #1a1d29 100%);
+  --card-bg: rgba(30, 33, 57, 0.4);
+  --card-border: rgba(42, 45, 71, 0.6);
+  --hover-bg: rgba(30, 33, 57, 0.6);
+}
+
+/* Modo Claro */
+.light {
+  --liquid-dark: #f8fafc;
+  --liquid-navy: #f1f5f9;
+  --liquid-charcoal: #e2e8f0;
+  --liquid-surface: rgba(255, 255, 255, 0.9);
+  --liquid-border: rgba(148, 163, 184, 0.4);
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-tertiary: #64748b;
+  --text-quaternary: #94a3b8;
+  --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
+  --card-bg: rgba(255, 255, 255, 0.8);
+  --card-border: rgba(148, 163, 184, 0.3);
+  --hover-bg: rgba(241, 245, 249, 0.8);
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Open Sans', 'Helvetica Neue', sans-serif;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--bg-gradient);
+  color: var(--text-primary);
+}
+
+#root {
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Liquid Scrollbar - Adaptable a modo claro/oscuro */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--liquid-surface);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(45deg, #00d4ff, #8b5cf6);
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(45deg, #06ffa5, #a855f7);
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+}
+
+/* Liquid Transitions */
+* {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, border-radius;
+  transition-timing-function: cubic-bezier(0.17, 0.67, 0.83, 0.67);
+  transition-duration: 300ms;
+}
+
+/* Liquid Focus States */
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+  box-shadow: 
+    0 0 0 2px rgba(0, 212, 255, 0.3),
+    0 0 20px rgba(0, 212, 255, 0.2),
+    inset 0 0 20px rgba(0, 212, 255, 0.1);
+  border-radius: 12px;
+}
+
+/* Liquid Button Effects - Adaptable */
+.liquid-button {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(139, 92, 246, 0.1));
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.liquid-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.2), transparent);
+  transition: left 0.6s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+}
+
+.liquid-button:hover::before {
+  left: 100%;
+}
+
+.liquid-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 10px 25px rgba(0, 212, 255, 0.2),
+    0 0 30px rgba(0, 212, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Liquid Card Effects - Adaptable */
+.liquid-card {
+  background: var(--card-bg);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.liquid-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.5), transparent);
+}
+
+.liquid-card:hover {
+  border-color: rgba(0, 212, 255, 0.3);
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.1),
+    0 0 30px rgba(0, 212, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* Modo claro - ajustes específicos */
+.light .liquid-card:hover {
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.05),
+    0 0 30px rgba(0, 212, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* Iridescent Text */
+.iridescent-text {
+  background: linear-gradient(-45deg, #00d4ff, #8b5cf6, #06ffa5, #a855f7);
+  background-size: 400% 400%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: iridescent 3s linear infinite;
+}
+
+/* Liquid Loading Animation */
+.liquid-loader {
+  position: relative;
+  width: 60px;
+  height: 60px;
+}
+
+.liquid-loader::before,
+.liquid-loader::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  animation: breathe 2s ease-in-out infinite;
+}
+
+.liquid-loader::before {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, #00d4ff, #8b5cf6);
+  animation-delay: 0s;
+}
+
+.liquid-loader::after {
+  width: 80%;
+  height: 80%;
+  top: 10%;
+  left: 10%;
+  background: linear-gradient(-45deg, #06ffa5, #a855f7);
+  animation-delay: 1s;
+}
+
+/* Organic Shapes */
+.organic-shape {
+  border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+  animation: morph 8s ease-in-out infinite;
+}
+
+/* Liquid Glow Effects */
+.liquid-glow {
+  box-shadow: 
+    0 0 20px rgba(0, 212, 255, 0.2),
+    0 0 40px rgba(0, 212, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.liquid-glow-hover:hover {
+  animation: glow-pulse 2s ease-in-out infinite alternate;
+}
+
+/* Dropdown Menu Styles - CRÍTICO PARA VISIBILIDAD */
+[role="menu"] {
+  z-index: 1002 !important;
+  position: absolute !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  background: var(--card-bg) !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(0, 212, 255, 0.3) !important;
+  box-shadow: 
+    0 25px 50px rgba(0, 0, 0, 0.2),
+    0 0 40px rgba(0, 212, 255, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+  transform: translateY(0) !important;
+}
+
+/* Modo claro - dropdown */
+.light [role="menu"] {
+  background: rgba(255, 255, 255, 0.98) !important;
+  box-shadow: 
+    0 25px 50px rgba(0, 0, 0, 0.08),
+    0 0 40px rgba(0, 212, 255, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid rgba(148, 163, 184, 0.3) !important;
+}
+
+[role="menuitem"] {
+  transition: all 0.3s cubic-bezier(0.17, 0.67, 0.83, 0.67) !important;
+  border-radius: 8px !important;
+  margin: 2px 4px !important;
+  color: var(--text-secondary) !important;
+}
+
+[role="menuitem"]:hover {
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(139, 92, 246, 0.15)) !important;
+  transform: translateX(4px) !important;
+  box-shadow: 0 4px 12px rgba(0, 212, 255, 0.2) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Modo claro - menuitem hover */
+.light [role="menuitem"]:hover {
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(139, 92, 246, 0.1)) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Forzar visibilidad del dropdown */
+.dropdown-menu {
+  background: var(--card-bg) !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(0, 212, 255, 0.3) !important;
+  box-shadow: 
+    0 25px 50px rgba(0, 0, 0, 0.2),
+    0 0 40px rgba(0, 212, 255, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+  transform: translateY(0) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  z-index: 1002 !important;
+  position: absolute !important;
+  display: block !important;
+}
+
+.dropdown-item {
+  transition: all 0.3s cubic-bezier(0.17, 0.67, 0.83, 0.67) !important;
+  border-radius: 8px !important;
+  margin: 2px 4px !important;
+  color: var(--text-secondary) !important;
+}
+
+.dropdown-item:hover {
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(139, 92, 246, 0.15)) !important;
+  transform: translateX(4px) !important;
+  box-shadow: 0 4px 12px rgba(0, 212, 255, 0.2) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Keyframes */
+@keyframes iridescent {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.1); opacity: 1; }
+}
+
+@keyframes morph {
+  0%, 100% { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
+  25% { border-radius: 58% 42% 75% 25% / 76% 46% 54% 24%; }
+  50% { border-radius: 50% 50% 33% 67% / 55% 27% 73% 45%; }
+  75% { border-radius: 33% 67% 58% 42% / 63% 68% 32% 37%; }
+}
+
+@keyframes glow-pulse {
+  0% { 
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.3), 0 0 40px rgba(0, 212, 255, 0.1);
+    transform: scale(1);
+  }
+  100% { 
+    box-shadow: 0 0 30px rgba(0, 212, 255, 0.5), 0 0 60px rgba(0, 212, 255, 0.2);
+    transform: scale(1.02);
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .liquid-card {
+    border: 2px solid #00d4ff;
+  }
+  
+  .liquid-button {
+    border: 2px solid #00d4ff;
+  }
+  
+  .dropdown-menu {
+    border: 2px solid #00d4ff !important;
+  }
+}
+
+/* Focus improvements for keyboard navigation */
+.liquid-button:focus-visible,
+button:focus-visible {
+  outline: 2px solid #00d4ff;
+  outline-offset: 2px;
+}
+
+/* Improved mobile touch targets */
+@media (max-width: 768px) {
+  button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Asegurar que el dropdown siempre sea visible */
+[role="menu"] {
+  z-index: 1002 !important;
+  position: absolute !important;
+}
+
+/* Forzar visibilidad del dropdown */
+.dropdown-menu[role="menu"] {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+/* Estilos específicos para inputs y formularios en modo claro */
+.light input,
+.light textarea,
+.light select {
+  color: var(--text-primary) !important;
+  background: var(--card-bg) !important;
+  border-color: var(--card-border) !important;
+}
+
+.light input::placeholder,
+.light textarea::placeholder {
+  color: var(--text-quaternary) !important;
+}
+
+/* Botones en modo claro */
+.light .liquid-button {
+  color: var(--text-secondary) !important;
+}
+
+.light .liquid-button:hover {
+  color: var(--text-primary) !important;
+}
+
+/* Texto en cards para modo claro */
+.light .liquid-card {
+  color: var(--text-primary) !important;
+}
+
+/* Asegurar contraste en elementos específicos */
+.light .text-gray-300 {
+  color: var(--text-secondary) !important;
+}
+
+.light .text-gray-400 {
+  color: var(--text-tertiary) !important;
+}
+
+.light .text-gray-500 {
+  color: var(--text-quaternary) !important;
+}
+
+.light .text-white {
+  color: var(--text-primary) !important;
+}
+
+/* Sidebar específico para modo claro */
+.light aside {
+  background: rgba(248, 250, 252, 0.98) !important;
+  border-color: var(--card-border) !important;
+}
+
+/* Headers en modo claro */
+.light h1,
+.light h2,
+.light h3,
+.light h4,
+.light h5,
+.light h6 {
+  color: var(--text-primary) !important;
+}
+
+/* Párrafos en modo claro */
+.light p {
+  color: var(--text-secondary) !important;
+}
+
+/* Spans en modo claro */
+.light span {
+  color: inherit !important;
+}
+
+/* Highlight important terms */
+.highlight-term {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 212, 255, 0.15) 0%,
+    rgba(147, 51, 234, 0.15) 50%,
+    rgba(34, 211, 238, 0.15) 100%
+  );
+  color: rgba(255, 255, 255, 0.95);
+  border-radius: 6px;
+  padding: 2px 8px;
+  margin: 0 2px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: inline-block;
+  border: 1px solid rgba(0, 212, 255, 0.2);
+}
+
+.highlight-term:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 212, 255, 0.25) 0%,
+    rgba(147, 51, 234, 0.25) 50%,
+    rgba(34, 211, 238, 0.25) 100%
+  );
+  transform: translateY(-1px) scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+  border-color: rgba(0, 212, 255, 0.4);
+  color: white;
+  }
+
+  /* Remove old highlight-terms styles */
+  .highlight-terms {
+    background: transparent !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    transition: none !important;
+  }
+
+  .highlight-terms:hover {
+    background: transparent !important;
+    transform: none !important;
+    box-shadow: none !important;
+  }
+  
+  /* Enhanced prose styling */
+  .prose-invert {
+    color: rgb(209, 213, 219);
+  }
+  
+  .prose-invert h3 {
+    color: white;
+    font-weight: 600;
+  }
+  
+  .prose-invert p {
+    margin-bottom: 1rem;
+    line-height: 1.7;
+  }
+  
+  /* Better spacing for highlighted content */
+  .space-y-3 > * + * {
+    margin-top: 0.75rem;
+  }
+  
+  /* Collapsible animation improvements */
+  .collapsible-content {
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .collapsible-content.collapsed {
+    max-height: 0;
+    opacity: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+  
+  .collapsible-content.expanded {
+    max-height: 500px;
+    opacity: 1;
+  }
+
+/* Custom scrollbar */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 212, 255, 0.3) rgba(30, 33, 57, 0.3);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(30, 33, 57, 0.3);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 212, 255, 0.4) 0%,
+    rgba(147, 51, 234, 0.4) 100%
+  );
+  border-radius: 3px;
+  transition: all 0.3s ease;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 212, 255, 0.6) 0%,
+    rgba(147, 51, 234, 0.6) 100%
+  );
+}
