@@ -58,7 +58,8 @@ export interface FormStep {
 export interface FormField {
   id: keyof UserProfileData;
   label: string;
-  type: 'radio' | 'select';
-  options: { value: string; label: string }[];
+  type: 'radio' | 'select' | 'text' | 'textarea';
+  options?: { value: string; label: string }[];
   required: boolean;
+  placeholder?: string;
 }

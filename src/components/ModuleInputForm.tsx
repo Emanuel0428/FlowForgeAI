@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Send, Lightbulb, CheckCircle, ArrowRight, Sparkles, Zap, Eye, EyeOff } from 'lucide-react';
+import { Send, Lightbulb, CheckCircle, ArrowRight, Sparkles, Zap, Eye, EyeOff, Mic } from 'lucide-react';
+import VoiceToTextButton from './VoiceToTextButton';
 
 interface ModuleInputFormProps {
   onSubmit: (input: string) => void;
@@ -15,12 +16,12 @@ const ModuleInputForm: React.FC<ModuleInputFormProps> = ({
   dynamicPlaceholder,
   moduleIntro,
   activeModuleId
-}) => {
-  const [input, setInput] = useState('');
+}) => {  const [input, setInput] = useState('');
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [inputMode, setInputMode] = useState<'options' | 'custom'>('options');
   const [error, setError] = useState('');
   const [showProfileInfo, setShowProfileInfo] = useState(true);
+  const [isVoiceActive, setIsVoiceActive] = useState(false);
 
   // Función para resaltar términos importantes
   const highlightImportantTerms = (text: string) => {
@@ -300,8 +301,7 @@ const ModuleInputForm: React.FC<ModuleInputFormProps> = ({
               <div>
                 <label htmlFor="challenge-input" className="block text-lg font-semibold text-gray-200 mb-4">
                   Describe tu necesidad específica
-                </label>
-                <div className="relative">
+                </label>                <div className="relative">
                   <textarea
                     id="challenge-input"
                     rows={8}
@@ -315,12 +315,45 @@ const ModuleInputForm: React.FC<ModuleInputFormProps> = ({
                     } text-gray-100 placeholder-gray-500 text-lg liquid-button`}
                     disabled={isLoading}
                   />
-                  <div className="absolute inset-0 rounded-2xl bg-glow-gradient opacity-0 hover:opacity-10 transition-opacity duration-300 pointer-events-none"></div>
-                </div>
-                <div className="mt-3 flex justify-between items-center">
-                  <p className="text-sm text-gray-500">
-                    Mínimo 20 caracteres para un análisis completo
-                  </p>
+                  <div className="absolute inset-0 rounded-2xl bg-glow-gradient opacity-0 hover:opacity-10 transition-opacity duration-300 pointer-events-none"></div>                  {/* Botón de voz a texto con mejor posicionamiento y feedback */}
+                  <div className="absolute right-4 bottom-4 flex items-center">
+                    <VoiceToTextButton                      onTranscriptionResult={(text) => {
+                        // Añadir el texto reconocido al contenido actual
+                        if (text && text.trim()) {
+                          const newText = input ? `${input} ${text}` : text;
+                          handleInputChange(newText);
+                          
+                          // Mostrar un mensaje de éxito en la consola
+                          console.log("✅ Texto dictado añadido correctamente:", text);
+                        }
+                      }}
+                      onRecordingStateChange={(isRecording) => {
+                        setIsVoiceActive(isRecording);
+                      }}
+                      disabled={isLoading}
+                      className="shadow-lg"
+                      stopAfterInactivity={3000} // Dar más tiempo (3 segundos) para detectar silencios
+                    />
+                  </div>
+                    {/* Indicador de estado de transcripción mejorado */}
+                  {isVoiceActive && (
+                    <div className="absolute left-6 bottom-4 flex items-center bg-liquid-surface/80 py-2 px-4 rounded-full border border-iridescent-cyan/30 shadow-lg">
+                      <div className="mr-2 w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
+                      <span className="text-sm font-medium text-iridescent-cyan">Escuchando tu voz... Habla con claridad</span>
+                    </div>
+                  )}
+                </div>                <div className="mt-3 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-2 sm:space-y-0">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center text-sm text-gray-500 space-y-2 sm:space-y-0">
+                    <p className="mr-4">
+                      Mínimo 20 caracteres para un análisis completo
+                    </p>
+                    <div className="flex items-center px-2 py-1 bg-iridescent-blue/10 rounded-full">
+                      <Mic className="w-4 h-4 mr-2 text-iridescent-cyan" /> 
+                      <span className="text-iridescent-cyan">
+                        Haz clic en el micrófono para <strong>dictar tu texto</strong>
+                      </span>
+                    </div>
+                  </div>
                   <p className={`text-sm font-medium ${
                     input.length < 20 
                       ? 'text-gray-500' 

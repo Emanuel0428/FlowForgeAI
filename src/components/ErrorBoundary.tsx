@@ -30,7 +30,6 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('❌ Error capturado por ErrorBoundary:', error);
     console.error('📍 Información del error:', errorInfo);
     
     this.setState({
@@ -46,8 +45,6 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   private reportError(error: Error, errorInfo: ErrorInfo) {
-    // Aquí se podría integrar con servicios como Sentry, LogRocket, etc.
-    console.log('📊 Reportando error a servicio de monitoreo...');
     
     // Ejemplo de estructura para reporte
     const errorReport = {

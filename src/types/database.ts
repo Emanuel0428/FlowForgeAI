@@ -11,7 +11,6 @@ export interface Database {
           main_objective: string;
           digitalization_level: string;
           employee_count: string;
-          // Campos adicionales del negocio
           business_name?: string;
           business_description?: string;
           industry?: string;
@@ -44,7 +43,6 @@ export interface Database {
           main_objective: string;
           digitalization_level: string;
           employee_count: string;
-          // Campos adicionales del negocio
           business_name?: string;
           business_description?: string;
           industry?: string;
@@ -77,7 +75,6 @@ export interface Database {
           main_objective?: string;
           digitalization_level?: string;
           employee_count?: string;
-          // Campos adicionales del negocio
           business_name?: string;
           business_description?: string;
           industry?: string;

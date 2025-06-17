@@ -74,12 +74,6 @@ export class UserProfileService {
         console.error('❌ Error guardando perfil:', error);
         throw new Error(`Error al guardar el perfil: ${error.message}`);
       }
-
-      if (!data) {
-        console.error('❌ No se recibieron datos al guardar el perfil');
-        throw new Error('No se recibieron datos al guardar el perfil');
-      }
-
       // Actualizar cache
       this.profileCache.set(data);
 
@@ -95,10 +89,6 @@ export class UserProfileService {
     try {
       // Verificar cache primero
       const cachedProfile = this.profileCache.get();
-      if (cachedProfile) {
-        console.log('📋 Perfil obtenido del cache');
-        return cachedProfile;
-      }
       
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       
@@ -120,15 +110,7 @@ export class UserProfileService {
 
       // Actualizar cache
       this.profileCache.set(data);
-      
-      if (data) {
-        console.log('✅ Perfil obtenido exitosamente:', {
-          profileId: data.id,
-          businessType: data.business_type
-        });
-      } else {
-        console.log('ℹ️ No se encontró perfil para el usuario');
-      }
+
 
       return data;
     } catch (error: any) {
@@ -195,7 +177,6 @@ export class UserProfileService {
 
       // Verificar que hay algo que actualizar
       if (Object.keys(profileUpdate).length === 0) {
-        console.log('ℹ️ No hay cambios para actualizar');
         const currentProfile = await this.getUserProfile();
         if (!currentProfile) {
           throw new Error('No se encontró el perfil actual');
@@ -213,13 +194,6 @@ export class UserProfileService {
 
       if (error) {
         console.error('❌ Error actualizando perfil:', error);
-        console.error('Detalles del error:', {
-          code: error.code,
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          updateData: profileUpdate
-        });
 
         // Manejar errores específicos
         if (error.code === '42703') {
@@ -251,9 +225,7 @@ export class UserProfileService {
 
   // Eliminar perfil de usuario
   static async deleteUserProfile(): Promise<void> {
-    try {
-      console.log('🗑️ Eliminando perfil de usuario...');
-      
+    try {      
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       
       if (authError || !user) {
@@ -274,7 +246,6 @@ export class UserProfileService {
       // Limpiar cache
       this.profileCache.clear();
       
-      console.log('✅ Perfil eliminado exitosamente');
     } catch (error: any) {
       console.error('❌ Error inesperado eliminando perfil:', error);
       throw error;

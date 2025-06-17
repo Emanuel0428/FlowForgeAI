@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, Check, Sparkles, Brain } from 'lucide-react';
 import { UserProfileData } from '../types';
 import { profileFormSteps } from '../data/profileForm';
+import VoiceTextarea from './VoiceTextarea';
+import VoiceTextInput from './VoiceTextInput';
 
 interface UserProfileFormProps {
   onSubmit: (data: UserProfileData) => void;
@@ -121,7 +123,7 @@ const UserProfileForm: React.FC<UserProfileFormProps> = ({ onSubmit, isLoading }
                     {field.required && <span className="text-iridescent-violet ml-2">*</span>}
                   </label>
 
-                  {field.type === 'radio' ? (
+                  {field.type === 'radio' && field.options ? (
                     <div className="grid gap-4 sm:grid-cols-2">
                       {field.options.map((option) => (
                         <label
@@ -158,26 +160,24 @@ const UserProfileForm: React.FC<UserProfileFormProps> = ({ onSubmit, isLoading }
                         </label>
                       ))}
                     </div>
+                  ) : field.type === 'textarea' ? (
+                    <VoiceTextarea
+                      value={formData[field.id] || ''}
+                      onChange={e => handleFieldChange(field.id, e.target.value)}
+                      placeholder={field.placeholder}
+                      minRows={4}
+                      id={field.id}
+                      disabled={isLoading}
+                    />
                   ) : (
-                    <div className="relative">
-                      <select
-                        value={formData[field.id] || ''}
-                        onChange={(e) => handleFieldChange(field.id, e.target.value)}
-                        className={`block w-full px-6 py-4 border rounded-2xl shadow-lg focus:outline-none transition-all duration-500 backdrop-blur-sm ${
-                          errors[field.id] 
-                            ? 'border-red-400 bg-red-900/20' 
-                            : 'border-liquid-border bg-liquid-surface/30 focus:border-iridescent-blue/50 focus:bg-liquid-surface/50'
-                        } text-gray-100 text-lg liquid-button`}
-                      >
-                        <option value="">Selecciona una opción</option>
-                        {field.options.map((option) => (
-                          <option key={option.value} value={option.value} className="bg-liquid-surface text-gray-100">
-                            {option.label}
-                          </option>
-                        ))}
-                      </select>
-                      <div className="absolute inset-0 rounded-2xl bg-glow-gradient opacity-0 hover:opacity-10 transition-opacity duration-300 pointer-events-none"></div>
-                    </div>
+                    <VoiceTextInput
+                      value={formData[field.id] || ''}
+                      onChange={e => handleFieldChange(field.id, e.target.value)}
+                      placeholder={field.placeholder}
+                      id={field.id}
+                      disabled={isLoading}
+                      type={field.type}
+                    />
                   )}
 
                   {errors[field.id] && (

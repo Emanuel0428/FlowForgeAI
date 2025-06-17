@@ -77,11 +77,6 @@ export class AIReportService {
         throw new Error(`Error al obtener los reportes: ${error.message}`);
       }
 
-      console.log('✅ Reports fetched successfully:', {
-        count: data?.length || 0,
-        reports: data?.map(r => ({ id: r.id, module: r.module_name, date: r.created_at }))
-      });
-
       return data || [];
     } catch (error) {
       console.error('❌ Unexpected error in getUserReports:', error);

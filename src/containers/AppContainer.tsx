@@ -117,7 +117,6 @@ const AppContainer: React.FC = () => {
       const profile = await UserProfileService.getUserProfile();
       
       if (profile) {
-        console.log('✅ Perfil cargado:', profile.id);
         setDbProfile(profile);
         const appProfile = UserProfileService.dbProfileToAppProfile(profile);
         setState(prev => ({
@@ -234,7 +233,6 @@ const AppContainer: React.FC = () => {
       );
 
       // Guardar reporte en base de datos
-      console.log('💾 Guardando reporte en base de datos...');
       const savedReport = await AIReportService.saveAIReport(
         dbProfile.id,
         state.activeModuleId,

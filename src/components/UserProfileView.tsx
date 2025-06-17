@@ -4,6 +4,8 @@ import { ExtendedUserProfileData } from '../types';
 import { UserProfile } from '../types/database';
 import { UserProfileService } from '../services/userProfileService';
 import AIAssistantButton from './AIAssistantButton';
+import VoiceTextarea from './VoiceTextarea';
+import VoiceTextInput from './VoiceTextInput';
 
 interface UserProfileViewProps {
   userProfile: UserProfile | null;
@@ -71,9 +73,7 @@ const UserProfileView: React.FC<UserProfileViewProps> = ({
     setError('');
     setSuccess('');
 
-    try {
-      console.log('💾 Iniciando actualización de perfil...');
-      
+    try {      
       // Preparar solo los campos que han cambiado
       const updateData: Partial<ExtendedUserProfileData> = {};
       
@@ -94,8 +94,6 @@ const UserProfileView: React.FC<UserProfileViewProps> = ({
           updateData[field] = currentValue;
         }
       });
-
-      console.log('📝 Campos a actualizar:', Object.keys(updateData));
 
       if (Object.keys(updateData).length === 0) {
         setSuccess('No hay cambios para guardar');
@@ -441,20 +439,21 @@ const UserProfileView: React.FC<UserProfileViewProps> = ({
                     </label>
                     {isEditing ? (
                       field.multiline ? (
-                        <textarea
+                        <VoiceTextarea
                           value={formData[field.key as keyof ExtendedUserProfileData] || ''}
-                          onChange={(e) => handleInputChange(field.key as keyof ExtendedUserProfileData, e.target.value)}
+                          onChange={e => handleInputChange(field.key as keyof ExtendedUserProfileData, e.target.value)}
                           placeholder={field.placeholder}
-                          rows={4}
-                          className="w-full px-6 py-4 bg-liquid-surface/30 border border-liquid-border rounded-2xl text-white placeholder-gray-500 focus:outline-none focus:border-iridescent-blue/50 transition-all duration-300 liquid-button resize-none text-base leading-relaxed"
+                          minRows={4}
+                          disabled={false}
+                          id={field.key}
                         />
                       ) : (
-                        <input
-                          type="text"
+                        <VoiceTextInput
                           value={formData[field.key as keyof ExtendedUserProfileData] || ''}
-                          onChange={(e) => handleInputChange(field.key as keyof ExtendedUserProfileData, e.target.value)}
+                          onChange={e => handleInputChange(field.key as keyof ExtendedUserProfileData, e.target.value)}
                           placeholder={field.placeholder}
-                          className="w-full px-6 py-4 bg-liquid-surface/30 border border-liquid-border rounded-2xl text-white placeholder-gray-500 focus:outline-none focus:border-iridescent-blue/50 transition-all duration-300 liquid-button text-base"
+                          disabled={false}
+                          id={field.key}
                         />
                       )
                     ) : (
