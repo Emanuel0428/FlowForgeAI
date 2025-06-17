@@ -422,7 +422,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({
         {/* Sidebar */}
         <aside className={`${
           isSidebarOpen ? 'translate-x-0' : 'hidden lg:block'
-        } fixed inset-y-0 left-0 z-50 w-80 backdrop-blur-xl border-r transform transition-transform duration-500 ease-out lg:static lg:inset-0 shadow-2xl flex flex-col liquid-card`}
+        } fixed inset-y-0 left-0 z-50 w-80 backdrop-blur-xl border-r transform transition-transform duration-500 ease-out lg:static lg:inset-0 shadow-2xl flex flex-col h-screen liquid-card`}
         style={{ 
           background: isDarkMode ? 'rgba(15, 20, 25, 0.95)' : 'rgba(248, 250, 252, 0.98)',
           borderColor: isDarkMode ? 'rgba(42, 45, 71, 0.6)' : 'rgba(148, 163, 184, 0.3)',
@@ -504,7 +504,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({
           )}
 
           {/* Module Navigation */}
-          <div className="flex-1 overflow-y-auto p-6">
+          <div className="flex-1 flex flex-col overflow-y-auto p-6 max-h-[calc(100vh-220px)]">
             <h2 className="text-sm font-semibold uppercase tracking-wider mb-6 flex items-center" style={{ color: 'var(--text-tertiary)' }}>
               <div className="w-6 h-0.5 bg-gradient-to-r from-iridescent-blue to-iridescent-violet mr-3 rounded-full"></div>
               Módulos Inteligentes

@@ -398,40 +398,42 @@ const AppContainer: React.FC = () => {
   }
 
   // Aplicación principal
-  return (
-    <>
-      <AppLayout
-        user={user}
-        userProfile={state.userProfile}
-        dbProfile={dbProfile}
-        activeModuleId={state.activeModuleId}
-        isLoading={state.isLoading}
-        reportContent={state.reportContent}
-        errorMessage={state.errorMessage}
-        isProfileComplete={state.isProfileComplete}
-        isDarkMode={state.isDarkMode}
-        isSidebarOpen={isSidebarOpen}
-        dynamicPlaceholder={dynamicPlaceholder}
-        moduleIntro={moduleIntro}
-        currentModuleTitle={currentModuleTitle}
-        onProfileSubmit={handleProfileSubmit}
-        onProfileUpdate={handleProfileUpdate}
-        onModuleSelect={handleModuleSelect}
-        onModuleSubmit={handleModuleSubmit}
-        onToggleDarkMode={handleToggleDarkMode}
-        onToggleSidebar={handleToggleSidebar}
-        onRetry={handleRetry}
-        onShowAuth={() => setShowAuthModal(true)}
-        onShowHistory={() => setShowReportHistory(true)}
-        onSignOut={handleSignOut}
-      />
-
+  if (!user || showAuthModal) {
+    return (
       <AuthModal
-        isOpen={showAuthModal}
+        isOpen={true}
         onClose={() => setShowAuthModal(false)}
         onSuccess={handleAuthSuccess}
       />
-    </>
+    );
+  }
+
+  return (
+    <AppLayout
+      user={user}
+      userProfile={state.userProfile}
+      dbProfile={dbProfile}
+      activeModuleId={state.activeModuleId}
+      isLoading={state.isLoading}
+      reportContent={state.reportContent}
+      errorMessage={state.errorMessage}
+      isProfileComplete={state.isProfileComplete}
+      isDarkMode={state.isDarkMode}
+      isSidebarOpen={isSidebarOpen}
+      dynamicPlaceholder={dynamicPlaceholder}
+      moduleIntro={moduleIntro}
+      currentModuleTitle={currentModuleTitle}
+      onProfileSubmit={handleProfileSubmit}
+      onProfileUpdate={handleProfileUpdate}
+      onModuleSelect={handleModuleSelect}
+      onModuleSubmit={handleModuleSubmit}
+      onToggleDarkMode={handleToggleDarkMode}
+      onToggleSidebar={handleToggleSidebar}
+      onRetry={handleRetry}
+      onShowAuth={() => setShowAuthModal(true)}
+      onShowHistory={() => setShowReportHistory(true)}
+      onSignOut={handleSignOut}
+    />
   );
 };
 
