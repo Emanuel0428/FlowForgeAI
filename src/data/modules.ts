@@ -15,7 +15,7 @@ export const businessModules: ModuleDefinition[] = [
   },
   {
     id: 'ventas-crm',
-    name: 'Sales Automation & CRM',
+    name: 'Automatización ventas & CRM',
     icon: 'Target',
     description: 'Optimización de pipeline y automatización comercial'
   },
@@ -27,31 +27,31 @@ export const businessModules: ModuleDefinition[] = [
   },
   {
     id: 'recursos-humanos',
-    name: 'People Analytics & HR Tech',
+    name: 'Analítica de personal & HR Tech',
     icon: 'Users',
     description: 'Gestión inteligente de talento y cultura organizacional'
   },
   {
     id: 'atencion-cliente',
-    name: 'Customer Experience & Support',
+    name: 'Experiencia & soporte al cliente',
     icon: 'Headphones',
     description: 'Automatización de soporte y optimización de CX'
   },
   {
     id: 'contenido-digital',
-    name: 'Content Strategy & SEO',
+    name: 'Estrategia de contenidos & SEO',
     icon: 'FileText',
     description: 'Ecosistemas de contenido y marketing de autoridad'
   },
   {
     id: 'estrategia-producto',
-    name: 'Product Management & Growth',
+    name: 'Administración de producto & Crecimiento',
     icon: 'Package',
     description: 'Desarrollo ágil y product-led growth strategies'
   },
   {
     id: 'innovacion-rd',
-    name: 'Innovation Labs & R&D',
+    name: 'Innovación & Desarrollo Tecnológico',
     icon: 'Lightbulb',
     description: 'Metodologías de innovación y desarrollo tecnológico'
   },

@@ -87,16 +87,15 @@ const AIAssistantButton: React.FC<AIAssistantButtonProps> = ({
       onSuggestion(suggestion);
       handleCloseModal();
     } catch (err) {
+      
       console.error('❌ Error generando sugerencia con IA:', err);
       
-      // Intentar con fallback inteligente
       try {
         const fallbackSuggestion = generateSmartFallbackSuggestion(fieldKey, fieldLabel, userPrompt, userProfile);
         
         if (fallbackSuggestion && fallbackSuggestion.length > 20) {
           onSuggestion(fallbackSuggestion);
           handleCloseModal();
-          console.log('✅ Fallback aplicado exitosamente');
         } else {
           throw new Error('Fallback insuficiente');
         }

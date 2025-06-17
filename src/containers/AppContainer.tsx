@@ -62,7 +62,6 @@ const AppContainer: React.FC = () => {
   // Inicializar aplicación de forma robusta
   const initializeApp = async () => {
     try {
-      console.log('🚀 Inicializando FlowForge AI...');
       setAppStatus(AppStatus.INITIALIZING);
       setInitializationError(null);
 
@@ -71,7 +70,6 @@ const AppContainer: React.FC = () => {
 
       // Configurar listener de cambios de autenticación
       const { unsubscribe } = AuthService.onAuthStateChange(async (newUser) => {
-        console.log('👤 Usuario cambió:', newUser?.id || 'null');
         
         if (newUser) {
           setUser(newUser);
@@ -93,7 +91,6 @@ const AppContainer: React.FC = () => {
       // Verificar usuario actual
       const currentUser = await AuthService.getCurrentUser();
       if (currentUser) {
-        console.log('✅ Usuario encontrado:', currentUser.id);
         setUser(currentUser);
         await loadUserProfile(currentUser.id);
       } else {
@@ -101,7 +98,6 @@ const AppContainer: React.FC = () => {
       }
 
       setAppStatus(AppStatus.READY);
-      console.log('✅ FlowForge AI inicializado correctamente');
 
       // Cleanup function
       return () => {
@@ -117,7 +113,6 @@ const AppContainer: React.FC = () => {
   // Cargar perfil de usuario con manejo de errores
   const loadUserProfile = async (userId: string) => {
     try {
-      console.log('📋 Cargando perfil para usuario:', userId);
       
       const profile = await UserProfileService.getUserProfile();
       
@@ -169,10 +164,8 @@ const AppContainer: React.FC = () => {
     setState(prev => ({ ...prev, isLoading: true, errorMessage: null }));
 
     try {
-      console.log('💾 Guardando perfil de usuario...');
       const savedProfile = await UserProfileService.saveUserProfile(profile);
-      console.log('✅ Perfil guardado exitosamente:', savedProfile.id);
-      
+
       setDbProfile(savedProfile);
       setState(prev => ({
         ...prev,
@@ -192,7 +185,7 @@ const AppContainer: React.FC = () => {
 
   // Manejar actualización de perfil
   const handleProfileUpdate = useCallback((updatedProfile: UserProfile) => {
-    console.log('🔄 Perfil actualizado:', updatedProfile.id);
+
     setDbProfile(updatedProfile);
     const appProfile = UserProfileService.dbProfileToAppProfile(updatedProfile);
     setState(prev => ({
@@ -203,7 +196,7 @@ const AppContainer: React.FC = () => {
 
   // Manejar selección de módulo
   const handleModuleSelect = useCallback((moduleId: string) => {
-    console.log('📂 Módulo seleccionado:', moduleId);
+
     setState(prev => ({
       ...prev,
       activeModuleId: moduleId,
@@ -231,9 +224,6 @@ const AppContainer: React.FC = () => {
     }));
 
     try {
-      console.log('🚀 Generando reporte para módulo:', state.activeModuleId);
-      console.log('📝 Input del usuario:', input.substring(0, 100) + '...');
-      console.log('👤 Perfil extendido disponible:', !!dbProfile);
       
       // Generar reporte con Gemini incluyendo perfil extendido
       const report = await generateReport(
@@ -243,8 +233,6 @@ const AppContainer: React.FC = () => {
         dbProfile // Pasar el perfil completo de la base de datos
       );
 
-      console.log('✅ Reporte generado, longitud:', report.length);
-
       // Guardar reporte en base de datos
       console.log('💾 Guardando reporte en base de datos...');
       const savedReport = await AIReportService.saveAIReport(
@@ -253,8 +241,6 @@ const AppContainer: React.FC = () => {
         input,
         report
       );
-
-      console.log('✅ Reporte guardado en BD:', savedReport.id);
 
       setState(prev => ({
         ...prev,
@@ -297,7 +283,7 @@ const AppContainer: React.FC = () => {
 
   // Manejar selección de reporte del historial
   const handleSelectReport = useCallback((report: AIReport) => {
-    console.log('📖 Cargando reporte del historial:', report.id);
+
     setState(prev => ({
       ...prev,
       activeModuleId: report.module_id,
@@ -311,7 +297,6 @@ const AppContainer: React.FC = () => {
   // Manejar cierre de sesión
   const handleSignOut = useCallback(async () => {
     try {
-      console.log('🚪 Cerrando sesión...');
       setState(prev => ({ ...prev, isLoading: true }));
       
       await AuthService.signOut();
@@ -340,17 +325,17 @@ const AppContainer: React.FC = () => {
     }
   }, []);
 
-  // Generar contenido dinámico - MEJORADO CON PERFIL EXTENDIDO
+  // Generar contenido dinámico
   const dynamicPlaceholder = generateDynamicPlaceholder(
     state.userProfile,
     state.activeModuleId,
-    dbProfile // Pasar perfil extendido para placeholders más específicos
+    dbProfile
   );
 
   const moduleIntro = generateModuleIntro(
     state.userProfile,
     state.activeModuleId,
-    dbProfile // Pasar perfil extendido para intros más personalizadas
+    dbProfile
   );
 
   // Obtener título del módulo actual

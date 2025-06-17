@@ -25,9 +25,7 @@ const ReportDisplay: React.FC<ReportDisplayProps> = ({ reportContent, moduleTitl
   };
 
   const handleDownloadPDF = async () => {
-    try {
-      console.log('🎨 Iniciando descarga de PDF...');
-      
+    try {      
       // Mostrar indicador de carga
       const loadingToast = document.createElement('div');
       loadingToast.className = 'fixed top-4 right-4 bg-gradient-to-r from-iridescent-blue to-iridescent-violet text-white px-6 py-3 rounded-2xl shadow-lg z-50 flex items-center';

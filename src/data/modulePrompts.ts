@@ -1,4 +1,3 @@
-// Configuración de prompts para módulos de consultoría
 export interface ModulePromptConfig {
   systemPrompt: string;
   contextualPrompts: Record<string, string>;

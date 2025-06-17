@@ -7,7 +7,7 @@ class ProfileCache {
   private static instance: ProfileCache;
   private cachedProfile: UserProfile | null = null;
   private lastCheck: number = 0;
-  private readonly CACHE_DURATION = 60000; // 1 minuto
+  private readonly CACHE_DURATION = 60000;
 
   static getInstance(): ProfileCache {
     if (!ProfileCache.instance) {
@@ -40,9 +40,7 @@ export class UserProfileService {
 
   // Crear o actualizar perfil de usuario con validación robusta
   static async saveUserProfile(profileData: UserProfileData): Promise<UserProfile> {
-    try {
-      console.log('💾 Guardando perfil de usuario...');
-      
+    try {      
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       
       if (authError || !user) {
@@ -63,13 +61,6 @@ export class UserProfileService {
         employee_count: profileData.employeeCount,
       };
 
-      console.log('📝 Datos del perfil a guardar:', {
-        userId: user.id,
-        businessType: profileData.businessType,
-        businessStage: profileData.businessStage
-      });
-
-      // Intentar insertar, si falla por duplicado, actualizar
       const { data, error } = await supabase
         .from('user_profiles')
         .upsert(profileInsert, { 
@@ -81,12 +72,6 @@ export class UserProfileService {
 
       if (error) {
         console.error('❌ Error guardando perfil:', error);
-        console.error('Detalles del error:', {
-          code: error.code,
-          message: error.message,
-          details: error.details,
-          hint: error.hint
-        });
         throw new Error(`Error al guardar el perfil: ${error.message}`);
       }
 
@@ -97,12 +82,6 @@ export class UserProfileService {
 
       // Actualizar cache
       this.profileCache.set(data);
-      
-      console.log('✅ Perfil guardado exitosamente:', {
-        profileId: data.id,
-        userId: data.user_id,
-        businessType: data.business_type
-      });
 
       return data;
     } catch (error: any) {
@@ -120,8 +99,6 @@ export class UserProfileService {
         console.log('📋 Perfil obtenido del cache');
         return cachedProfile;
       }
-
-      console.log('📋 Obteniendo perfil de usuario desde base de datos...');
       
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       
@@ -162,9 +139,7 @@ export class UserProfileService {
 
   // Actualizar perfil existente con campos extendidos - VERSIÓN MEJORADA
   static async updateUserProfile(updates: Partial<ExtendedUserProfileData>): Promise<UserProfile> {
-    try {
-      console.log('🔄 Actualizando perfil de usuario...');
-      
+    try {      
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       
       if (authError || !user) {
@@ -218,12 +193,6 @@ export class UserProfileService {
         }
       });
 
-      console.log('📝 Actualizaciones a aplicar:', {
-        fieldsToUpdate: Object.keys(profileUpdate),
-        userId: user.id,
-        updateCount: Object.keys(profileUpdate).length
-      });
-
       // Verificar que hay algo que actualizar
       if (Object.keys(profileUpdate).length === 0) {
         console.log('ℹ️ No hay cambios para actualizar');
@@ -272,12 +241,6 @@ export class UserProfileService {
 
       // Actualizar cache
       this.profileCache.set(data);
-      
-      console.log('✅ Perfil actualizado exitosamente:', {
-        profileId: data.id,
-        updatedFields: Object.keys(profileUpdate),
-        timestamp: new Date().toISOString()
-      });
       
       return data;
     } catch (error: any) {

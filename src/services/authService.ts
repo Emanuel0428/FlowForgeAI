@@ -54,13 +54,9 @@ export class AuthService {
   static async initialize(): Promise<void> {
     if (this.isInitialized) return;
 
-    try {
-      console.log('🔐 Inicializando AuthService...');
-      
+    try {      
       // Configurar listener de cambios de autenticación
-      supabase.auth.onAuthStateChange(async (event, session) => {
-        console.log('🔄 Auth state change:', event, session?.user?.id);
-        
+      supabase.auth.onAuthStateChange(async (event, session) => {        
         // Actualizar cache
         this.sessionCache.set(session);
         
@@ -76,7 +72,6 @@ export class AuthService {
       });
 
       this.isInitialized = true;
-      console.log('✅ AuthService inicializado correctamente');
     } catch (error) {
       console.error('❌ Error inicializando AuthService:', error);
       throw error;
@@ -85,9 +80,7 @@ export class AuthService {
 
   // Registrar nuevo usuario con validación mejorada
   static async signUp(email: string, password: string): Promise<AuthResult> {
-    try {
-      console.log('📝 Registrando usuario:', email);
-      
+    try {      
       // Validaciones del lado cliente
       if (!this.isValidEmail(email)) {
         return { user: null, error: 'Email inválido' };
@@ -115,7 +108,7 @@ export class AuthService {
       }
 
       if (data.user) {
-        console.log('✅ Usuario registrado exitosamente:', data.user.id);
+        console.log('✅ Usuario registrado exitosamente');
         this.sessionCache.set(data.session);
       }
 
@@ -128,9 +121,7 @@ export class AuthService {
 
   // Iniciar sesión con reintentos automáticos
   static async signIn(email: string, password: string, retries = 2): Promise<AuthResult> {
-    try {
-      console.log('🔑 Iniciando sesión:', email);
-      
+    try {      
       // Validaciones del lado cliente
       if (!this.isValidEmail(email)) {
         return { user: null, error: 'Email inválido' };
@@ -155,7 +146,7 @@ export class AuthService {
       }
 
       if (data.user && data.session) {
-        console.log('✅ Sesión iniciada exitosamente:', data.user.id);
+        console.log('✅ Sesión iniciada exitosamente:');
         this.sessionCache.set(data.session);
       }
 
@@ -305,9 +296,7 @@ export class AuthService {
 
   // Refrescar sesión automáticamente
   static async refreshSession(): Promise<SessionResult> {
-    try {
-      console.log('🔄 Refrescando sesión...');
-      
+    try {      
       const { data, error } = await supabase.auth.refreshSession();
       
       if (error) {
@@ -392,9 +381,7 @@ export class AuthService {
 
   // Limpiar datos locales de forma segura
   static async clearLocalData(): Promise<void> {
-    try {
-      console.log('🧹 Limpiando datos locales...');
-      
+    try {      
       // Limpiar cache de sesión
       this.sessionCache.clear();
       
@@ -423,8 +410,6 @@ export class AuthService {
       sessionKeysToRemove.forEach(key => {
         sessionStorage.removeItem(key);
       });
-      
-      console.log('✅ Datos locales limpiados');
     } catch (error) {
       console.error('❌ Error limpiando datos locales:', error);
     }

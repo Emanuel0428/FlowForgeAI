@@ -3,7 +3,6 @@ import { AIReport, AIReportInsert } from '../types/database';
 import { businessModules } from '../data/modules';
 
 export class AIReportService {
-  // Guardar un nuevo reporte de IA
   static async saveAIReport(
     profileId: string,
     moduleId: string,
@@ -18,14 +17,6 @@ export class AIReportService {
         throw new Error('Usuario no autenticado');
       }
 
-      console.log('📝 Preparing to save report:', {
-        userId: user.id,
-        profileId,
-        moduleId,
-        inputLength: userInput.length,
-        contentLength: reportContent.length
-      });
-
       const moduleName = businessModules.find(m => m.id === moduleId)?.name || 'Módulo Desconocido';
 
       const reportInsert: AIReportInsert = {
@@ -37,7 +28,6 @@ export class AIReportService {
         report_content: reportContent,
       };
 
-      console.log('💾 Inserting report into database...');
       const { data, error } = await supabase
         .from('ai_reports')
         .insert(reportInsert)
@@ -59,14 +49,6 @@ export class AIReportService {
         console.error('❌ No data returned from insert operation');
         throw new Error('No se recibieron datos al guardar el reporte');
       }
-
-      console.log('✅ Report saved successfully:', {
-        reportId: data.id,
-        moduleId: data.module_id,
-        moduleName: data.module_name,
-        createdAt: data.created_at
-      });
-
       return data;
     } catch (error) {
       console.error('❌ Unexpected error in saveAIReport:', error);
@@ -83,8 +65,6 @@ export class AIReportService {
         console.log('ℹ️ No authenticated user for getting reports');
         return [];
       }
-
-      console.log('📚 Fetching reports for user:', user.id);
 
       const { data, error } = await supabase
         .from('ai_reports')
@@ -119,8 +99,6 @@ export class AIReportService {
         return [];
       }
 
-      console.log('📚 Fetching reports by module:', { userId: user.id, moduleId });
-
       const { data, error } = await supabase
         .from('ai_reports')
         .select('*')
@@ -132,12 +110,6 @@ export class AIReportService {
         console.error('❌ Error fetching reports by module:', error);
         throw new Error(`Error al obtener los reportes del módulo: ${error.message}`);
       }
-
-      console.log('✅ Module reports fetched successfully:', {
-        moduleId,
-        count: data?.length || 0
-      });
-
       return data || [];
     } catch (error) {
       console.error('❌ Unexpected error in getReportsByModule:', error);
@@ -155,8 +127,6 @@ export class AIReportService {
         return null;
       }
 
-      console.log('📖 Fetching specific report:', { userId: user.id, reportId });
-
       const { data, error } = await supabase
         .from('ai_reports')
         .select('*')
@@ -172,11 +142,6 @@ export class AIReportService {
         console.error('❌ Error fetching report:', error);
         throw new Error(`Error al obtener el reporte: ${error.message}`);
       }
-
-      console.log('✅ Report fetched successfully:', {
-        reportId: data.id,
-        moduleId: data.module_id
-      });
 
       return data;
     } catch (error) {
@@ -195,8 +160,6 @@ export class AIReportService {
         throw new Error('Usuario no autenticado');
       }
 
-      console.log('🗑️ Deleting report:', { userId: user.id, reportId });
-
       const { error } = await supabase
         .from('ai_reports')
         .delete()
@@ -208,7 +171,6 @@ export class AIReportService {
         throw new Error(`Error al eliminar el reporte: ${error.message}`);
       }
 
-      console.log('✅ Report deleted successfully:', reportId);
     } catch (error) {
       console.error('❌ Unexpected error in deleteReport:', error);
       throw error;
@@ -232,9 +194,6 @@ export class AIReportService {
           recentReports: []
         };
       }
-
-      console.log('📊 Fetching report statistics for user:', user.id);
-
       // Obtener todos los reportes
       const { data: allReports, error: allError } = await supabase
         .from('ai_reports')
@@ -270,12 +229,6 @@ export class AIReportService {
         reportsByModule,
         recentReports: recentReports || []
       };
-
-      console.log('✅ Report statistics calculated:', {
-        totalReports: stats.totalReports,
-        moduleCount: Object.keys(stats.reportsByModule).length,
-        recentCount: stats.recentReports.length
-      });
 
       return stats;
     } catch (error) {

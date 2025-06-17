@@ -7,9 +7,9 @@ export async function generateReport(
   profile: UserProfileData,
   moduleId: string,
   moduleInput: string,
-  extendedProfile?: any // Perfil extendido de la base de datos
+  extendedProfile?: any
 ): Promise<string> {
-  // Si Gemini no está disponible, usar mock
+
   if (!isGeminiAvailable) {
     console.warn('🔄 Gemini API no disponible, usando reporte de ejemplo');
     await new Promise(resolve => setTimeout(resolve, 3000));
