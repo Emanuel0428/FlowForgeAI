@@ -1,0 +1,37 @@
+# Netlify Headers Configuration for FlowForge AI
+# This file configures Content Security Policy to allow ElevenLabs audio integration
+
+/*
+  # Content Security Policy for Audio Blobs and ElevenLabs API
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data: https:; connect-src 'self' https://api.elevenlabs.io https://*.supabase.co https://generativelanguage.googleapis.com; media-src 'self' blob: data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; block-all-mixed-content; upgrade-insecure-requests;
+  
+  # Additional security headers
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  X-XSS-Protection: 1; mode=block
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), microphone=(), camera=()
+
+# Specific configuration for audio files and API endpoints
+/api/*
+  Content-Security-Policy: default-src 'self'; connect-src 'self' https://api.elevenlabs.io https://*.supabase.co https://generativelanguage.googleapis.com; media-src 'self' blob: data:;
+
+# Configuration for static assets
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/static/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Font files
+/*.woff2
+  Cache-Control: public, max-age=31536000, immutable
+  Content-Type: font/woff2
+
+/*.woff
+  Cache-Control: public, max-age=31536000, immutable
+  Content-Type: font/woff
+
+/*.ttf
+  Cache-Control: public, max-age=31536000, immutable
+  Content-Type: font/ttf

@@ -25,7 +25,7 @@
 [build.processing.html]
   pretty_urls = true
 
-# Security headers
+# Security headers with ElevenLabs support
 [[headers]]
   for = "/*"
   [headers.values]
@@ -33,7 +33,7 @@
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https: wss:;"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data: https:; connect-src 'self' https://api.elevenlabs.io https://*.supabase.co https://generativelanguage.googleapis.com wss:; media-src 'self' blob: data:; object-src 'none';"
 
 # Static assets caching
 [[headers]]

@@ -151,24 +151,54 @@ const WelcomeDashboard: React.FC<WelcomeDashboardProps> = ({
         }
       );
 
-      const audioUrl = URL.createObjectURL(audioBlob);
+      // Crear URL del blob con verificación de seguridad
+      let audioUrl: string;
+      try {
+        audioUrl = URL.createObjectURL(audioBlob);
+      } catch (error) {
+        console.error('Error creando blob URL:', error);
+        throw new Error('No se pudo crear el archivo de audio. Verifica la configuración del navegador.');
+      }
+      
       setAudioUrl(audioUrl);
       
-      // Reproducir automáticamente
-      const audio = new Audio(audioUrl);
-      setAudioElement(audio);
+      // Reproducir automáticamente con manejo mejorado de errores
+      const audio = new Audio();
+      
+      // Configurar manejo de errores antes de asignar src
+      audio.onerror = (error) => {
+        console.error('Error al cargar/reproducir audio:', error);
+        setIsPlaying(false);
+        setVoicePreview(false);
+        
+        // Limpiar recursos
+        if (audioUrl) {
+          URL.revokeObjectURL(audioUrl);
+          setAudioUrl(null);
+        }
+        
+        alert('Error al reproducir el audio. Esto puede deberse a las políticas de seguridad del navegador.');
+      };
       
       audio.onended = () => {
         setIsPlaying(false);
         setVoicePreview(false);
       };
       
-      audio.onerror = () => {
-        setIsPlaying(false);
-        setVoicePreview(false);
+      audio.oncanplaythrough = () => {
+        // Audio está listo para reproducir
+        audio.play().catch((playError) => {
+          console.error('Error al iniciar reproducción:', playError);
+          setIsPlaying(false);
+          setVoicePreview(false);
+          alert('No se pudo reproducir el audio automáticamente. Haz clic en el botón para reproducir manualmente.');
+        });
       };
       
-      audio.play();
+      // Asignar src después de configurar los event listeners
+      audio.src = audioUrl;
+      setAudioElement(audio);
+      
       setIsPlaying(true);
       setVoicePreview(true);
       
@@ -187,14 +217,32 @@ const WelcomeDashboard: React.FC<WelcomeDashboardProps> = ({
     }
 
     if (voicePreview && audioElement) {
+      // Pausar audio
       audioElement.pause();
       setIsPlaying(false);
       setVoicePreview(false);
     } else if (audioUrl && audioElement) {
-      audioElement.play();
+      // Reproducir audio existente con manejo de errores
+      audioElement.play().catch((error) => {
+        console.error('Error al reproducir audio existente:', error);
+        setIsPlaying(false);
+        setVoicePreview(false);
+        
+        // Si hay error, intentar regenerar el audio
+        if (audioUrl) {
+          URL.revokeObjectURL(audioUrl);
+          setAudioUrl(null);
+        }
+        setAudioElement(null);
+        
+        // Mostrar mensaje informativo
+        alert('Error de reproducción. Generando nuevo audio...');
+        setTimeout(() => generateVoiceMessage(), 500);
+      });
       setIsPlaying(true);
       setVoicePreview(true);
     } else {
+      // Generar nuevo audio
       generateVoiceMessage();
     }
   };
