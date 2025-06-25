@@ -1,7 +1,5 @@
-// Supported languages
 export type SupportedLanguage = 'en' | 'es';
 
-// Language configuration interface
 interface LanguageConfig {
   voices: {
     voice1: string;
@@ -15,10 +13,8 @@ interface LanguageConfig {
 
 // ElevenLabs API Configuration
 export const ELEVENLABS_CONFIG = {
-  // Base URL for ElevenLabs API
   baseUrl: 'https://api.elevenlabs.io/v1',
   
-  // Default voice settings
   defaultVoiceSettings: {
     stability: 0.5,
     similarity_boost: 0.5,
@@ -26,13 +22,13 @@ export const ELEVENLABS_CONFIG = {
     use_speaker_boost: true
   },
   
-  // Language-specific configuration
+  // Configuración específica para idiomas
   languages: {
     en: {
       voices: {
-        voice1: 'sfJopaWaOtauCD3HKX6Q',  // English voice 1
-        voice2: 'QCOsaFukRxK1IUh7WVlM',  // English voice 2
-        voice3: 'UGTtbzgh3HObxRjWaSpr',  // English voice 3
+        voice1: 'sfJopaWaOtauCD3HKX6Q',
+        voice2: 'QCOsaFukRxK1IUh7WVlM',
+        voice3: 'UGTtbzgh3HObxRjWaSpr',
       },
       model: 'eleven_turbo_v2',
       name: 'English',
@@ -40,9 +36,9 @@ export const ELEVENLABS_CONFIG = {
     } as LanguageConfig,
     es: {
       voices: {
-        voice1: 'J2Jb9yZNvpXUNAL3a2bw',  // Spanish voice 1
-        voice2: '57D8YIbQSuE3REDPO6Vm',  // Spanish voice 2
-        voice3: 'UgBBYS2sOqTuMpoF3BR0',  // Spanish voice 3
+        voice1: 'J2Jb9yZNvpXUNAL3a2bw', 
+        voice2: '57D8YIbQSuE3REDPO6Vm',
+        voice3: 'UgBBYS2sOqTuMpoF3BR0',
       },
       model: 'eleven_turbo_v2_5',
       name: 'Español',
@@ -50,13 +46,10 @@ export const ELEVENLABS_CONFIG = {
     } as LanguageConfig
   },
   
-  // Default language
   defaultLanguage: 'es' as SupportedLanguage,
   
-  // Default voice index (0-2 for voice1, voice2, voice3)
   defaultVoiceIndex: 0,
-  
-  // Legacy voices (kept for backwards compatibility)
+
   legacyVoices: {
     adam: 'pNInz6obpgDQGcFmaJgB',
     bella: 'EXAVITQu4vr4xnSDxMaL',
@@ -71,7 +64,6 @@ export const ELEVENLABS_CONFIG = {
   }
 };
 
-// Get voice ID by language and voice index
 export const getVoiceId = (language: SupportedLanguage = ELEVENLABS_CONFIG.defaultLanguage, voiceIndex: number = ELEVENLABS_CONFIG.defaultVoiceIndex): string => {
   const langConfig = ELEVENLABS_CONFIG.languages[language];
   const voiceKeys = Object.keys(langConfig.voices) as Array<keyof typeof langConfig.voices>;
@@ -79,22 +71,19 @@ export const getVoiceId = (language: SupportedLanguage = ELEVENLABS_CONFIG.defau
   return langConfig.voices[selectedVoiceKey];
 };
 
-// Get model by language
 export const getModelByLanguage = (language: SupportedLanguage = ELEVENLABS_CONFIG.defaultLanguage): string => {
   return ELEVENLABS_CONFIG.languages[language].model;
 };
 
-// Get welcome message by language
 export const getWelcomeMessage = (language: SupportedLanguage, greeting: string, userName: string): string => {
   const messages = {
     en: `${greeting}! I'm your FlowForge AI assistant. I help you transform data into strategic decisions with artificial intelligence. How can I assist you today?`,
-    es: `¡${greeting}! Soy tu asistente de FlowForge AI. Te ayudo a transformar datos en decisiones estratégicas con inteligencia artificial. ¿En qué puedo asistirte hoy?`
+    es: `¡${greeting}! Soy tu asistente de FlowForge I-A. Te ayudo a transformar datos en decisiones estratégicas con inteligencia artificial. ¿En qué puedo asistirte hoy?`
   };
   
   return messages[language];
 };
 
-// Voice generation function with language support
 export const generateSpeech = async (
   text: string, 
   language: SupportedLanguage = ELEVENLABS_CONFIG.defaultLanguage,
@@ -132,7 +121,6 @@ export const generateSpeech = async (
   return response.blob();
 };
 
-// Helper function to check if ElevenLabs is configured
 export const isElevenLabsConfigured = (): boolean => {
   return !!import.meta.env.VITE_ELEVENLABS_API_KEY;
 };

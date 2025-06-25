@@ -59,11 +59,9 @@ const WelcomeDashboard: React.FC<WelcomeDashboardProps> = ({
     return () => clearInterval(timer);
   }, []);
   useEffect(() => {
-    // Verificar si la API key está disponible
     setIsVoiceEnabled(isElevenLabsConfigured());
   }, []);
 
-  // Cleanup del audio al desmontar el componente
   useEffect(() => {
     return () => {
       if (audioElement) {
@@ -125,7 +123,9 @@ const WelcomeDashboard: React.FC<WelcomeDashboardProps> = ({
       title: 'Reportes Detallados',
       description: 'Documentación completa lista para implementar',
       color: 'text-iridescent-cyan'
-    }  ];  // Función para generar audio con ElevenLabs
+    }  
+  ];  
+    // Función para generar audio con ElevenLabs
   const generateVoiceMessage = async () => {
     if (!isVoiceEnabled || isGeneratingAudio) return;
 
@@ -146,8 +146,8 @@ const WelcomeDashboard: React.FC<WelcomeDashboardProps> = ({
         selectedVoiceIndex,
         {
           ...ELEVENLABS_CONFIG.defaultVoiceSettings,
-          stability: 0.6, // Un poco más estable para el asistente
-          similarity_boost: 0.7 // Más consistencia
+          stability: 0.6,
+          similarity_boost: 0.7 
         }
       );
 
@@ -187,17 +187,14 @@ const WelcomeDashboard: React.FC<WelcomeDashboardProps> = ({
     }
 
     if (voicePreview && audioElement) {
-      // Pausar audio
       audioElement.pause();
       setIsPlaying(false);
       setVoicePreview(false);
     } else if (audioUrl && audioElement) {
-      // Reproducir audio existente
       audioElement.play();
       setIsPlaying(true);
       setVoicePreview(true);
     } else {
-      // Generar nuevo audio
       generateVoiceMessage();
     }
   };
@@ -205,16 +202,14 @@ const WelcomeDashboard: React.FC<WelcomeDashboardProps> = ({
   // Función para cambiar idioma y regenerar audio
   const handleLanguageChange = (language: SupportedLanguage) => {
     setSelectedLanguage(language);
-    setSelectedVoiceIndex(0); // Reset to first voice when changing language
+    setSelectedVoiceIndex(0); 
     
-    // Si hay audio reproduciéndose, pararlo
     if (audioElement) {
       audioElement.pause();
       setIsPlaying(false);
       setVoicePreview(false);
     }
     
-    // Limpiar audio anterior
     if (audioUrl) {
       URL.revokeObjectURL(audioUrl);
       setAudioUrl(null);
@@ -225,14 +220,12 @@ const WelcomeDashboard: React.FC<WelcomeDashboardProps> = ({
   const handleVoiceChange = (voiceIndex: number) => {
     setSelectedVoiceIndex(voiceIndex);
     
-    // Si hay audio reproduciéndose, pararlo
     if (audioElement) {
       audioElement.pause();
       setIsPlaying(false);
       setVoicePreview(false);
     }
     
-    // Limpiar audio anterior
     if (audioUrl) {
       URL.revokeObjectURL(audioUrl);
       setAudioUrl(null);
@@ -242,7 +235,9 @@ const WelcomeDashboard: React.FC<WelcomeDashboardProps> = ({
   const getIcon = (iconName: string) => {
     const Icon = (LucideIcons as any)[iconName] || Circle;
     return Icon;
-  };return (
+  };
+  
+  return (
     <div className="relative max-w-7xl mx-auto">
       {/* Welcome Header */}
       <div className="text-center mb-8 lg:mb-12">
@@ -258,7 +253,8 @@ const WelcomeDashboard: React.FC<WelcomeDashboardProps> = ({
           Bienvenido a <span className="iridescent-text font-semibold">FlowForge AI</span>, tu consultor digital inteligente.
           <br />
           Transformamos datos en decisiones estratégicas con inteligencia artificial a tu medida.
-        </p>          {/* Voice Assistant Section - ElevenLabs Integration Active */}
+        </p>          
+        {/* Voice Assistant Section - ElevenLabs Integration Active */}
         <div className="max-w-2xl mx-auto mb-6 lg:mb-8 px-4">
           <div 
             className="liquid-card p-4 lg:p-6 border relative overflow-hidden"
@@ -435,7 +431,8 @@ const WelcomeDashboard: React.FC<WelcomeDashboardProps> = ({
             </p>
           </div>
         ))}
-      </div>      {/* Features Section */}
+      </div>      
+      {/* Features Section */}
       <div className="mb-8 lg:mb-12 px-4">
         <h2 className="text-2xl lg:text-3xl font-bold text-center mb-6 lg:mb-8" style={{ color: 'var(--text-primary)' }}>
           ¿Qué hace especial a FlowForge AI?
@@ -492,7 +489,8 @@ const WelcomeDashboard: React.FC<WelcomeDashboardProps> = ({
             );
           })}
         </div>
-      </div>      {/* Call to Action */}
+      </div>      
+      {/* Call to Action */}
       <div className="text-center px-4">
         <div 
           className="liquid-card p-6 lg:p-8 bg-gradient-to-br from-iridescent-blue/10 to-iridescent-violet/10 border relative overflow-hidden"
