@@ -30,11 +30,11 @@ const AppContainer: React.FC = () => {
     isProfileComplete: false,
     isDarkMode: true,
   });
-
   const [user, setUser] = useState<User | null>(null);
   const [dbProfile, setDbProfile] = useState<UserProfile | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showReportHistory, setShowReportHistory] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [appStatus, setAppStatus] = useState<AppStatus>(AppStatus.INITIALIZING);
   const [initializationError, setInitializationError] = useState<string | null>(null);
@@ -192,10 +192,8 @@ const AppContainer: React.FC = () => {
       userProfile: appProfile,
     }));
   }, []);
-
   // Manejar selección de módulo
   const handleModuleSelect = useCallback((moduleId: string) => {
-
     setState(prev => ({
       ...prev,
       activeModuleId: moduleId,
@@ -204,6 +202,7 @@ const AppContainer: React.FC = () => {
       moduleSpecificInput: '',
     }));
     setIsSidebarOpen(false);
+    setShowWelcome(false); // Salir de la vista de bienvenida al seleccionar un módulo
   }, []);
 
   // Manejar envío de módulo - MEJORADO CON PERFIL EXTENDIDO
@@ -273,10 +272,18 @@ const AppContainer: React.FC = () => {
       setState(prev => ({ ...prev, errorMessage: null }));
     }
   }, [state.moduleSpecificInput, state.userProfile, handleModuleSubmit]);
-
   // Manejar éxito de autenticación
   const handleAuthSuccess = useCallback(() => {
     setShowAuthModal(false);
+  }, []);
+  // Manejar click en "Comenzar" desde la vista de bienvenida
+  const handleGetStarted = useCallback(() => {
+    setShowWelcome(false);
+  }, []);
+
+  // Manejar mostrar vista de bienvenida
+  const handleShowWelcome = useCallback(() => {
+    setShowWelcome(true);
   }, []);
 
   // Manejar selección de reporte del historial
@@ -407,7 +414,6 @@ const AppContainer: React.FC = () => {
       />
     );
   }
-
   return (
     <AppLayout
       user={user}
@@ -423,6 +429,7 @@ const AppContainer: React.FC = () => {
       dynamicPlaceholder={dynamicPlaceholder}
       moduleIntro={moduleIntro}
       currentModuleTitle={currentModuleTitle}
+      showWelcome={showWelcome}
       onProfileSubmit={handleProfileSubmit}
       onProfileUpdate={handleProfileUpdate}
       onModuleSelect={handleModuleSelect}
@@ -430,9 +437,10 @@ const AppContainer: React.FC = () => {
       onToggleDarkMode={handleToggleDarkMode}
       onToggleSidebar={handleToggleSidebar}
       onRetry={handleRetry}
-      onShowAuth={() => setShowAuthModal(true)}
-      onShowHistory={() => setShowReportHistory(true)}
+      onShowAuth={() => setShowAuthModal(true)}      onShowHistory={() => setShowReportHistory(true)}
       onSignOut={handleSignOut}
+      onGetStarted={handleGetStarted}
+      onShowWelcome={handleShowWelcome}
     />
   );
 };

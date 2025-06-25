@@ -1,7 +1,19 @@
 {
-  "name": "proceso-inteligente-ai",
+  "name": "flow-forge-ai",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
+  "description": "A web application that integrates AI capabilities to enhance process management and decision-making.",
+  "keywords": [
+    "AI",
+    "process management",
+    "decision-making",
+    "web application",
+    "react",
+    "typescript",
+    "vite",
+    "tailwindcss"
+  ],
+  "author": "Emanuel Londoño",
   "type": "module",
   "scripts": {
     "dev": "vite",

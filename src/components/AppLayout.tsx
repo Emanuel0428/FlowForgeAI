@@ -11,6 +11,7 @@ import ReportDisplay from './ReportDisplay';
 import LoadingSpinner from './LoadingSpinner';
 import ErrorMessage from './ErrorMessage';
 import UserProfileView from './UserProfileView';
+import WelcomeDashboard from './WelcomeDashboard';
 
 interface AppLayoutProps {
   user: User | null;
@@ -26,16 +27,18 @@ interface AppLayoutProps {
   dynamicPlaceholder: string;
   moduleIntro: string;
   currentModuleTitle?: string;
+  showWelcome?: boolean;
   onProfileSubmit: (data: UserProfileData) => void;
   onProfileUpdate: (profile: UserProfile) => void;
   onModuleSelect: (moduleId: string) => void;
   onModuleSubmit: (input: string) => void;
   onToggleDarkMode: () => void;
   onToggleSidebar: () => void;
-  onRetry: () => void;
-  onShowAuth: () => void;
+  onRetry: () => void;  onShowAuth: () => void;
   onShowHistory: () => void;
   onSignOut: () => void;
+  onGetStarted?: () => void;
+  onShowWelcome?: () => void;
 }
 
 const AppLayout: React.FC<AppLayoutProps> = ({
@@ -52,6 +55,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({
   dynamicPlaceholder,
   moduleIntro,
   currentModuleTitle,
+  showWelcome = true,
   onProfileSubmit,
   onProfileUpdate,
   onModuleSelect,
@@ -59,9 +63,10 @@ const AppLayout: React.FC<AppLayoutProps> = ({
   onToggleDarkMode,
   onToggleSidebar,
   onRetry,
-  onShowAuth,
-  onShowHistory,
+  onShowAuth,  onShowHistory,
   onSignOut,
+  onGetStarted,
+  onShowWelcome,
 }) => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [showProfileView, setShowProfileView] = useState(false);
@@ -116,13 +121,19 @@ const AppLayout: React.FC<AppLayoutProps> = ({
     setIsUserMenuOpen(false);
     onSignOut();
   };
-
   const handleShowProfile = () => {
     setShowProfileView(true);
   };
 
   const handleCloseProfile = () => {
     setShowProfileView(false);
+  };
+
+  const handleShowWelcome = () => {
+    setIsUserMenuOpen(false);
+    if (onShowWelcome) {
+      onShowWelcome();
+    }
   };
 
   // Show auth prompt if not authenticated
@@ -234,7 +245,6 @@ const AppLayout: React.FC<AppLayoutProps> = ({
       </div>
     );
   }
-
   // Show profile view if requested
   if (showProfileView) {
     return (
@@ -251,6 +261,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({
       </div>
     );
   }
+
 
   const getIcon = (iconName: string) => {
     const Icon = (LucideIcons as any)[iconName] || LucideIcons.Circle;
@@ -330,8 +341,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({
                   </div>
                 </div>
                 
-                <div className="py-2">
-                  <button
+                <div className="py-2">                  <button
                     onClick={handleShowHistory}
                     className="w-full flex items-center px-6 py-4 transition-all duration-300 text-left group"
                     style={{ 
@@ -354,6 +364,32 @@ const AppLayout: React.FC<AppLayoutProps> = ({
                     <div>
                       <span className="text-sm font-medium block">Historial de Reportes</span>
                       <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>Ver reportes anteriores</span>
+                    </div>
+                  </button>
+                  
+                  <button
+                    onClick={handleShowWelcome}
+                    className="w-full flex items-center px-6 py-4 transition-all duration-300 text-left group"
+                    style={{ 
+                      color: 'var(--text-secondary)',
+                      background: 'transparent'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = isDarkMode 
+                        ? 'linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(139, 92, 246, 0.15))'
+                        : 'linear-gradient(135deg, rgba(0, 212, 255, 0.08), rgba(139, 92, 246, 0.08))';
+                      e.currentTarget.style.color = 'var(--text-primary)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'transparent';
+                      e.currentTarget.style.color = 'var(--text-secondary)';
+                    }}
+                    role="menuitem"
+                  >
+                    <Brain className="h-5 w-5 mr-4 text-iridescent-violet group-hover:text-iridescent-cyan transition-colors" />
+                    <div>
+                      <span className="text-sm font-medium block">Volver al Inicio</span>
+                      <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>Dashboard de bienvenida</span>
                     </div>
                   </button>
                   
@@ -428,40 +464,64 @@ const AppLayout: React.FC<AppLayoutProps> = ({
           borderColor: isDarkMode ? 'rgba(42, 45, 71, 0.6)' : 'rgba(148, 163, 184, 0.3)',
           color: 'var(--text-primary)'
         }}>
-          
-          {/* Sidebar Header */}
-          <div className="flex items-center justify-between p-6 border-b bg-gradient-to-r from-iridescent-blue/10 to-iridescent-violet/10 flex-shrink-0 relative overflow-hidden" 
+            {/* Sidebar Header */}          
+            <div className="flex items-center justify-center p-4 border-b bg-gradient-to-r from-iridescent-blue/10 to-iridescent-violet/10 flex-shrink-0 relative overflow-hidden" 
                style={{ borderColor: isDarkMode ? 'rgba(42, 45, 71, 0.6)' : 'rgba(148, 163, 184, 0.3)' }}>
             <div className="absolute inset-0 bg-glow-gradient opacity-30"></div>
-            <div className="flex items-center relative z-10">
-              <div className="flex items-center justify-center w-14 h-14 bg-gradient-to-br from-iridescent-blue to-iridescent-violet rounded-2xl mr-4 shadow-lg liquid-glow-hover organic-shape">
-                <Brain className="h-8 w-8 text-white" />
+              {/* Logo clickeable más ancho y centrado */}
+            <button
+              onClick={handleShowWelcome}
+              className="flex items-center justify-center relative z-10 transition-all duration-300 hover:scale-105 liquid-button group rounded-2xl p-4 w-full max-w-sm"
+              aria-label="Ir al Dashboard Principal"
+              title="Clic para ir al Dashboard Principal"
+              style={{
+                background: showWelcome ? 'rgba(0, 212, 255, 0.1)' : 'transparent'
+              }}
+              onMouseEnter={(e) => {
+                if (!showWelcome) {
+                  e.currentTarget.style.background = isDarkMode 
+                    ? 'rgba(0, 212, 255, 0.05)' 
+                    : 'rgba(0, 212, 255, 0.08)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!showWelcome) {
+                  e.currentTarget.style.background = 'transparent';
+                }
+              }}
+            >
+              <div className={`flex items-center justify-center w-14 h-14 bg-gradient-to-br from-iridescent-blue to-iridescent-violet rounded-2xl mr-4 shadow-lg liquid-glow-hover organic-shape group-hover:from-iridescent-cyan group-hover:to-iridescent-blue transition-all duration-300 ${
+                showWelcome ? 'ring-2 ring-iridescent-cyan/50' : ''
+              }`}>
+                <Brain className="h-8 w-8 text-white group-hover:rotate-12 transition-transform duration-300" />
               </div>
-              <div>
-                <h1 className="text-xl font-bold iridescent-text">
+              <div className="text-left">
+                <h1 className={`text-xl font-bold transition-colors duration-300 ${
+                  showWelcome ? 'text-iridescent-cyan' : 'iridescent-text group-hover:text-iridescent-cyan'
+                }`}>
                   FlowForge AI
                 </h1>
-                <p className="text-xs font-medium flex items-center" style={{ color: 'var(--text-tertiary)' }}>
-                  <Sparkles className="w-3 h-3 mr-1" />
-                  Liquid Intelligence
+                <p className={`text-xs font-medium flex items-center transition-colors duration-300 ${
+                  showWelcome ? 'text-iridescent-blue' : 'group-hover:text-iridescent-blue'
+                }`} style={{ color: showWelcome ? undefined : 'var(--text-tertiary)' }}>
+                  <Sparkles className="w-3 h-3 mr-1 group-hover:animate-pulse" />
+                  {showWelcome ? 'Dashboard Activo' : 'Bussiness Intelligence'}
                 </p>
-              </div>
-            </div>
+              </div>            
+            </button>
             
-            {/* Solo botón de cerrar en móvil */}
-            <div className="flex items-center space-x-2 relative z-10">
-              <button
-                onClick={onToggleSidebar}
-                className="lg:hidden p-2 rounded-xl transition-all duration-300 liquid-button"
-                style={{ 
-                  color: 'var(--text-tertiary)',
-                  background: 'var(--hover-bg)'
-                }}
-                aria-label="Cerrar sidebar"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
+            {/* Botón de cerrar en móvil - posición absoluta */}
+            <button
+              onClick={onToggleSidebar}
+              className="lg:hidden absolute top-4 right-4 p-2 rounded-xl transition-all duration-300 liquid-button z-20"
+              style={{ 
+                color: 'var(--text-tertiary)',
+                background: 'var(--hover-bg)'
+              }}
+              aria-label="Cerrar sidebar"
+            >
+              <X className="h-5 w-5" />
+            </button>
           </div>
 
           {/* User Profile Summary */}
@@ -508,11 +568,9 @@ const AppLayout: React.FC<AppLayoutProps> = ({
             <h2 className="text-sm font-semibold uppercase tracking-wider mb-6 flex items-center" style={{ color: 'var(--text-tertiary)' }}>
               <div className="w-6 h-0.5 bg-gradient-to-r from-iridescent-blue to-iridescent-violet mr-3 rounded-full"></div>
               Módulos Inteligentes
-            </h2>
-            <nav className="space-y-3">
-              {businessModules.map((module) => {
-                const Icon = getIcon(module.icon);
-                const isActive = module.id === activeModuleId;
+            </h2>            <nav className="space-y-3">
+              {businessModules.map((module) => {const Icon = getIcon(module.icon);
+                const isActive = !showWelcome && module.id === activeModuleId;
                 
                 return (
                   <button
@@ -588,48 +646,78 @@ const AppLayout: React.FC<AppLayoutProps> = ({
                 aria-label="Abrir menú"
               >
                 <Menu className="h-6 w-6" />
-              </button>
-              <div className="flex items-center mr-20">
-                <Cpu className="h-6 w-6 text-iridescent-blue mr-2" />
-                <h1 className="text-lg font-bold iridescent-text">
-                  FlowForge AI
-                </h1>
-              </div>
+              </button>              
+                <button
+                      onClick={handleShowWelcome}
+                      className={`flex items-center mr-20 transition-all duration-300 hover:scale-105 liquid-button group rounded-xl p-2 -m-2 ${
+                        showWelcome ? 'bg-iridescent-blue/10' : ''
+                      }`}
+                      aria-label="Ir al Dashboard Principal"
+                      title="Clic para ir al Dashboard Principal"
+                      onMouseEnter={(e) => {
+                        if (!showWelcome) {
+                          e.currentTarget.style.background = isDarkMode 
+                            ? 'rgba(0, 212, 255, 0.05)' 
+                            : 'rgba(0, 212, 255, 0.08)';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!showWelcome) {
+                          e.currentTarget.style.background = 'transparent';
+                        }
+                      }}
+                    >
+                      <Cpu className={`h-6 w-6 mr-2 group-hover:rotate-12 transition-all duration-300 ${
+                        showWelcome ? 'text-iridescent-cyan' : 'text-iridescent-blue group-hover:text-iridescent-cyan'
+                      }`} />
+                      <h1 className={`text-lg font-bold transition-colors duration-300 ${
+                        showWelcome ? 'text-iridescent-cyan' : 'iridescent-text group-hover:text-iridescent-cyan'
+                      }`}>
+                        FlowForge AI
+                      </h1>
+                </button>
             </div>
           </div>
 
           {/* Content Area */}
           <div className="flex-1 overflow-y-auto relative" style={{ background: 'var(--bg-gradient)' }}>
-            <div className="p-4 sm:p-6 lg:p-8 relative z-10">
-              {/* Page Header */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center mb-6 space-y-4 sm:space-y-0">
-                {activeModule && (
-                  <>
-                    {(() => {
-                      const Icon = getIcon(activeModule.icon);
-                      return (
-                        <div className="p-3 rounded-2xl bg-gradient-to-br from-iridescent-blue/20 to-iridescent-violet/20 mr-4 liquid-glow-hover organic-shape">
-                          <Icon className="h-8 w-8 text-iridescent-cyan" />
-                        </div>
-                      );
-                    })()}
-                  </>
-                )}
-                <div>
-                  <h1 className="text-3xl sm:text-4xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
-                    {activeModule ? activeModule.name : 'Selecciona un Módulo'}
-                  </h1>
+            <div className="p-4 sm:p-6 lg:p-8 relative z-10">              {/* Page Header */}
+              {!showWelcome && (
+                <div className="flex flex-col sm:flex-row items-start sm:items-center mb-6 space-y-4 sm:space-y-0">
                   {activeModule && (
-                    <p className="text-lg" style={{ color: 'var(--text-tertiary)' }}>
-                      {activeModule.description}
-                    </p>
+                    <>
+                      {(() => {
+                        const Icon = getIcon(activeModule.icon);
+                        return (
+                          <div className="p-3 rounded-2xl bg-gradient-to-br from-iridescent-blue/20 to-iridescent-violet/20 mr-4 liquid-glow-hover organic-shape">
+                            <Icon className="h-8 w-8 text-iridescent-cyan" />
+                          </div>
+                        );
+                      })()}
+                    </>
                   )}
+                  <div>
+                    <h1 className="text-3xl sm:text-4xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
+                      {activeModule ? activeModule.name : 'Selecciona un Módulo'}
+                    </h1>
+                    {activeModule && (
+                      <p className="text-lg" style={{ color: 'var(--text-tertiary)' }}>
+                        {activeModule.description}
+                      </p>
+                    )}
+                  </div>
                 </div>
-              </div>
-
-              {/* Dynamic Content */}
+              )}{/* Dynamic Content */}
               <div className="pb-8">
-                {errorMessage ? (
+                {showWelcome && user && userProfile && isProfileComplete ? (
+                  <WelcomeDashboard
+                    user={user}
+                    userProfile={userProfile}
+                    isDarkMode={isDarkMode}
+                    onGetStarted={onGetStarted || (() => {})}
+                    onModuleSelect={onModuleSelect}
+                  />
+                ) : errorMessage ? (
                   <ErrorMessage message={errorMessage} onRetry={onRetry} />
                 ) : isLoading ? (
                   <LoadingSpinner />
