@@ -11,7 +11,6 @@ export async function generateReport(
 ): Promise<string> {
 
   if (!isGeminiAvailable) {
-    console.warn('🔄 Gemini API no disponible, usando reporte de ejemplo');
     await new Promise(resolve => setTimeout(resolve, 3000));
     return generateEnhancedMockReport(profile, moduleId, moduleInput, extendedProfile);
   }
@@ -28,14 +27,10 @@ export async function generateReport(
       throw new Error('Respuesta de Gemini demasiado corta o vacía');
     }
     
-    console.log('✅ Reporte profesional generado exitosamente');
     return text;
     
   } catch (error) {
     console.error('❌ Error al generar reporte con Gemini:', error);
-    
-    // Fallback a mock mejorado
-    console.log('🔄 Usando reporte profesional de ejemplo como fallback');
     await new Promise(resolve => setTimeout(resolve, 2000));
     return generateEnhancedMockReport(profile, moduleId, moduleInput, extendedProfile);
   }
@@ -121,83 +116,142 @@ ${JSON.stringify(moduleConfig.benchmarkData, null, 2)}
 - Incluir emojis relevantes para mejorar la legibilidad
 - Formato markdown profesional con estructura clara
 
+🔤 INSTRUCCIONES ESPECÍFICAS PARA PRESENTACIÓN DE DATOS:
+- NO USES TABLAS MARKDOWN TRADICIONALES para presentar datos comparativos o métricas
+- En su lugar, utiliza LISTAS ESTRUCTURADAS con encabezados claros para cada sección
+- Usa el siguiente formato para presentar datos comparativos:
+
+### Nombre del Elemento/Categoría
+- **Atributo 1:** Valor 1
+- **Atributo 2:** Valor 2
+- **Atributo 3:** Valor 3
+
+- Organiza la información en secciones con encabezados de nivel 3 (###) para cada elemento
+- Usa negritas (**) para destacar las etiquetas de los atributos
+- Mantén un formato consistente en todas las secciones similares
+- Este formato mejora la legibilidad visual y es más estético en la presentación final
+- Para comparativas, benchmarking y métricas usa SIEMPRE este formato de listas estructuradas
+
 Genera un reporte ejecutivo de consultoría de nivel McKinsey/BCG COMPLETAMENTE EN ESPAÑOL con la siguiente estructura optimizada:
 
 # 📊 Análisis Estratégico: ${moduleName}
 
 ## 🎯 Resumen Ejecutivo
-[Síntesis ejecutiva de 3-4 párrafos EN ESPAÑOL con hallazgos clave, recomendaciones estratégicas, y ROI esperado. Incluye métricas específicas del benchmarking. PERSONALIZA con la información específica del negocio: ${extendedProfile?.business_name || 'la empresa'}, ${extendedProfile?.industry || 'su industria'}, etc.]
+[Síntesis ejecutiva de 3-4 párrafos EN ESPAÑOL con hallazgos clave, recomendaciones estratégicas, y ROI esperado. Incluye métricas específicas del benchmarking. PERSONALIZA con la información específica del negocio: ${extendedProfile?.business_name || 'la empresa'}, ${extendedProfile?.industry || 'su industria'}, etc. INCLUYE DATOS NUMÉRICOS ESPECÍFICOS sobre el impacto esperado en ingresos, costos o eficiencia.]
 
 ## 📈 Análisis Situacional y Benchmarking
 ### Evaluación del Estado Actual
-[Análisis detallado EN ESPAÑOL usando benchmarks específicos de industria. INCORPORA información específica como: ${extendedProfile?.current_challenges || 'desafíos identificados'}, ${extendedProfile?.competitive_advantage || 'ventajas competitivas'}, ${extendedProfile?.technology_stack || 'stack tecnológico actual'}]
+[Análisis detallado EN ESPAÑOL usando benchmarks específicos de industria. INCORPORA información específica como: ${extendedProfile?.current_challenges || 'desafíos identificados'}, ${extendedProfile?.competitive_advantage || 'ventajas competitivas'}, ${extendedProfile?.technology_stack || 'stack tecnológico actual'}. INCLUYE COMPARATIVA CUANTITATIVA con empresas similares en la misma industria y etapa de desarrollo.]
+
+### Benchmarking por Área Clave
+[UTILIZA FORMATO DE LISTAS ESTRUCTURADAS para presentar el benchmarking por área clave. Para cada área clave, usa un encabezado de nivel 3 y lista los atributos con sus valores. Por ejemplo:
+
+### Atención Cliente
+- **Métrica:** Tiempo Respuesta
+- **Valor Actual:** 24 horas
+- **Benchmark de Industria:** 4-8 horas
+- **Brecha:** 16-20 horas
+
+ASEGÚRATE de incluir 4-6 áreas clave relevantes para ${extendedProfile?.business_name || 'la empresa'} y su industria.]
 
 ### Inteligencia Competitiva
-[Análisis competitivo EN ESPAÑOL considerando ${extendedProfile?.geographic_scope || 'alcance geográfico'} y ${extendedProfile?.target_market || 'mercado objetivo'}]
+[Análisis competitivo EN ESPAÑOL considerando ${extendedProfile?.geographic_scope || 'alcance geográfico'} y ${extendedProfile?.target_market || 'mercado objetivo'}. IDENTIFICA 3-5 COMPETIDORES RELEVANTES específicos para esta industria y tamaño de empresa, con sus fortalezas y debilidades.]
 
 ### Análisis de Brechas con Benchmarks
-[Identificación de brechas EN ESPAÑOL vs. mejores prácticas, considerando ${extendedProfile?.success_metrics || 'métricas de éxito actuales'}]
+[Identificación de brechas EN ESPAÑOL vs. mejores prácticas, considerando ${extendedProfile?.success_metrics || 'métricas de éxito actuales'}. CUANTIFICA LA BRECHA en términos porcentuales o absolutos para cada área clave.]
 
 ## 🚀 Recomendaciones Estratégicas (Basadas en ${moduleConfig.professionalSources[0]})
 ### Prioridad 1: [Iniciativa de Alto Impacto]
-- **Caso de Negocio:** [ROI proyectado EN ESPAÑOL con benchmarks específicos para ${extendedProfile?.business_name || 'su empresa'}]
-- **Implementación:** [Pasos específicos EN ESPAÑOL considerando ${extendedProfile?.team_structure || 'estructura del equipo'} y ${extendedProfile?.budget_range || 'presupuesto disponible'}]
-- **Métricas de Éxito:** [KPIs cuantificables EN ESPAÑOL alineados con ${extendedProfile?.business_goals || 'objetivos del negocio'}]
+- **Caso de Negocio:** [ROI proyectado EN ESPAÑOL con benchmarks específicos para ${extendedProfile?.business_name || 'su empresa'}. INCLUYE CIFRAS CONCRETAS de inversión necesaria y retorno esperado.]
+- **Implementación:** [Pasos específicos EN ESPAÑOL considerando ${extendedProfile?.team_structure || 'estructura del equipo'} y ${extendedProfile?.budget_range || 'presupuesto disponible'}. INCLUYE TIMELINE DETALLADO con hitos claros y recursos necesarios.]
+- **Métricas de Éxito:** [KPIs cuantificables EN ESPAÑOL alineados con ${extendedProfile?.business_goals || 'objetivos del negocio'}. ESTABLECE VALORES BASE actuales y TARGETS ESPECÍFICOS a alcanzar.]
+- **Herramientas Recomendadas:** [Lista de 3-5 herramientas o tecnologías ESPECÍFICAS y RELEVANTES para esta iniciativa, considerando el tamaño de la empresa y presupuesto. INCLUYE opciones gratuitas/económicas y premium.]
 
 ### Prioridad 2: [Iniciativa de Mediano Impacto]
-- **Caso de Negocio:** [ROI proyectado EN ESPAÑOL considerando ${extendedProfile?.monthly_revenue || 'ingresos actuales'}]
-- **Implementación:** [Metodología EN ESPAÑOL adaptada a ${extendedProfile?.digitalization_level || 'nivel de digitalización'}]
-- **Métricas de Éxito:** [KPIs EN ESPAÑOL específicos para ${extendedProfile?.key_products || 'productos/servicios principales'}]
+- **Caso de Negocio:** [ROI proyectado EN ESPAÑOL considerando ${extendedProfile?.monthly_revenue || 'ingresos actuales'}. INCLUYE PERÍODO DE RECUPERACIÓN DE INVERSIÓN específico.]
+- **Implementación:** [Metodología EN ESPAÑOL adaptada a ${extendedProfile?.digitalization_level || 'nivel de digitalización'}. INCLUYE CONSIDERACIONES ESPECÍFICAS para la capacidad técnica actual del equipo.]
+- **Métricas de Éxito:** [KPIs EN ESPAÑOL específicos para ${extendedProfile?.key_products || 'productos/servicios principales'}. ESTABLECE FRECUENCIA DE MEDICIÓN y RESPONSABLES recomendados.]
+- **Herramientas Recomendadas:** [Lista de 2-3 herramientas o tecnologías ESPECÍFICAS y RELEVANTES para esta iniciativa, con RANGOS DE PRECIOS aproximados.]
 
 ### Prioridad 3: [Iniciativa de Soporte]
-- **Caso de Negocio:** [Justificación EN ESPAÑOL considerando ${extendedProfile?.timeframe || 'marco temporal'}]
-- **Implementación:** [Enfoque EN ESPAÑOL basado en ${extendedProfile?.sales_process || 'proceso de ventas actual'}]
-- **Métricas de Éxito:** [KPIs EN ESPAÑOL para ${extendedProfile?.marketing_channels || 'canales de marketing'}]
+- **Caso de Negocio:** [Justificación EN ESPAÑOL considerando ${extendedProfile?.timeframe || 'marco temporal'}. CUANTIFICA BENEFICIOS INDIRECTOS como mejora en satisfacción de clientes o empleados.]
+- **Implementación:** [Enfoque EN ESPAÑOL basado en ${extendedProfile?.sales_process || 'proceso de ventas actual'}. IDENTIFICA DEPENDENCIAS con otras iniciativas o sistemas.]
+- **Métricas de Éxito:** [KPIs EN ESPAÑOL para ${extendedProfile?.marketing_channels || 'canales de marketing'}. ESTABLECE SISTEMA DE ALERTA TEMPRANA para identificar desviaciones.]
+- **Herramientas Recomendadas:** [Lista de 1-2 herramientas o tecnologías ESPECÍFICAS y RELEVANTES para esta iniciativa, incluyendo alternativas gratuitas si es apropiado.]
 
 ## 🛠️ Hoja de Ruta de Implementación
 ### Fase 1: Fundación (Semanas 1-8)
-[Quick wins EN ESPAÑOL específicos para ${extendedProfile?.business_name || 'su empresa'} considerando ${extendedProfile?.current_challenges || 'desafíos actuales'}]
+[Quick wins EN ESPAÑOL específicos para ${extendedProfile?.business_name || 'su empresa'} considerando ${extendedProfile?.current_challenges || 'desafíos actuales'}. INCLUYE ACCIONES CONCRETAS que pueden implementarse en 48 horas, 1 semana y 1 mes.]
 
 ### Fase 2: Implementación Principal (Semanas 9-20)
-[Implementación EN ESPAÑOL usando mejores prácticas adaptadas a ${extendedProfile?.industry || 'su industria'}]
+[Implementación EN ESPAÑOL usando mejores prácticas adaptadas a ${extendedProfile?.industry || 'su industria'}. ESPECIFICA RECURSOS NECESARIOS en términos de tiempo, personal y presupuesto.]
 
 ### Fase 3: Optimización (Semanas 21-32)
-[Optimización EN ESPAÑOL con benchmarks específicos para ${extendedProfile?.target_market || 'su mercado objetivo'}]
+[Optimización EN ESPAÑOL con benchmarks específicos para ${extendedProfile?.target_market || 'su mercado objetivo'}. INCLUYE MECANISMOS DE FEEDBACK y ajuste continuo.]
 
 ### Fase 4: Capacidades Avanzadas (Semanas 33-52)
-[Capacidades avanzadas EN ESPAÑOL alineadas con ${extendedProfile?.yearly_growth_target || 'objetivos de crecimiento'}]
+[Capacidades avanzadas EN ESPAÑOL alineadas con ${extendedProfile?.yearly_growth_target || 'objetivos de crecimiento'}. DETALLA CÓMO ESCALAR las iniciativas exitosas y ABANDONAR las que no muestren resultados.]
 
 ## 📊 Métricas de Éxito y Benchmarks de Industria
 ### KPIs Primarios
-[Métricas principales EN ESPAÑOL con targets específicos para ${extendedProfile?.business_model || 'modelo de negocio'}]
+[PRESENTA EN FORMATO DE LISTAS ESTRUCTURADAS las métricas principales con targets específicos para ${extendedProfile?.business_model || 'modelo de negocio'}. Para cada KPI, usa un encabezado de nivel 3 y lista sus atributos. Por ejemplo:
+
+### Tasa de Conversión
+- **Fórmula:** Ventas/Leads
+- **Valor Actual:** 2.5%
+- **Target:** 4-5%
+- **Frecuencia:** Semanal
+
+INCLUYE FÓRMULAS DE CÁLCULO para cada KPI y FRECUENCIA DE MEDICIÓN recomendada.]
 
 ### 🏆 Análisis Comparativo con Líderes de Industria
-[Comparación detallada EN ESPAÑOL con empresas líderes del sector, considerando específicamente ${extendedProfile?.competitive_advantage || 'las ventajas competitivas únicas'} de ${extendedProfile?.business_name || 'su empresa'} y cómo estas se posicionan frente a los competidores principales en ${extendedProfile?.geographic_scope || 'su mercado objetivo'}]
+[Comparación detallada EN ESPAÑOL con empresas líderes del sector, considerando específicamente ${extendedProfile?.competitive_advantage || 'las ventajas competitivas únicas'} de ${extendedProfile?.business_name || 'su empresa'} y cómo estas se posicionan frente a los competidores principales en ${extendedProfile?.geographic_scope || 'su mercado objetivo'}. INCLUYE DATOS CUANTITATIVOS de benchmarking por cada área clave. UTILIZA FORMATO DE LISTAS ESTRUCTURADAS para presentar cada área de comparación.]
 
 ## 💰 Análisis Integral de Impacto Financiero
 
 ### 💵 Desglose Detallado de Inversión Requerida
-[Análisis minucioso EN ESPAÑOL de la inversión necesaria, desglosada por categorías (tecnología, capacitación, consultoría, implementación), considerando específicamente ${extendedProfile?.budget_range || 'el rango de presupuesto disponible'} y las necesidades particulares de ${extendedProfile?.business_name || 'su empresa'}]
+[PRESENTA EN FORMATO DE LISTAS ESTRUCTURADAS el análisis minucioso EN ESPAÑOL de la inversión necesaria, desglosada por categorías. Por ejemplo:
+
+### Tecnología
+- **Descripción:** Plataforma CRM y automatización
+- **Inversión Estimada:** $X,XXX - $Y,YYY
+- **Plazo:** Mes 1-3
+
+INCLUYE OPCIONES DE INVERSIÓN ESCALONADA para diferentes niveles de presupuesto.]
 
 ### 📈 Proyección Detallada de Impacto en Ingresos
-[Proyección exhaustiva EN ESPAÑOL basada en ${extendedProfile?.monthly_revenue || 'los ingresos actuales'}, ${extendedProfile?.yearly_growth_target || 'los objetivos de crecimiento establecidos'}, y el potencial de mejora identificado en ${extendedProfile?.target_market || 'su mercado objetivo'}]
+[Proyección exhaustiva EN ESPAÑOL basada en ${extendedProfile?.monthly_revenue || 'los ingresos actuales'}, ${extendedProfile?.yearly_growth_target || 'los objetivos de crecimiento establecidos'}, y el potencial de mejora identificado en ${extendedProfile?.target_market || 'su mercado objetivo'}. PRESENTA ESCENARIOS CONSERVADOR, ESPERADO Y OPTIMISTA con probabilidades asociadas. UTILIZA FORMATO DE LISTAS ESTRUCTURADAS para cada escenario.]
 
 ### 🎯 Cálculo Específico de ROI con Benchmarks Sectoriales
-[Cálculo detallado y personalizado EN ESPAÑOL del retorno de inversión proyectado específicamente para ${extendedProfile?.business_name || 'su empresa'}, incluyendo comparativas con benchmarks de industria en ${extendedProfile?.industry || 'su sector'} y análisis de sensibilidad según diferentes escenarios]
+[Cálculo detallado y personalizado EN ESPAÑOL del retorno de inversión proyectado específicamente para ${extendedProfile?.business_name || 'su empresa'}, incluyendo comparativas con benchmarks de industria en ${extendedProfile?.industry || 'su sector'} y análisis de sensibilidad según diferentes escenarios. INCLUYE PERÍODO DE RECUPERACIÓN DE LA INVERSIÓN y TASA INTERNA DE RETORNO estimada. UTILIZA FORMATO DE LISTAS ESTRUCTURADAS para presentar los datos por período.]
 
 ## ⚠️ Evaluación de Riesgos y Mitigación
 ### Factores de Alto Riesgo
-[Riesgos críticos EN ESPAÑOL específicos para ${extendedProfile?.current_challenges || 'desafíos actuales'}]
+[PRESENTA EN FORMATO DE LISTAS ESTRUCTURADAS los riesgos críticos EN ESPAÑOL específicos para ${extendedProfile?.current_challenges || 'desafíos actuales'}. CUANTIFICA LA PROBABILIDAD E IMPACTO de cada riesgo en una escala del 1-5. Por ejemplo:
+
+### Resistencia al cambio
+- **Probabilidad:** 4/5
+- **Impacto:** 5/5
+- **Nivel Total:** 20 (Alto)
+- **Estrategia de Mitigación:** Programa de gestión del cambio
+
+INCLUYE 3-5 riesgos principales con sus estrategias de mitigación.]
 
 ### Estrategias de Mitigación
-[Estrategias EN ESPAÑOL considerando ${extendedProfile?.team_structure || 'estructura del equipo'}]
+[Estrategias EN ESPAÑOL considerando ${extendedProfile?.team_structure || 'estructura del equipo'}. INCLUYE PLAN DE CONTINGENCIA específico para cada riesgo principal.]
 
 ## 🎯 Próximos Pasos y Quick Wins
 ### Acciones Inmediatas (Semana 1-2)
-[Acciones EN ESPAÑOL específicas para ${extendedProfile?.business_name || 'su empresa'}]
+[Acciones EN ESPAÑOL específicas para ${extendedProfile?.business_name || 'su empresa'}. DETALLA RECURSOS MÍNIMOS NECESARIOS para cada acción y RESULTADOS ESPERADOS a corto plazo.]
 
 ### Sprint de 30 Días
-[Plan EN ESPAÑOL adaptado a ${extendedProfile?.timeframe || 'marco temporal disponible'}]
+[Plan EN ESPAÑOL adaptado a ${extendedProfile?.timeframe || 'marco temporal disponible'}. ESTRUCTURA COMO LISTA DE VERIFICACIÓN con responsables recomendados para cada tarea.]
+
+## 🔄 Plan de Seguimiento y Ajuste Continuo
+[Metodología EN ESPAÑOL para monitoreo y optimización continua de la implementación. INCLUYE FRECUENCIA DE REVISIÓN recomendada y CRITERIOS DE DECISIÓN para ajustes estratégicos. DETALLA INDICADORES DE ALERTA TEMPRANA que señalen necesidad de cambios en la estrategia. UTILIZA FORMATO DE LISTAS ESTRUCTURADAS para presentar la metodología de seguimiento por frecuencia.]
+
+## 📚 Recursos Adicionales y Capacitación
+[Lista curada EN ESPAÑOL de recursos gratuitos y de pago relevantes para la implementación, considerando específicamente ${extendedProfile?.digitalization_level || 'nivel de digitalización actual'} y ${extendedProfile?.team_structure || 'estructura del equipo'}. INCLUYE CURSOS ONLINE, HERRAMIENTAS, PLANTILLAS Y COMUNIDADES relevantes. UTILIZA FORMATO DE LISTAS ESTRUCTURADAS para presentar los recursos por categoría.]
 
 ---
 **REQUISITOS CRÍTICOS:**
@@ -208,6 +262,13 @@ Genera un reporte ejecutivo de consultoría de nivel McKinsey/BCG COMPLETAMENTE 
 - Métricas SMART con targets basados en el contexto específico del negocio
 - Business cases con ROI cuantificado usando datos del perfil
 - Mencionar específicamente: nombre del negocio, industria, desafíos, objetivos, etc.
+- INCLUIR HERRAMIENTAS Y RECURSOS ESPECÍFICOS relevantes para cada recomendación
+- PROPORCIONAR OPCIONES PARA DIFERENTES NIVELES DE PRESUPUESTO
+- ENFATIZAR ACCIONES CONCRETAS Y RÁPIDAS que generen valor inmediato
+- CUANTIFICAR TODOS LOS BENEFICIOS Y COSTOS posibles
+- ADAPTAR EL LENGUAJE Y COMPLEJIDAD al nivel de madurez digital de la empresa
+- UTILIZAR FORMATO DE LISTAS ESTRUCTURADAS para todos los datos comparativos
+- ASEGURAR que todas las secciones tengan encabezados claros y formato consistente
 
 Genera el reporte profesional EN ESPAÑOL ahora:`;
 
@@ -343,6 +404,121 @@ function generateEnhancedMockReport(
   const marketingChannels = extendedProfile?.marketing_channels || 'canales de marketing digitales';
   const businessModel = extendedProfile?.business_model || `modelo ${profile.revenueModel}`;
   
+  // Generar tablas para el reporte
+  const benchmarkingTable = generateBenchmarkingTable(profile, moduleId);
+  const kpisTable = generateKPIsTable(profile, moduleId);
+  const investmentTable = generateInvestmentTable(profile);
+  const risksTable = generateRisksTable();
+  
+  // Generar comparativa de líderes de industria
+  const competitiveAnalysis = `
+### Automatización
+- **Líder de Industria:** ${getLeaderCapabilities(moduleId)}
+- **Práctica Actual:** Procesos mayormente manuales
+- **Brecha:** Alta
+- **Impacto Potencial:** 40-60% mejora eficiencia
+
+### Analíticas
+- **Líder de Industria:** Dashboards en tiempo real
+- **Práctica Actual:** Reportes manuales periódicos
+- **Brecha:** Alta
+- **Impacto Potencial:** 50-70% mejor toma decisiones
+
+### Integración
+- **Líder de Industria:** Ecosistema conectado
+- **Práctica Actual:** Sistemas aislados
+- **Brecha:** Media
+- **Impacto Potencial:** 30-50% reducción esfuerzo
+
+### Experiencia Cliente
+- **Líder de Industria:** Personalización avanzada
+- **Práctica Actual:** Enfoque estandarizado
+- **Brecha:** Media
+- **Impacto Potencial:** 25-40% mayor satisfacción
+`;
+
+  // Generar proyección de impacto en ingresos
+  const revenueProjection = `
+### Escenario Conservador
+- **Incremento Proyectado:** 15-25%
+- **Probabilidad:** 70%
+- **Factores Clave:** Adopción básica de recomendaciones
+
+### Escenario Esperado
+- **Incremento Proyectado:** 25-40%
+- **Probabilidad:** 50%
+- **Factores Clave:** Implementación completa del plan
+
+### Escenario Optimista
+- **Incremento Proyectado:** 40-60%
+- **Probabilidad:** 30%
+- **Factores Clave:** Adopción avanzada + condiciones favorables
+`;
+
+  // Generar proyección de ROI
+  const roiProjection = `
+### ROI a 6 meses
+- **ROI Proyectado:** 15-25%
+- **Benchmark Industria:** 10-20%
+- **Ventaja:** +5%
+
+### ROI a 12 meses
+- **ROI Proyectado:** 35-50%
+- **Benchmark Industria:** 25-40%
+- **Ventaja:** +10%
+
+### ROI a 24 meses
+- **ROI Proyectado:** 80-120%
+- **Benchmark Industria:** 60-90%
+- **Ventaja:** +20-30%
+`;
+
+  // Generar metodología de seguimiento
+  const followUpMethodology = `
+### Seguimiento Semanal
+- **Actividad:** Revisión operativa
+- **Participantes:** Equipo proyecto
+- **Entregables:** Reporte progreso
+
+### Seguimiento Quincenal
+- **Actividad:** Revisión táctica
+- **Participantes:** Gerencia media
+- **Entregables:** Ajustes plan
+
+### Seguimiento Mensual
+- **Actividad:** Revisión estratégica
+- **Participantes:** Dirección
+- **Entregables:** Dashboard KPIs
+
+### Seguimiento Trimestral
+- **Actividad:** Evaluación ROI
+- **Participantes:** Comité ejecutivo
+- **Entregables:** Actualización business case
+`;
+
+  // Generar recursos recomendados
+  const recommendedResources = `
+### Formación
+- **Recurso:** Curso ${moduleConfig.professionalSources[0]}
+- **Descripción:** Capacitación en metodología
+- **Inversión:** Gratuito - €1,500
+
+### Herramientas
+- **Recurso:** Plataforma de automatización
+- **Descripción:** Software específico para ${industry}
+- **Inversión:** €0 (open source) - €500/mes
+
+### Comunidad
+- **Recurso:** Grupo de usuarios ${industry}
+- **Descripción:** Networking y mejores prácticas
+- **Inversión:** Gratuito
+
+### Consultoría
+- **Recurso:** Mentoría especializada
+- **Descripción:** Soporte experto según necesidad
+- **Inversión:** €1,000 - €5,000
+`;
+
   return `# 📊 Análisis Estratégico: ${moduleName}
 
 ## 🎯 Resumen Ejecutivo
@@ -373,6 +549,10 @@ Su nivel de digitalización **${profile.digitalizationLevel}** los posiciona en 
 - **Alcance de Mercado:** ${geographicScope} con enfoque en ${targetMarket}
 - **Productos/Servicios:** ${keyProducts} como oferta principal
 - **Presupuesto Disponible:** ${budgetRange} para iniciativas de optimización
+
+### Benchmarking por Área Clave
+
+${benchmarkingTable}
 
 ### Inteligencia Competitiva
 
@@ -488,78 +668,70 @@ Su nivel de digitalización **${profile.digitalizationLevel}** los posiciona en 
 ## 📊 Métricas de Éxito y Benchmarks de Industria Específicos
 
 ### KPIs Primarios (Basados en ${moduleConfig.professionalSources[0]})
-- **Ganancia de Eficiencia General:** Objetivo **35-45%** vs. benchmark de industria de **${getBenchmarkData(moduleConfig, 'efficiency')}** para ${industry}
-- **Reducción de Costos:** Objetivo **$${getAutomationSavings(profile)}/año** vs. promedio industria de **${getIndustryAverage(profile, 'cost_savings')}**
-- **Tasa de Automatización de Procesos:** Objetivo **75-85%** vs. actual **30%** (Líder industria: 80-90%)
-- **Logro de ROI:** Objetivo **40-50%** vs. benchmark industria de **${getBenchmarkROI(moduleConfig, 'overall')}**
 
-### Benchmarking Competitivo Específico (Fuente: ${moduleConfig.professionalSources[1]})
-- **Rendimiento Top Quartile:** Posicionamiento de ${businessName} en **top 20%** de ${industry}
-- **Puntuación de Madurez Digital:** Mejora de **${profile.digitalizationLevel}** a **alto-automatizado** en 12 meses
-- **Ventaja Competitiva:** **12-18 meses** de ventaja vs. competidores en ${geographicScope}
+${kpisTable}
 
-## 💰 Análisis de Impacto Financiero Específico (Framework ${moduleConfig.professionalSources[2]})
+### 🏆 Análisis Comparativo con Líderes de Industria
+Basado en un análisis detallado de empresas líderes en ${industry}, hemos identificado las siguientes brechas competitivas para ${businessName}:
 
-### Requerimientos de Inversión (Benchmarks de Industria)
-**Inversión Total para ${businessName}:** **$${getTotalInvestment(profile)}** durante 18 meses
-- **vs. Benchmark Industria:** **${getIndustryBenchmark(profile, 'total_investment')}** para empresas similares en ${industry}
-- **Posicionamiento Percentil:** **Percentil 25** (inversión eficiente)
-- **Adaptado a:** ${budgetRange} y ${timeframe}
+${competitiveAnalysis}
 
-**Comparación de ROI con Líderes de Industria:**
-- **Año 1:** **25-35% ROI** vs. promedio industria de **20-30%** para ${industry}
-- **Año 2:** **45-55% ROI** vs. benchmark industria de **35-45%**
-- **Año 3:** **60-70% ROI** vs. mejor en clase de **55-65%**
+## 💰 Análisis Integral de Impacto Financiero
 
-### Proyección de Impacto en Ingresos (Basada en ${moduleConfig.professionalSources[0]})
-**Impacto Directo en Ingresos para ${businessName}:** **$${getRevenueImpact(profile)}/año** para el mes 18
-- **Benchmark Industria:** Empresas similares en ${industry} logran **${getRevenueBenchmark(profile)}** en promedio
-- **Ventaja Competitiva:** **15-25% superior** vs. promedio industria
-- **Alineado con:** ${yearlyGrowthTarget} y ${businessGoals}
+### 💵 Desglose Detallado de Inversión Requerida
 
-### Análisis de Ahorro de Costos
-**Ahorro de Costos Operativos para ${businessName}:** **$${getAutomationSavings(profile)}/año** para el mes 12
-- **Desglose según ${moduleConfig.professionalSources[1]}:**
-  - Reducción de costos laborales: **60-70%** del ahorro total
-  - Reducción de errores: **20-25%** del ahorro total  
-  - Optimización de recursos: **10-15%** del ahorro total
-- **vs. Benchmark Industria:** **20-30% superior** vs. ahorro promedio en ${industry}
+${investmentTable}
 
-## ⚠️ Evaluación de Riesgos y Mitigación Específica (Metodología ${moduleConfig.professionalSources[1]})
+### 📈 Proyección Detallada de Impacto en Ingresos
+**Impacto en Ingresos para ${businessName}:**
 
-### Factores de Alto Riesgo Específicos para ${businessName}
+${revenueProjection}
 
-**1. Resistencia al Cambio Organizacional**
-- **Probabilidad:** Media (35-45% según estudios de ${moduleConfig.professionalSources[2]})
-- **Impacto:** Alto ($${getRiskImpact(profile, 'change_resistance')})
-- **Contexto Específico:** ${teamStructure} y cultura actual de ${businessName}
-- **Mitigación:** Programa integral de capacitación con metodología **Kotter 8-Step** adaptada a ${industry}
+La proyección se basa en el análisis de ${moduleConfig.professionalSources[0]} para empresas similares en ${industry} con ${teamStructure} y objetivos de ${yearlyGrowthTarget}.
 
-**2. Complejidad de Integración Tecnológica**
-- **Probabilidad:** Media (25-35% según ${moduleConfig.professionalSources[1]})
-- **Impacto:** Medio ($${getRiskImpact(profile, 'tech_complexity')})
-- **Contexto Específico:** Integración de ${technologyStack} actual
-- **Mitigación:** Enfoque por fases con arquitectura **API-First** específica para ${businessName}
+### 🎯 Cálculo Específico de ROI con Benchmarks Sectoriales
+**ROI Proyectado para ${businessName}:**
 
-### Estrategias de Mitigación Personalizadas (Framework ${moduleConfig.professionalSources[2]})
-**Enfoques Probados para ${businessName}:**
-- **Gestión del Cambio:** **70% tasa de éxito** con enfoque estructurado adaptado a ${teamStructure}
-- **Riesgo Técnico:** **85% mitigación** con socios experimentados en ${industry}
-- **Riesgo Presupuestario:** **90% control** con implementación por fases alineada a ${budgetRange}
+${roiProjection}
 
-## 🎯 Próximos Pasos y Quick Wins Específicos para ${businessName}
+**Período de Recuperación de Inversión:** 8-12 meses vs. promedio industria de 12-18 meses.
 
-### Acciones Inmediatas (Semana 1-2) - Basadas en ${moduleConfig.professionalSources[0]}
-- [ ] Asegurar patrocinio ejecutivo con presentación de **Caso de Negocio** específico para ${businessName}
-- [ ] Establecer equipo de proyecto con matriz **RACI** adaptada a ${teamStructure}
-- [ ] Realizar evaluación detallada con análisis de **Estado Actual** de ${salesProcess}
-- [ ] Iniciar evaluación de proveedores con proceso **RFP** específico para ${industry}
+## ⚠️ Evaluación de Riesgos y Mitigación
 
-### Sprint de 30 Días (Framework ${moduleConfig.professionalSources[1]})
-- [ ] Desplegar primera automatización con enfoque **Quick Win** en ${keyProducts}
-- [ ] Implementar analíticas básicas con herramientas **Self-Service** para ${successMetrics}
-- [ ] Establecer governance con framework **PMO** adaptado a ${businessName}
-- [ ] Iniciar gestión del cambio con plan de **Comunicación** específico para ${teamStructure}
+### Factores de Alto Riesgo
+
+${risksTable}
+
+### Estrategias de Mitigación
+**Plan de Mitigación Integral para ${businessName}:**
+
+- **Gestión del Cambio:** Programa estructurado con comunicación, capacitación y apoyo continuo
+- **Enfoque Incremental:** Implementación por fases con validación en cada etapa
+- **Capacitación Continua:** Desarrollo de capacidades internas para reducir dependencias
+- **Monitoreo Constante:** Sistema de alertas tempranas para identificar desviaciones
+
+## 🎯 Próximos Pasos y Quick Wins
+### Acciones Inmediatas (Semana 1-2)
+1. **Establecer Equipo de Proyecto:** Identificar stakeholders clave y responsabilidades
+2. **Evaluación Detallada:** Análisis profundo de procesos prioritarios de ${salesProcess}
+3. **Quick Win #1:** Implementación de automatización simple para ${keyProducts} (ROI rápido)
+4. **Plan de Comunicación:** Estrategia para gestionar el cambio con ${teamStructure}
+
+### Sprint de 30 Días
+- **Semana 1:** Evaluación detallada y priorización
+- **Semana 2:** Selección de herramientas y proveedores
+- **Semanas 3-4:** Implementación de primer caso de uso
+- **Fin de Mes:** Evaluación de resultados y ajuste de plan
+
+## 🔄 Plan de Seguimiento y Ajuste Continuo
+**Metodología de Seguimiento para ${businessName}:**
+
+${followUpMethodology}
+
+## 📚 Recursos Adicionales y Capacitación
+**Recursos Recomendados para ${businessName}:**
+
+${recommendedResources}
 
 ---
 
@@ -584,7 +756,7 @@ ${Object.keys(moduleConfig.benchmarkData).map(key => `- **${key}:** ${JSON.strin
 
 function getModuleName(moduleId: string): string {
   const module = businessModules.find(m => m.id === moduleId);
-  return module ? module.name : 'Módulo Desconocido';
+  return module ? module.name.es : 'Módulo Desconocido';
 }
 
 // Helper functions mejoradas con benchmarks reales
@@ -767,4 +939,364 @@ function getRevenueImpact(profile: UserProfileData): string {
   if (employeeCount === '21-50') return '180,000-275,000';
   if (employeeCount === '51-200') return '350,000-550,000';
   return '750,000-1,200,000';
+}
+
+// Función para generar una tabla de benchmarking para el reporte de ejemplo
+function generateBenchmarkingTable(profile: UserProfileData, moduleId: string): string {
+  const benchmarkingData: Record<string, Array<{area: string, metric: string, current: string, benchmark: string, gap: string}>> = {
+    'atencion-cliente': [
+      {
+        area: 'Atención Cliente',
+        metric: 'Tiempo Respuesta',
+        current: '24 horas',
+        benchmark: '4-8 horas',
+        gap: '16-20 horas'
+      },
+      {
+        area: 'Autoservicio',
+        metric: 'Tasa Resolución',
+        current: '40%',
+        benchmark: '60-80%',
+        gap: '20-40%'
+      },
+      {
+        area: 'Satisfacción',
+        metric: 'NPS',
+        current: '35',
+        benchmark: '60-70',
+        gap: '25-35 puntos'
+      },
+      {
+        area: 'Eficiencia',
+        metric: 'Costo por Ticket',
+        current: '5€',
+        benchmark: '3-4€',
+        gap: '1-2€'
+      }
+    ],
+    'marketing-digital': [
+      {
+        area: 'Adquisición',
+        metric: 'CAC',
+        current: '85€',
+        benchmark: '45-65€',
+        gap: '20-40€'
+      },
+      {
+        area: 'Conversión',
+        metric: 'Tasa Conversión',
+        current: '1.8%',
+        benchmark: '3-5%',
+        gap: '1.2-3.2%'
+      },
+      {
+        area: 'Engagement',
+        metric: 'CTR Email',
+        current: '2.5%',
+        benchmark: '4-6%',
+        gap: '1.5-3.5%'
+      },
+      {
+        area: 'Retención',
+        metric: 'Churn Rate',
+        current: '8%',
+        benchmark: '3-5%',
+        gap: '3-5%'
+      }
+    ],
+    'ventas-crm': [
+      {
+        area: 'Ciclo Venta',
+        metric: 'Días Promedio',
+        current: '45 días',
+        benchmark: '25-35 días',
+        gap: '10-20 días'
+      },
+      {
+        area: 'Conversión',
+        metric: 'Lead-to-Deal',
+        current: '15%',
+        benchmark: '25-35%',
+        gap: '10-20%'
+      },
+      {
+        area: 'Eficiencia',
+        metric: 'Deals/Rep/Mes',
+        current: '4',
+        benchmark: '8-12',
+        gap: '4-8 deals'
+      },
+      {
+        area: 'Forecasting',
+        metric: 'Precisión',
+        current: '65%',
+        benchmark: '85-95%',
+        gap: '20-30%'
+      }
+    ],
+    'empresa-general': [
+      {
+        area: 'Digitalización',
+        metric: 'Procesos Digitales',
+        current: '35%',
+        benchmark: '70-85%',
+        gap: '35-50%'
+      },
+      {
+        area: 'Automatización',
+        metric: 'Tareas Automatizadas',
+        current: '25%',
+        benchmark: '60-75%',
+        gap: '35-50%'
+      },
+      {
+        area: 'Analytics',
+        metric: 'Decisiones Data-Driven',
+        current: '30%',
+        benchmark: '70-85%',
+        gap: '40-55%'
+      },
+      {
+        area: 'Integración',
+        metric: 'Sistemas Integrados',
+        current: '40%',
+        benchmark: '80-90%',
+        gap: '40-50%'
+      }
+    ]
+  };
+
+  // Usar datos específicos del módulo o fallback a empresa-general
+  const data = benchmarkingData[moduleId] || benchmarkingData['empresa-general'];
+  
+  // Formato visual mejorado con listas estructuradas
+  let result = '';
+  
+  data.forEach(row => {
+    result += `### ${row.area}\n`;
+    result += `- **Métrica:** ${row.metric}\n`;
+    result += `- **Valor Actual:** ${row.current}\n`;
+    result += `- **Benchmark de Industria:** ${row.benchmark}\n`;
+    result += `- **Brecha:** ${row.gap}\n\n`;
+  });
+  
+  return result;
+}
+
+// Función para generar una tabla de KPIs para el reporte de ejemplo
+function generateKPIsTable(profile: UserProfileData, moduleId: string): string {
+  const kpisData: Record<string, Array<{kpi: string, formula: string, current: string, target: string, frequency: string}>> = {
+    'atencion-cliente': [
+      {
+        kpi: 'Tiempo Respuesta',
+        formula: 'Horas hasta primera respuesta',
+        current: '24h',
+        target: '4h',
+        frequency: 'Diaria'
+      },
+      {
+        kpi: 'First Contact Resolution',
+        formula: 'Issues resueltos en 1er contacto / Total',
+        current: '45%',
+        target: '70-80%',
+        frequency: 'Semanal'
+      },
+      {
+        kpi: 'CSAT',
+        formula: 'Promedio satisfacción (1-5)',
+        current: '3.5',
+        target: '4.5+',
+        frequency: 'Continua'
+      },
+      {
+        kpi: 'NPS',
+        formula: 'Promotores - Detractores',
+        current: '35',
+        target: '60+',
+        frequency: 'Mensual'
+      }
+    ],
+    'marketing-digital': [
+      {
+        kpi: 'CAC',
+        formula: 'Costo total / Nuevos clientes',
+        current: '85€',
+        target: '50-60€',
+        frequency: 'Mensual'
+      },
+      {
+        kpi: 'Tasa Conversión',
+        formula: 'Conversiones / Visitantes',
+        current: '1.8%',
+        target: '3-5%',
+        frequency: 'Semanal'
+      },
+      {
+        kpi: 'ROAS',
+        formula: 'Ingresos / Gasto Ads',
+        current: '2.2x',
+        target: '4-5x',
+        frequency: 'Semanal'
+      },
+      {
+        kpi: 'CLV:CAC',
+        formula: 'Valor vida cliente / CAC',
+        current: '2:1',
+        target: '3:1+',
+        frequency: 'Trimestral'
+      }
+    ],
+    'ventas-crm': [
+      {
+        kpi: 'Ciclo de Venta',
+        formula: 'Días desde Lead a Cierre',
+        current: '45 días',
+        target: '30 días',
+        frequency: 'Mensual'
+      },
+      {
+        kpi: 'Lead-to-Deal',
+        formula: 'Deals / Leads calificados',
+        current: '15%',
+        target: '25-30%',
+        frequency: 'Mensual'
+      },
+      {
+        kpi: 'Deal Size Promedio',
+        formula: 'Total ventas / Número deals',
+        current: '2,500€',
+        target: '3,500€+',
+        frequency: 'Mensual'
+      },
+      {
+        kpi: 'Precisión Forecast',
+        formula: 'Ventas reales / Forecast',
+        current: '65%',
+        target: '90%+',
+        frequency: 'Trimestral'
+      }
+    ],
+    'empresa-general': [
+      {
+        kpi: 'Eficiencia Operativa',
+        formula: 'Output / Input de recursos',
+        current: '65%',
+        target: '85%+',
+        frequency: 'Mensual'
+      },
+      {
+        kpi: 'Digitalización',
+        formula: 'Procesos digitales / Total',
+        current: '35%',
+        target: '75%+',
+        frequency: 'Trimestral'
+      },
+      {
+        kpi: 'Productividad',
+        formula: 'Output / Horas trabajadas',
+        current: '70%',
+        target: '90%+',
+        frequency: 'Mensual'
+      },
+      {
+        kpi: 'ROI Tecnología',
+        formula: 'Beneficios / Inversión tech',
+        current: '120%',
+        target: '200%+',
+        frequency: 'Anual'
+      }
+    ]
+  };
+
+  // Usar datos específicos del módulo o fallback a empresa-general
+  const data = kpisData[moduleId] || kpisData['empresa-general'];
+  
+  // Formato visual mejorado con listas estructuradas
+  let result = '';
+  
+  data.forEach(row => {
+    result += `### ${row.kpi}\n`;
+    result += `- **Fórmula:** ${row.formula}\n`;
+    result += `- **Valor Actual:** ${row.current}\n`;
+    result += `- **Target:** ${row.target}\n`;
+    result += `- **Frecuencia:** ${row.frequency}\n\n`;
+  });
+  
+  return result;
+}
+
+// Función para generar una tabla de inversión para el reporte de ejemplo
+function generateInvestmentTable(profile: UserProfileData): string {
+  // Ajustar montos según el tamaño de la empresa
+  let baseAmount = 5000;
+  if (profile.employeeCount === '6-20') baseAmount = 15000;
+  if (profile.employeeCount === '21-50') baseAmount = 30000;
+  if (profile.employeeCount === '51-200') baseAmount = 75000;
+  if (profile.employeeCount === 'mas-500') baseAmount = 150000;
+  
+  const tech = Math.round(baseAmount * 0.4);
+  const training = Math.round(baseAmount * 0.2);
+  const consulting = Math.round(baseAmount * 0.3);
+  const other = Math.round(baseAmount * 0.1);
+  
+  // Formato visual mejorado con listas estructuradas
+  let result = '';
+  
+  result += `### Tecnología\n`;
+  result += `- **Descripción:** Plataforma y automatización\n`;
+  result += `- **Inversión Estimada:** ${tech}€ - ${Math.round(tech*1.3)}€\n`;
+  result += `- **Plazo:** Mes 1-3\n\n`;
+  
+  result += `### Capacitación\n`;
+  result += `- **Descripción:** Entrenamiento del equipo\n`;
+  result += `- **Inversión Estimada:** ${training}€ - ${Math.round(training*1.3)}€\n`;
+  result += `- **Plazo:** Mes 2-4\n\n`;
+  
+  result += `### Consultoría\n`;
+  result += `- **Descripción:** Implementación y estrategia\n`;
+  result += `- **Inversión Estimada:** ${consulting}€ - ${Math.round(consulting*1.3)}€\n`;
+  result += `- **Plazo:** Mes 1-6\n\n`;
+  
+  result += `### Otros\n`;
+  result += `- **Descripción:** Contingencia y gastos adicionales\n`;
+  result += `- **Inversión Estimada:** ${other}€ - ${Math.round(other*1.3)}€\n`;
+  result += `- **Plazo:** Según necesidad\n\n`;
+  
+  result += `### TOTAL\n`;
+  result += `- **Inversión Completa:** ${baseAmount}€ - ${Math.round(baseAmount*1.3)}€\n`;
+  result += `- **Plazo Total:** 6 meses\n\n`;
+  
+  return result;
+}
+
+// Función para generar una tabla de riesgos para el reporte de ejemplo
+function generateRisksTable(): string {
+  // Formato visual mejorado con listas estructuradas
+  let result = '';
+  
+  result += `### Resistencia al cambio\n`;
+  result += `- **Probabilidad:** 4/5\n`;
+  result += `- **Impacto:** 5/5\n`;
+  result += `- **Nivel Total:** 20 (Alto)\n`;
+  result += `- **Estrategia de Mitigación:** Programa de gestión del cambio\n\n`;
+  
+  result += `### Integración técnica\n`;
+  result += `- **Probabilidad:** 3/5\n`;
+  result += `- **Impacto:** 4/5\n`;
+  result += `- **Nivel Total:** 12 (Medio)\n`;
+  result += `- **Estrategia de Mitigación:** Pruebas de concepto escalonadas\n\n`;
+  
+  result += `### Restricción presupuestaria\n`;
+  result += `- **Probabilidad:** 2/5\n`;
+  result += `- **Impacto:** 5/5\n`;
+  result += `- **Nivel Total:** 10 (Medio)\n`;
+  result += `- **Estrategia de Mitigación:** Implementación por fases\n\n`;
+  
+  result += `### Falta de capacidades internas\n`;
+  result += `- **Probabilidad:** 3/5\n`;
+  result += `- **Impacto:** 3/5\n`;
+  result += `- **Nivel Total:** 9 (Medio)\n`;
+  result += `- **Estrategia de Mitigación:** Capacitación y soporte externo\n\n`;
+  
+  return result;
 }
