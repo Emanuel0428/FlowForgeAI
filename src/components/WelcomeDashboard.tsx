@@ -30,6 +30,7 @@ import {
   type SupportedLanguage 
 } from '../config/elevenlabs';
 import AIConversationalAssistant from './AIConversationalAssistant';
+import { useLanguage } from '../config/language';
 
 interface WelcomeDashboardProps {
   user: User;
@@ -55,6 +56,7 @@ const WelcomeDashboard: React.FC<WelcomeDashboardProps> = ({
   const [selectedLanguage, setSelectedLanguage] = useState<SupportedLanguage>(ELEVENLABS_CONFIG.defaultLanguage);
   const [selectedVoiceIndex, setSelectedVoiceIndex] = useState<number>(ELEVENLABS_CONFIG.defaultVoiceIndex);
   const [showConversationalAssistant, setShowConversationalAssistant] = useState(false);
+  const { language, t } = useLanguage();
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -63,6 +65,11 @@ const WelcomeDashboard: React.FC<WelcomeDashboardProps> = ({
   useEffect(() => {
     setIsVoiceEnabled(isElevenLabsConfigured());
   }, []);
+
+  // Sync the selected language with the app language
+  useEffect(() => {
+    setSelectedLanguage(language);
+  }, [language]);
 
   // Efecto para limpiar recursos de audio al desmontar o cuando cambian
   useEffect(() => {
@@ -88,52 +95,52 @@ const WelcomeDashboard: React.FC<WelcomeDashboardProps> = ({
 
   const getGreeting = () => {
     const hour = currentTime.getHours();
-    if (hour < 12) return 'Buenos días';
-    if (hour < 18) return 'Buenas tardes';
-    return 'Buenas noches';
+    if (hour < 12) return t('welcome', 'goodMorning');
+    if (hour < 18) return t('welcome', 'goodAfternoon');
+    return t('welcome', 'goodEvening');
   };
 
   const stats = [
     {
       icon: Target,
-      label: 'Análisis Disponibles',
+      label: t('welcome', 'availableAnalyses'),
       value: businessModules.length,
       color: 'from-iridescent-blue to-iridescent-cyan',
-      description: 'Módulos especializados'
+      description: t('welcome', 'specializedModules')
     },
     {
       icon: TrendingUp,
-      label: 'Precisión IA',
+      label: t('welcome', 'aiAccuracy'),
       value: '98%',
       color: 'from-iridescent-violet to-iridescent-blue',
-      description: 'Análisis certero'
+      description: t('welcome', 'accurateAnalysis')
     },
     {
       icon: Users,
-      label: 'Empresas Beneficiadas',
+      label: t('welcome', 'companiesBenefited'),
       value: '10K+',
       color: 'from-iridescent-cyan to-iridescent-violet',
-      description: 'Casos de éxito'
+      description: t('welcome', 'successCases')
     }
   ];
 
   const features = [
     {
       icon: BarChart3,
-      title: 'Análisis Inteligente',
-      description: 'Obtén insights profundos sobre tu negocio con IA avanzada',
+      title: t('welcome', 'intelligentAnalysis'),
+      description: t('welcome', 'getDeepInsights'),
       color: 'text-iridescent-blue'
     },
     {
       icon: Lightbulb,
-      title: 'Recomendaciones Personalizadas',
-      description: 'Estrategias adaptadas a tu tipo de negocio y etapa',
+      title: t('welcome', 'personalizedRecommendations'),
+      description: t('welcome', 'strategiesAdapted'),
       color: 'text-iridescent-violet'
     },
     {
       icon: MessageSquare,
-      title: 'Reportes Detallados',
-      description: 'Documentación completa lista para implementar',
+      title: t('welcome', 'detailedReports'),
+      description: t('welcome', 'completeDocumentation'),
       color: 'text-iridescent-cyan'
     }  
   ];  
@@ -311,9 +318,9 @@ const WelcomeDashboard: React.FC<WelcomeDashboardProps> = ({
         </h1>
         
         <p className="text-base lg:text-lg xl:text-xl mb-6 leading-relaxed max-w-3xl mx-auto px-4" style={{ color: 'var(--text-secondary)' }}>
-          Bienvenido a <span className="iridescent-text font-semibold">FlowForge AI</span>, tu consultor digital inteligente.
+          {t('welcome', 'welcomeTo')} <span className="iridescent-text font-semibold">FlowForge AI</span>,
           <br />
-          Transformamos datos en decisiones estratégicas con inteligencia artificial a tu medida.
+          {t('welcome', 'transformData')}
         </p>          
         
         {/* Asistente Conversacional o Asistente de Voz */}
@@ -342,7 +349,7 @@ const WelcomeDashboard: React.FC<WelcomeDashboardProps> = ({
                       : 'text-gray-600 dark:text-gray-300'
                   }`}
                 >
-                  Asistente de Voz
+                  {t('welcome', 'voiceAssistantButton')}
                 </button>
                 <button
                   onClick={() => setShowConversationalAssistant(true)}
@@ -352,7 +359,7 @@ const WelcomeDashboard: React.FC<WelcomeDashboardProps> = ({
                       : 'text-gray-600 dark:text-gray-300'
                   }`}
                 >
-                  Asistente Conversacional
+                  {t('welcome', 'conversationalAssistant')}
                 </button>
               </div>
             </div>
@@ -380,16 +387,16 @@ const WelcomeDashboard: React.FC<WelcomeDashboardProps> = ({
                     }`} />
                   </div>
                   <h3 className="text-base lg:text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
-                    {isVoiceEnabled ? 'Asistente de Voz IA' : 'Asistente de Voz IA (Sin configurar)'}
+                    {isVoiceEnabled ? t('welcome', 'voiceAssistant') : t('welcome', 'notConfigured')}
                   </h3>
                 </div>
                   <p className="text-xs lg:text-sm mb-3 lg:mb-4 text-center" style={{ color: 'var(--text-tertiary)' }}>
                   {isVoiceEnabled 
-                    ? 'Interactúa con FlowForge usando tu voz. Powered by ElevenLabs.'
-                    : 'Configura tu API key de ElevenLabs para activar el asistente de voz.'
+                    ? t('welcome', 'interactWithVoice')
+                    : t('welcome', 'configureApiKey')
                   }
                   <br />
-                  <em>{isVoiceEnabled ? '¡Totalmente funcional!' : 'Agrega VITE_ELEVENLABS_API_KEY a tu .env'}</em>
+                  <em>{isVoiceEnabled ? t('welcome', 'fullyFunctional') : t('welcome', 'addApiKey')}</em>
                 </p>
                 
                 {/* Language and Voice Selection */}
@@ -399,7 +406,7 @@ const WelcomeDashboard: React.FC<WelcomeDashboardProps> = ({
                       {/* Language Selection */}
                       <div className="flex items-center justify-center space-x-3">
                         <Globe className="w-4 h-4 text-iridescent-blue" />
-                        <span className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>Idioma:</span>
+                        <span className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>{t('common', 'language')}:</span>
                         <div className="flex space-x-2">
                           {Object.entries(ELEVENLABS_CONFIG.languages).map(([langCode, langConfig]) => (
                             <button
@@ -420,7 +427,7 @@ const WelcomeDashboard: React.FC<WelcomeDashboardProps> = ({
                       {/* Voice Selection */}
                       <div className="flex items-center justify-center space-x-3">
                         <Mic className="w-4 h-4 text-iridescent-violet" />
-                        <span className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>Voz:</span>
+                        <span className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>{t('welcome', 'voice')}:</span>
                         <div className="flex space-x-2">
                           {[0, 1, 2].map((voiceIndex) => (
                             <button
@@ -431,9 +438,9 @@ const WelcomeDashboard: React.FC<WelcomeDashboardProps> = ({
                                   ? 'bg-iridescent-violet text-white shadow-md'
                                   : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
                               }`}
-                              title={`Voz ${voiceIndex + 1} en ${ELEVENLABS_CONFIG.languages[selectedLanguage].name}`}
+                              title={`${t('welcome', 'voice')} ${voiceIndex + 1} ${t('common', 'in')} ${ELEVENLABS_CONFIG.languages[selectedLanguage].name}`}
                             >
-                              Voz {voiceIndex + 1}
+                              {t('welcome', 'voice')} {voiceIndex + 1}
                             </button>
                           ))}
                         </div>
@@ -499,14 +506,14 @@ const WelcomeDashboard: React.FC<WelcomeDashboardProps> = ({
           >
             <div className="absolute inset-0 bg-gradient-to-r from-iridescent-violet to-iridescent-cyan opacity-0 hover:opacity-20 transition-opacity duration-300"></div>
             <Zap className="w-5 lg:w-6 h-5 lg:h-6 mr-2 lg:mr-3" />
-            Comenzar Análisis
+            {t('common', 'startAnalysis')}
             <ArrowRight className="w-4 lg:w-5 h-4 lg:h-5 ml-2" />
           </button>
           
           <div className="text-xs lg:text-sm" style={{ color: 'var(--text-tertiary)' }}>
             <div className="flex items-center">
               <div className="w-2 h-2 bg-iridescent-cyan rounded-full mr-2 animate-pulse"></div>
-              Perfil configurado como {userProfile.businessType}
+              {t('welcome', 'profileConfiguredAs')} {userProfile.businessType}
             </div>
           </div>
         </div>
@@ -539,7 +546,7 @@ const WelcomeDashboard: React.FC<WelcomeDashboardProps> = ({
       {/* Features Section */}
       <div className="mb-8 lg:mb-12 px-4">
         <h2 className="text-2xl lg:text-3xl font-bold text-center mb-6 lg:mb-8" style={{ color: 'var(--text-primary)' }}>
-          ¿Qué hace especial a FlowForge AI?
+          {t('welcome', 'whatMakesSpecial')}
         </h2>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
           {features.map((feature, index) => (
@@ -563,7 +570,7 @@ const WelcomeDashboard: React.FC<WelcomeDashboardProps> = ({
       {/* Quick Access Modules */}
       <div className="mb-8 lg:mb-12 px-4">
         <h2 className="text-2xl lg:text-3xl font-bold text-center mb-6 lg:mb-8" style={{ color: 'var(--text-primary)' }}>
-          Módulos Más Populares
+          {t('welcome', 'popularModules')}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
           {businessModules.slice(0, 6).map((module) => {
@@ -581,10 +588,10 @@ const WelcomeDashboard: React.FC<WelcomeDashboardProps> = ({
                   </div>
                   <div className="flex-1">
                     <h3 className="font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
-                      {module.name}
+                      {module.name[language]}
                     </h3>
                     <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                      {module.description}
+                      {module.description[language]}
                     </p>
                   </div>
                   <ArrowRight className="w-5 h-5 text-iridescent-blue opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1" />
@@ -604,17 +611,17 @@ const WelcomeDashboard: React.FC<WelcomeDashboardProps> = ({
           
           <Sparkles className="h-12 lg:h-16 w-12 lg:w-16 text-iridescent-cyan mx-auto mb-4 lg:mb-6" />
           <h3 className="text-xl lg:text-2xl font-bold mb-3 lg:mb-4" style={{ color: 'var(--text-primary)' }}>
-            ¿Listo para transformar tu negocio?
+            {t('common', 'transformYourBusiness')}
           </h3>
           <p className="text-base lg:text-lg mb-4 lg:mb-6 max-w-2xl mx-auto" style={{ color: 'var(--text-secondary)' }}>
-            Comienza ahora y descubre insights que impulsarán tu empresa al siguiente nivel
+            {t('welcome', 'transformData')}
           </p>
           <button
             onClick={onGetStarted}
             className="inline-flex items-center px-6 lg:px-8 py-3 lg:py-4 bg-gradient-to-r from-iridescent-violet to-iridescent-cyan hover:from-iridescent-blue hover:to-iridescent-violet text-white font-bold rounded-2xl transition-all duration-500 transform hover:scale-105 shadow-lg liquid-glow-hover text-sm lg:text-base"
           >
             <Brain className="w-5 lg:w-6 h-5 lg:h-6 mr-2 lg:mr-3" />
-            Empezar Ahora
+            {t('common', 'startNow')}
           </button>
         </div>
       </div>

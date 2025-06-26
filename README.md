@@ -1,6 +1,6 @@
 # FlowForge AI 🚀
 
-**Tu consultor digital inteligente** - Análisis personalizados y recomendaciones estratégicas impulsadas por IA.
+**Tu consultor digital inteligente** - Análisis empresariales personalizados y recomendaciones estratégicas impulsadas por IA.
 
 [![Powered by Bolt](https://img.shields.io/badge/Powered%20by-Bolt-blue?style=for-the-badge)](https://bolt.new/)
 [![Built with React](https://img.shields.io/badge/Built%20with-React-61DAFB?style=for-the-badge&logo=react)](https://reactjs.org/)
@@ -9,13 +9,15 @@
 
 ## 🌟 Características
 
-- **Consultoría Modular**: Múltiples módulos especializados para diferentes aspectos empresariales
-- **IA Avanzada**: Integración con Google Gemini para análisis inteligentes
-- **Interfaz Líquida**: Diseño moderno con efectos visuales fluidos
-- **Temas Adaptativos**: Modo claro y oscuro con transiciones suaves
-- **Reportes Avanzados**: Generación y exportación de reportes en PDF
-- **Base de Datos**: Persistencia con Supabase
-- **Responsive**: Optimizado para todos los dispositivos
+- **Consultoría Empresarial Modular**: Accede a 9 módulos especializados que cubren todos los aspectos críticos de tu negocio
+- **IA Avanzada**: Integración con Google Gemini para análisis estratégicos de nivel consultoría
+- **Interfaz Líquida**: Diseño moderno con efectos visuales fluidos y experiencia de usuario premium
+- **Multilingüe**: Soporte completo para español e inglés en toda la aplicación
+- **Asistente por Voz**: Interactúa con la aplicación mediante comandos de voz en ambos idiomas
+- **Reportes Profesionales**: Generación y exportación de reportes detallados en PDF
+- **Perfil Empresarial**: Análisis adaptados a tu tipo de negocio, etapa y objetivos específicos
+- **Base de Datos Segura**: Persistencia con Supabase y políticas de seguridad avanzadas
+- **Diseño Responsivo**: Experiencia optimizada en dispositivos móviles, tablets y escritorio
 
 ## 🚀 Despliegue en Netlify
 
@@ -36,6 +38,7 @@ Configura las siguientes variables en tu dashboard de Netlify:
 VITE_SUPABASE_URL=tu_url_de_supabase
 VITE_SUPABASE_ANON_KEY=tu_clave_anonima_de_supabase
 VITE_GEMINI_API_KEY=tu_clave_api_de_gemini
+VITE_ELEVENLABS_API_KEY=tu_clave_api_de_elevenlabs (opcional para asistente de voz)
 ```
 
 ### 3. Configuración de Build
@@ -50,7 +53,7 @@ npm run build
 
 # Deploy automático con git push
 git add .
-git commit -m "Deploy to production"
+git commit -m "Deploy a producción"
 git push origin main
 ```
 
@@ -80,6 +83,7 @@ npm run preview
 - NPM o Yarn
 - Cuenta de Supabase
 - API Key de Google Gemini
+- API Key de ElevenLabs (opcional para funcionalidades de voz)
 
 ## 🏗️ Tecnologías
 
@@ -88,8 +92,9 @@ npm run preview
 - **Build**: Vite
 - **Base de Datos**: Supabase
 - **IA**: Google Gemini API
+- **Voz**: ElevenLabs API
 - **Iconos**: Lucide React
-- **Charts**: Chart.js
+- **Gráficos**: Chart.js
 - **PDF**: jsPDF + html2canvas
 - **Deploy**: Netlify
 
@@ -104,79 +109,78 @@ FlowForgeAI/
 │   └── _redirects         # Configuración SPA
 ├── src/
 │   ├── components/        # Componentes React
-│   ├── config/           # Configuraciones (Supabase, Gemini)
+│   ├── config/           # Configuraciones (Supabase, Gemini, Idiomas)
+│   ├── containers/       # Contenedores de estado
 │   ├── data/            # Datos y módulos
+│   ├── pages/           # Páginas principales
+│   ├── services/        # Servicios (auth, perfiles, reportes)
 │   ├── types/           # Tipos TypeScript
+│   ├── utils/           # Utilidades y helpers
 │   └── main.tsx         # Punto de entrada
 ├── netlify.toml         # Configuración Netlify
 ├── env.example          # Plantilla variables de entorno
 └── package.json
 ```
 
-## 🎯 Módulos Disponibles
+## 🎯 Módulos de Consultoría Disponibles
 
-1. **Análisis Financiero** - Evaluación de salud financiera
-2. **Optimización de Procesos** - Mejora de eficiencia operativa
-3. **Estrategia de Marketing** - Planes de marketing personalizados
-4. **Gestión de Recursos Humanos** - Optimización de talento
-5. **Transformación Digital** - Modernización tecnológica
-6. **Análisis de Mercado** - Estudios competitivos
-7. **Gestión de Riesgos** - Identificación y mitigación
-8. **Innovación y Desarrollo** - Estrategias de crecimiento
+1. **Transformación Digital Integral** - Estrategia holística de digitalización y optimización organizacional
+2. **Growth Marketing & Automatización** - Estrategias data-driven para crecimiento y conversión
+3. **Automatización ventas & CRM** - Optimización de pipeline y automatización comercial
+4. **FinTech & Control de Gestión** - Automatización financiera y business intelligence
+5. **Analítica de personal & HR Tech** - Gestión inteligente de talento y cultura organizacional
+6. **Experiencia & soporte al cliente** - Automatización de soporte y optimización de CX
+7. **Estrategia de contenidos & SEO** - Ecosistemas de contenido y marketing de autoridad
+8. **Administración de producto & Crecimiento** - Desarrollo ágil y product-led growth strategies
+9. **Innovación & Desarrollo Tecnológico** - Metodologías de innovación y desarrollo tecnológico
+
+## 🌍 Soporte Multilingüe
+
+FlowForge AI ofrece una experiencia completamente bilingüe:
+
+- **Español e Inglés** soportados en toda la aplicación
+- Selector de idioma integrado en el menú de usuario (tres puntos en esquina superior derecha)
+- El asistente de voz soporta ambos idiomas con múltiples opciones de voces
+- Todos los elementos de la interfaz se traducen automáticamente
+- La preferencia de idioma se guarda en el almacenamiento local del navegador
+
+El sistema de idiomas está construido con React Context API que proporciona:
+- Una función de traducción `t(section, key)` para obtener texto en el idioma actual
+- Un setter de idioma para cambiar el idioma de la aplicación
+- Sincronización automática entre el idioma de la interfaz y el asistente de voz
+
+Las interacciones por voz también son compatibles con el idioma seleccionado, con el sistema de reconocimiento de voz utilizando automáticamente la configuración de idioma correcta.
 
 ## 🏆 Hackathon Bolt.new
 
-Este proyecto participa en el hackathon de Bolt.new y cumple con múltiples challenge requirements:
+Este proyecto participa en el hackathon de Bolt.new y cumple con múltiples requisitos del desafío:
 
-### 🎯 Challenges Cumplidos
+### 🎯 Desafíos Implementados
 
 #### ✅ **Deploy Challenge** - Usando Netlify
-- **Requisito**: Use Netlify to deploy your full-stack Bolt.new application
+- **Requisito**: Usar Netlify para desplegar tu aplicación Bolt.new full-stack
 - **Implementación**: 
   - Configuración completa con `netlify.toml` optimizado
-  - Headers de seguridad y performance configurados
+  - Headers de seguridad y rendimiento configurados
   - Despliegue automático con CI/CD
-  - SPA routing configurado para React
+  - Routing SPA configurado para React
   - Variables de entorno securizadas
 
 #### ✅ **Startup Challenge** - Usando Supabase  
-- **Requisito**: Use Supabase to prep your Bolt.new project to scale to millions
+- **Requisito**: Usar Supabase para preparar tu proyecto Bolt.new para escalar a millones
 - **Implementación**:
   - **Autenticación robusta**: Sistema completo de auth con JWT
   - **Base de datos escalable**: PostgreSQL con Row Level Security (RLS)
-  - **Real-time capabilities**: Subscripciones en tiempo real
-  - **Schema optimizado**: Índices y triggers para performance
+  - **Capacidades en tiempo real**: Subscripciones en tiempo real
+  - **Schema optimizado**: Índices y triggers para rendimiento
   - **Migraciones versionadas**: Control de cambios de BD
   - **Caché inteligente**: Sistema de caché para optimizar consultas
   - **Políticas de seguridad**: RLS configurado para protección de datos
 
-### 🚀 Challenges Implementables (Extensiones Futuras)
-
-#### 🎤 **Voice AI Challenge** - ElevenLabs Integration
-- **Potencial**: Convertir reportes a audio narrado
-- **Implementación sugerida**: 
-  - Narración automática de análisis generados
-  - Interfaz de voz para input de consultas
-  - Resúmenes ejecutivos en audio
-
-#### 🌐 **Custom Domain Challenge** - Entri/IONOS Domain
-- **Potencial**: Domain personalizado para marca profesional
-- **Sugerencias**: 
-  - `flowforge-ai.com` o similar
-  - SSL automático con Netlify
-  - Redirects y subdominios configurados
-
-#### 🎥 **Conversational AI Video Challenge** - Tavus Integration
-- **Potencial**: Agentes de video AI para consultoría
-- **Implementación sugerida**:
-  - Avatar AI personalizable para presentar reportes
-  - Sesiones de consultoría interactivas en video
-  - Onboarding con guía de video personalizada
-
 ### 📋 Requisitos Base Cumplidos
 - ✅ Badge "Powered by Bolt" visible en todas las pantallas
 - ✅ Enlace funcional a https://bolt.new/
-- ✅ Responsive design para todos los dispositivos
+- ✅ Diseño responsivo para todos los dispositivos
 - ✅ Deploy público funcional en Netlify
 - ✅ Código fuente accesible
 
@@ -184,11 +188,11 @@ Este proyecto participa en el hackathon de Bolt.new y cumple con múltiples chal
 **FlowForge AI** está diseñado desde el inicio para escalar a millones de usuarios:
 
 - **Database Sharding Ready**: Schema optimizado con índices estratégicos
-- **Serverless Architecture**: Integración con Supabase Edge Functions
-- **CDN Integration**: Assets optimizados con caché global
-- **API Rate Limiting**: Protección contra abuse con throttling
-- **Real-time Analytics**: Tracking de métricas para optimización
-- **Horizontal Scaling**: Arquitectura stateless preparada para load balancing
+- **Arquitectura Serverless**: Integración con Supabase Edge Functions
+- **Integración CDN**: Assets optimizados con caché global
+- **API Rate Limiting**: Protección contra abusos con throttling
+- **Analíticas en tiempo real**: Seguimiento de métricas para optimización
+- **Escalado Horizontal**: Arquitectura stateless preparada para balanceo de carga
 
 ## 📄 Licencia
 
@@ -198,9 +202,9 @@ MIT License - ver [LICENSE](LICENSE) para más detalles.
 
 Las contribuciones son bienvenidas. Por favor:
 
-1. Fork el proyecto
-2. Crea una rama para tu feature
-3. Commit tus cambios
+1. Haz fork del proyecto
+2. Crea una rama para tu funcionalidad
+3. Haz commit de tus cambios
 4. Push a la rama
 5. Abre un Pull Request
 

@@ -1,21 +1,28 @@
 import React, { useState, useRef } from 'react';
 import { Mic, MicOff, Loader2 } from 'lucide-react';
 import '../types/speechRecognition';
+import { SupportedLanguage } from '../config/elevenlabs';
 
 interface VoiceToTextButtonProps {
-  onTranscriptionResult: (text: string) => void;
+  onTranscription: (text: string) => void;
   onRecordingStateChange?: (isRecording: boolean) => void;
   disabled?: boolean;
   className?: string;
   stopAfterInactivity?: number; // tiempo en ms para detener la grabación después de inactividad
+  language?: SupportedLanguage; // language for speech recognition
+  isActive?: boolean;
+  setIsActive?: (isActive: boolean) => void;
 }
 
 const VoiceToTextButton: React.FC<VoiceToTextButtonProps> = ({
-  onTranscriptionResult,
+  onTranscription,
   onRecordingStateChange,
   disabled = false,
   className = '',
-  stopAfterInactivity = 2000 // 2 segundos por defecto
+  stopAfterInactivity = 2000, // 2 segundos por defecto
+  language = 'es',
+  isActive,
+  setIsActive
 }) => {
   const [isRecording, setIsRecording] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -43,6 +50,13 @@ const VoiceToTextButton: React.FC<VoiceToTextButtonProps> = ({
     };
   }, []);
 
+  // Update external state when recording state changes
+  React.useEffect(() => {
+    if (setIsActive) {
+      setIsActive(isRecording);
+    }
+  }, [isRecording, setIsActive]);
+
   const startRecognition = () => {
     setError(null);
     transcriptRef.current = '';
@@ -50,7 +64,7 @@ const VoiceToTextButton: React.FC<VoiceToTextButtonProps> = ({
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
       setIsSupported(false);
-      setError('Reconocimiento de voz no soportado');
+      setError(language === 'en' ? 'Voice recognition not supported' : 'Reconocimiento de voz no soportado');
       return;
     }
     // Si ya hay una instancia y está grabando, no reinicializar
@@ -58,7 +72,7 @@ const VoiceToTextButton: React.FC<VoiceToTextButtonProps> = ({
     const recognition = new SpeechRecognition();
     recognition.continuous = true;
     recognition.interimResults = true;
-    recognition.lang = 'es-ES';
+    recognition.lang = language === 'en' ? 'en-US' : 'es-ES';
     recognition.onstart = () => {
       setIsLoading(false);
       setIsRecording(true);
@@ -90,7 +104,7 @@ const VoiceToTextButton: React.FC<VoiceToTextButtonProps> = ({
       setIsLoading(false);
       if (onRecordingStateChange) onRecordingStateChange(false);
       if (transcriptRef.current.trim()) {
-        onTranscriptionResult(transcriptRef.current.trim());
+        onTranscription(transcriptRef.current.trim());
         transcriptRef.current = '';
       }
       recognitionRef.current = null;
@@ -101,7 +115,7 @@ const VoiceToTextButton: React.FC<VoiceToTextButtonProps> = ({
     } catch (err) {
       setIsLoading(false);
       setIsRecording(false);
-      setError('No se pudo iniciar el reconocimiento de voz');
+      setError(language === 'en' ? 'Could not start voice recognition' : 'No se pudo iniciar el reconocimiento de voz');
     }
   };
 
@@ -133,18 +147,18 @@ const VoiceToTextButton: React.FC<VoiceToTextButtonProps> = ({
     } catch (err) {
       setHasPermission(false);
       setIsLoading(false);
-      setError('No se pudo acceder al micrófono');
+      setError(language === 'en' ? 'Could not access microphone' : 'No se pudo acceder al micrófono');
     }
   };
 
   // Determinar el tooltip adecuado según el estado
   const getTooltip = () => {
     if (error) return `Error: ${error}`;
-    if (!isSupported) return 'Tu navegador no soporta el reconocimiento de voz';
-    if (hasPermission === false) return 'No tienes permisos para usar el micrófono.';
-    if (isRecording) return 'Detener dictado';
-    if (isLoading) return 'Inicializando...';
-    return 'Haz clic para dictar texto';
+    if (!isSupported) return language === 'en' ? 'Your browser does not support voice recognition' : 'Tu navegador no soporta el reconocimiento de voz';
+    if (hasPermission === false) return language === 'en' ? 'No permission to use microphone' : 'No tienes permisos para usar el micrófono';
+    if (isRecording) return language === 'en' ? 'Stop dictation' : 'Detener dictado';
+    if (isLoading) return language === 'en' ? 'Initializing...' : 'Inicializando...';
+    return language === 'en' ? 'Click to dictate text' : 'Haz clic para dictar texto';
   };
 
   return (

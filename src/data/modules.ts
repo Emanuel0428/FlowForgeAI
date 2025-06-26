@@ -3,56 +3,110 @@ import { ModuleDefinition } from '../types';
 export const businessModules: ModuleDefinition[] = [
   {
     id: 'empresa-general',
-    name: 'Transformación Digital Integral',
+    name: {
+      es: 'Transformación Digital Integral',
+      en: 'Comprehensive Digital Transformation'
+    },
     icon: 'Building2',
-    description: 'Estrategia holística de digitalización y optimización organizacional'
+    description: {
+      es: 'Estrategia holística de digitalización y optimización organizacional',
+      en: 'Holistic strategy for digitalization and organizational optimization'
+    }
   },
   {
     id: 'marketing-digital',
-    name: 'Growth Marketing & Automatización',
+    name: {
+      es: 'Growth Marketing & Automatización',
+      en: 'Growth Marketing & Automation'
+    },
     icon: 'TrendingUp',
-    description: 'Estrategias data-driven para crecimiento y conversión'
+    description: {
+      es: 'Estrategias data-driven para crecimiento y conversión',
+      en: 'Data-driven strategies for growth and conversion'
+    }
   },
   {
     id: 'ventas-crm',
-    name: 'Automatización ventas & CRM',
+    name: {
+      es: 'Automatización ventas & CRM',
+      en: 'Sales Automation & CRM'
+    },
     icon: 'Target',
-    description: 'Optimización de pipeline y automatización comercial'
+    description: {
+      es: 'Optimización de pipeline y automatización comercial',
+      en: 'Pipeline optimization and commercial automation'
+    }
   },
   {
     id: 'finanzas-contabilidad',
-    name: 'FinTech & Control de Gestión',
+    name: {
+      es: 'FinTech & Control de Gestión',
+      en: 'FinTech & Management Control'
+    },
     icon: 'Calculator',
-    description: 'Automatización financiera y business intelligence'
+    description: {
+      es: 'Automatización financiera y business intelligence',
+      en: 'Financial automation and business intelligence'
+    }
   },
   {
     id: 'recursos-humanos',
-    name: 'Analítica de personal & HR Tech',
+    name: {
+      es: 'Analítica de personal & HR Tech',
+      en: 'People Analytics & HR Tech'
+    },
     icon: 'Users',
-    description: 'Gestión inteligente de talento y cultura organizacional'
+    description: {
+      es: 'Gestión inteligente de talento y cultura organizacional',
+      en: 'Intelligent talent management and organizational culture'
+    }
   },
   {
     id: 'atencion-cliente',
-    name: 'Experiencia & soporte al cliente',
+    name: {
+      es: 'Experiencia & soporte al cliente',
+      en: 'Customer Experience & Support'
+    },
     icon: 'Headphones',
-    description: 'Automatización de soporte y optimización de CX'
+    description: {
+      es: 'Automatización de soporte y optimización de CX',
+      en: 'Support automation and CX optimization'
+    }
   },
   {
     id: 'contenido-digital',
-    name: 'Estrategia de contenidos & SEO',
+    name: {
+      es: 'Estrategia de contenidos & SEO',
+      en: 'Content Strategy & SEO'
+    },
     icon: 'FileText',
-    description: 'Ecosistemas de contenido y marketing de autoridad'
+    description: {
+      es: 'Ecosistemas de contenido y marketing de autoridad',
+      en: 'Content ecosystems and authority marketing'
+    }
   },
   {
     id: 'estrategia-producto',
-    name: 'Administración de producto & Crecimiento',
+    name: {
+      es: 'Administración de producto & Crecimiento',
+      en: 'Product Management & Growth'
+    },
     icon: 'Package',
-    description: 'Desarrollo ágil y product-led growth strategies'
+    description: {
+      es: 'Desarrollo ágil y product-led growth strategies',
+      en: 'Agile development and product-led growth strategies'
+    }
   },
   {
     id: 'innovacion-rd',
-    name: 'Innovación & Desarrollo Tecnológico',
+    name: {
+      es: 'Innovación & Desarrollo Tecnológico',
+      en: 'Innovation & Technological Development'
+    },
     icon: 'Lightbulb',
-    description: 'Metodologías de innovación y desarrollo tecnológico'
+    description: {
+      es: 'Metodologías de innovación y desarrollo tecnológico',
+      en: 'Innovation methodologies and technological development'
+    }
   },
 ];

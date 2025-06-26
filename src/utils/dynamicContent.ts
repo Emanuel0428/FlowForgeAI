@@ -1,26 +1,31 @@
 import { UserProfileData } from '../types';
 import { UserProfile } from '../types/database';
+import { SupportedLanguage } from '../config/elevenlabs';
 
 export function generateDynamicPlaceholder(
   userProfile: UserProfileData | null,
   moduleId: string,
-  extendedProfile?: UserProfile | null
+  extendedProfile?: UserProfile | null,
+  language: SupportedLanguage = 'es'
 ): string {
   if (!userProfile) {
-    return 'Describe tu desafío específico en este módulo para obtener recomendaciones personalizadas de nivel consultoría...';
+    return language === 'en' 
+      ? 'Describe your specific challenge in this module to get personalized consulting-level recommendations...'
+      : 'Describe tu desafío específico en este módulo para obtener recomendaciones personalizadas de nivel consultoría...';
   }
 
   // Información adicional del perfil extendido
-  const businessName = extendedProfile?.business_name || 'tu empresa';
+  const businessName = extendedProfile?.business_name || (language === 'en' ? 'your company' : 'tu empresa');
   const industry = extendedProfile?.industry || userProfile.businessType;
-  const currentChallenges = extendedProfile?.current_challenges || 'desafíos operativos';
-  const keyProducts = extendedProfile?.key_products || 'productos/servicios';
-  const targetMarket = extendedProfile?.target_market || 'mercado objetivo';
-  const technologyStack = extendedProfile?.technology_stack || 'herramientas actuales';
-  const teamStructure = extendedProfile?.team_structure || `equipo de ${userProfile.employeeCount}`;
+  const currentChallenges = extendedProfile?.current_challenges || (language === 'en' ? 'operational challenges' : 'desafíos operativos');
+  const keyProducts = extendedProfile?.key_products || (language === 'en' ? 'products/services' : 'productos/servicios');
+  const targetMarket = extendedProfile?.target_market || (language === 'en' ? 'target market' : 'mercado objetivo');
+  const technologyStack = extendedProfile?.technology_stack || (language === 'en' ? 'current tools' : 'herramientas actuales');
+  const teamStructure = extendedProfile?.team_structure || (language === 'en' ? `team of ${userProfile.employeeCount}` : `equipo de ${userProfile.employeeCount}`);
   const businessGoals = extendedProfile?.business_goals || userProfile.mainObjective;
 
-  const placeholders: Record<string, Record<string, string>> = {
+  // Spanish placeholders (original)
+  const esPlaceholders: Record<string, Record<string, string>> = {
     'empresa-general': {
       'startup-temprano': `Describe los desafíos estratégicos específicos de ${businessName}: establecimiento de procesos escalables para ${keyProducts}, modernización de ${technologyStack}, cultura data-driven para ${teamStructure}, preparación para crecimiento en ${targetMarket}, o automatización de operaciones core. Ejemplo: "Necesitamos sistematizar ${currentChallenges} que actualmente consumen 40% del tiempo de ${teamStructure}, implementar un ERP/CRM integrado para ${keyProducts}, y establecer KPIs para ${businessGoals}"...`,
       'pyme-crecimiento': `Describe los pain points de escalamiento específicos de ${businessName} en ${industry}: sistematización de procesos ad-hoc para ${keyProducts}, integración de ${technologyStack} fragmentado, automatización de workflows críticos para ${teamStructure}, preparación de infraestructura para 3-5x growth en ${targetMarket}. Ejemplo: "Tenemos silos de información entre ${technologyStack}, procesos manuales costosos en ${keyProducts}, falta de real-time insights para ${businessGoals}"...`,
@@ -86,7 +91,79 @@ export function generateDynamicPlaceholder(
     }
   };
 
-  const moduleKey = moduleId in placeholders ? moduleId : 'empresa-general';
+  // English placeholders (new)
+  const enPlaceholders: Record<string, Record<string, string>> = {
+    'empresa-general': {
+      'startup-temprano': `Describe the specific strategic challenges of ${businessName}: establishing scalable processes for ${keyProducts}, modernizing ${technologyStack}, creating a data-driven culture for ${teamStructure}, preparing for growth in ${targetMarket}, or automating core operations. Example: "We need to systematize ${currentChallenges} that currently consume 40% of ${teamStructure} time, implement an integrated ERP/CRM for ${keyProducts}, and establish KPIs for ${businessGoals}"...`,
+      'pyme-crecimiento': `Describe the specific scaling pain points of ${businessName} in ${industry}: systematization of ad-hoc processes for ${keyProducts}, integration of fragmented ${technologyStack}, automation of critical workflows for ${teamStructure}, preparation of infrastructure for 3-5x growth in ${targetMarket}. Example: "We have information silos between ${technologyStack}, costly manual processes in ${keyProducts}, lack of real-time insights for ${businessGoals}"...`,
+      'pyme-establecida': `Describe the specific modernization challenges of ${businessName}: migration of legacy ${technologyStack}, cultural digital transformation for ${teamStructure}, API integration for ${keyProducts}, implementation of advanced analytics for ${targetMarket}. Example: "Our obsolete ${technologyStack} limit the growth of ${keyProducts}, there is resistance to change in ${teamStructure}, we need competitive advantage in ${industry}"...`,
+      'gran-empresa': `Describe the specific transformation challenges of ${businessName}: complex enterprise architecture for ${keyProducts}, data governance between ${teamStructure}, integration of heterogeneous systems of ${technologyStack}, large-scale change management in ${targetMarket}. Example: "We have departmental silos that affect ${businessGoals}, complex legacy systems integration, we need a digital transformation roadmap for ${industry}"...`,
+      'default': `Describe the main digital transformation challenge of ${businessName}: inefficient processes in ${keyProducts} that consume resources of ${teamStructure}, lack of intelligent automation in ${technologyStack}, need for strategic digitalization for ${targetMarket}, optimization of tech stack for ${businessGoals}...`
+    },
+    'marketing-digital': {
+      'ecommerce-puro': `Describe the specific growth challenges of ${businessName}: low ROAS in paid media for ${keyProducts}, attribution modeling problems in ${targetMarket}, conversion rate optimization with ${technologyStack}, customer lifetime value improvement, automated email marketing for ${teamStructure}. Example: "Our CAC is high vs. LTV in ${keyProducts}, 70% cart abandonment, lack of predictive analytics for ${businessGoals}"...`,
+      'servicio-digital': `Describe the specific acquisition pain points of ${businessName}: cost-effective B2B lead generation for ${keyProducts}, long-cycle prospect nurturing in ${targetMarket}, content marketing ROI with ${teamStructure}, technical SEO for ${industry}. Example: "Low MQL to SQL conversion in ${keyProducts}, content that doesn't convert for ${businessGoals}, lack of attribution in ${technologyStack}"...`,
+      'contenido-media': `Describe the specific monetization challenges of ${businessName}: sustainable audience growth for ${keyProducts}, content distribution optimization in ${targetMarket}, creator economy strategies with ${teamStructure}, brand partnership negotiations in ${industry}. Example: "Declining organic reach in ${keyProducts}, low monetization per follower, content production scaling for ${businessGoals}"...`,
+      'consultoria-freelance': `Describe the specific positioning challenges of ${businessName}: digital personal branding for ${keyProducts}, thought leadership establishment in ${industry}, lead generation automation with ${technologyStack}, digital networking in ${targetMarket}. Example: "Dependence on word-of-mouth for ${keyProducts}, lack of inbound leads, unclear positioning for ${businessGoals}"...`,
+      'default': `Describe the specific digital marketing challenges of ${businessName}: negative ROI in campaigns for ${keyProducts}, high customer acquisition cost in ${targetMarket}, conversion funnel problems with ${technologyStack}, lack of marketing automation for ${teamStructure}...`
+    },
+    'ventas-crm': {
+      'b2b': `Describe the specific enterprise sales challenges of ${businessName}: lead qualification automation for ${keyProducts}, sales cycle reduction in ${targetMarket}, complex deal management with ${teamStructure}, account-based selling optimization using ${technologyStack}. Example: "Slow pipeline velocity for ${keyProducts}, forecast accuracy 60%, manual follow-ups consuming 50% time of ${teamStructure}"...`,
+      'b2c': `Describe the specific high-velocity sales challenges of ${businessName}: inside sales optimization for ${keyProducts}, customer onboarding automation in ${targetMarket}, upselling workflows systematic with ${teamStructure}, customer success handoff using ${technologyStack}. Example: "High lead response time for ${keyProducts}, manual processes limiting scale, churn rate increasing in ${targetMarket}"...`,
+      'd2c': `Describe the specific direct sales challenges of ${businessName}: e-commerce conversion optimization for ${keyProducts}, abandoned cart recovery automation in ${targetMarket}, customer lifetime value maximization with ${teamStructure}, subscription management using ${technologyStack}. Example: "Low conversion rate for ${keyProducts}, repeat purchase rate declining, customer support overwhelming for ${businessGoals}"...`,
+      'suscripcion': `Describe the specific recurring revenue challenges of ${businessName}: expansion revenue optimization for ${keyProducts}, churn prevention systematic in ${targetMarket}, customer health scoring with ${teamStructure}, renewal automation using ${technologyStack}. Example: "Negative churn target for ${keyProducts}, expansion rate low, manual customer success for ${businessGoals}"...`,
+      'default': `Describe the specific sales operations challenges of ${businessName}: inefficient pipeline management for ${keyProducts}, low lead conversion in ${targetMarket}, manual follow-up consuming resources of ${teamStructure}, CRM optimization needs with ${technologyStack}...`
+    },
+    'finanzas-contabilidad': {
+      'startup-temprano': `Describe the specific financial foundation needs of ${businessName}: cash flow management automation for ${keyProducts}, investor reporting streamlined with ${teamStructure}, basic financial controls in ${industry}, burn rate optimization for ${businessGoals}. Example: "Manual bookkeeping consuming time of ${teamStructure}, investor updates taking weeks, unpredictable cash flow for ${keyProducts}"...`,
+      'pyme-crecimiento': `Describe the specific financial scaling challenges of ${businessName}: cost center management for ${keyProducts}, profitability analysis by product/service in ${targetMarket}, working capital optimization with ${teamStructure}, financial planning automation using ${technologyStack}. Example: "Manual reconciliations, missing budget variance analysis for ${keyProducts}, delayed financial reporting for ${businessGoals}"...`,
+      'pyme-establecida': `Describe the specific financial sophistication challenges of ${businessName}: financial consolidation automation for ${keyProducts}, advanced reporting implementation in ${industry}, tax optimization strategies with ${teamStructure}, financial systems modernization of ${technologyStack}. Example: "Multiple systems not integrated, manual month-end close, limited financial analytics for ${businessGoals}"...`,
+      'gran-empresa': `Describe the specific enterprise finance challenges of ${businessName}: regulatory compliance automation for ${keyProducts}, transfer pricing optimization in ${targetMarket}, treasury management with ${teamStructure}, financial shared services using ${technologyStack}. Example: "SOX compliance manual, consolidation taking weeks, limited real-time visibility for ${businessGoals}"...`,
+      'default': `Describe the specific financial challenges of ${businessName}: inefficient cost control for ${keyProducts}, manual reporting consuming resources of ${teamStructure}, reactive cash flow management, compliance issues in ${industry}...`
+    },
+    'recursos-humanos': {
+      '1-5': `Describe the specific HR foundation needs of ${businessName}: basic recruitment processes for ${keyProducts}, simple onboarding automation with ${teamStructure}, team management tools using ${technologyStack}, employee policies establishment in ${industry}. Example: "Hiring taking months for ${keyProducts}, inconsistent onboarding, no performance framework for ${businessGoals}"...`,
+      '6-20': `Describe the specific HR scaling challenges of ${businessName}: recruitment automation implementation for ${keyProducts}, systematic performance management with ${teamStructure}, employee development programs in ${industry}, culture building initiatives for ${businessGoals}. Example: "Manual recruitment consuming 60% time, inconsistent performance reviews, declining employee engagement in ${targetMarket}"...`,
+      '21-50': `Describe the specific HR sophistication challenges of ${businessName}: HRIS implementation for ${keyProducts}, people analytics with ${teamStructure}, talent management systems using ${technologyStack}, employee engagement optimization in ${targetMarket}. Example: "Multiple HR systems not integrated, limited people insights, manual HR processes for ${businessGoals}"...`,
+      'mas-500': `Describe the specific enterprise HR challenges of ${businessName}: advanced people analytics for ${keyProducts}, talent acquisition at scale in ${targetMarket}, organizational development programs with ${teamStructure}, workforce planning strategic using ${technologyStack}. Example: "Talent acquisition bottlenecks, limited predictive HR analytics, change management challenges for ${businessGoals}"...`,
+      'default': `Describe the specific HR challenges of ${businessName}: low recruitment efficiency for ${keyProducts}, declining employee engagement in ${teamStructure}, manual performance management, HR automation opportunities using ${technologyStack}...`
+    },
+    'atencion-cliente': {
+      'b2b': `Describe the specific enterprise support challenges of ${businessName}: technical support automation for ${keyProducts}, account management optimization in ${targetMarket}, customer success programs with ${teamStructure}, enterprise support scaling using ${technologyStack}. Example: "Support tickets increasing 200% for ${keyProducts}, manual customer health scoring, missed account expansion opportunities in ${targetMarket}"...`,
+      'b2c': `Describe the specific high-volume support challenges of ${businessName}: chatbot implementation for ${keyProducts}, self-service optimization in ${targetMarket}, social media management with ${teamStructure}, customer satisfaction improvement using ${technologyStack}. Example: "High response time for ${keyProducts}, high support cost per ticket, declining customer satisfaction in ${targetMarket}"...`,
+      'ecommerce-puro': `Describe the specific commerce support challenges of ${businessName}: order support automation for ${keyProducts}, returns management streamlined in ${targetMarket}, shipping inquiries handling with ${teamStructure}, post-purchase experience optimization using ${technologyStack}. Example: "Order inquiries consuming 40% support time, manual returns process for ${keyProducts}, lacking customer education in ${targetMarket}"...`,
+      'servicio-digital': `Describe the specific product support challenges of ${businessName}: user onboarding automation for ${keyProducts}, technical support optimization in ${targetMarket}, feature adoption improvement with ${teamStructure}, churn prevention systematic using ${technologyStack}. Example: "Low onboarding completion rate for ${keyProducts}, support tickets for basic features, low feature adoption in ${targetMarket}"...`,
+      'default': `Describe the specific customer experience challenges of ${businessName}: high response times for ${keyProducts}, declining customer satisfaction in ${targetMarket}, support automation opportunities with ${teamStructure}, inconsistent omnichannel experience using ${technologyStack}...`
+    },
+    'contenido-digital': {
+      'contenido-media': `Describe the specific content scaling challenges of ${businessName}: content production at scale for ${keyProducts}, sustainable audience growth in ${targetMarket}, diversified monetization strategies with ${teamStructure}, platform algorithms optimization using ${technologyStack}. Example: "Content production bottleneck for ${keyProducts}, declining audience engagement, low monetization per follower in ${targetMarket}"...`,
+      'ecommerce-puro': `Describe the specific product content challenges of ${businessName}: product content optimization for ${keyProducts}, SEO for e-commerce systematic in ${targetMarket}, user-generated content campaigns with ${teamStructure}, visual merchandising automation using ${technologyStack}. Example: "Low product page conversion for ${keyProducts}, declining SEO traffic, manual content creation in ${targetMarket}"...`,
+      'servicio-digital': `Describe the specific thought leadership challenges of ${businessName}: educational content strategy for ${keyProducts}, feature announcement content in ${targetMarket}, customer success stories with ${teamStructure}, content-driven user adoption using ${technologyStack}. Example: "Content not driving signups for ${keyProducts}, scattered educational content, unclear thought leadership in ${industry}"...`,
+      'consultoria-freelance': `Describe the specific personal branding challenges of ${businessName}: expertise demonstration systematic for ${keyProducts}, case study development in ${industry}, networking content with ${teamStructure}, personal brand amplification using ${technologyStack}. Example: "Inconsistent content creation for ${keyProducts}, hidden expertise, non-scalable networking efforts in ${targetMarket}"...`,
+      'default': `Describe the specific content strategy challenges of ${businessName}: inefficient content production for ${keyProducts}, low SEO performance in ${targetMarket}, limited content distribution with ${teamStructure}, lacking performance measurement using ${technologyStack}...`
+    },
+    'estrategia-producto': {
+      'servicio-digital': `Describe the specific product optimization challenges of ${businessName}: feature prioritization framework for ${keyProducts}, user feedback integration systematic in ${targetMarket}, product-market fit improvement with ${teamStructure}, user onboarding optimization using ${technologyStack}. Example: "Low feature adoption rate for ${keyProducts}, unactionable user feedback, product decisions not data-driven in ${targetMarket}"...`,
+      'ecommerce-puro': `Describe the specific product experience challenges of ${businessName}: product catalog optimization for ${keyProducts}, recommendation systems implementation in ${targetMarket}, intelligent inventory management with ${teamStructure}, dynamic pricing strategy using ${technologyStack}. Example: "Poor product discovery for ${keyProducts}, low recommendation accuracy, slow inventory turnover in ${targetMarket}"...`,
+      'startup-temprano': `Describe the specific product validation challenges of ${businessName}: MVP validation systematic for ${keyProducts}, product-market fit measurement in ${targetMarket}, user research processes with ${teamStructure}, rapid iteration framework using ${technologyStack}. Example: "Unclear product-market fit for ${keyProducts}, ad-hoc user feedback collection, slow iteration cycles for ${businessGoals}"...`,
+      'pyme-establecida': `Describe the specific product innovation challenges of ${businessName}: product portfolio optimization for ${keyProducts}, market expansion strategies in ${targetMarket}, competitive differentiation with ${teamStructure}, digital transformation of products using ${technologyStack}. Example: "Stagnant product innovation for ${keyProducts}, declining competitive advantage, lacking digital integration in ${industry}"...`,
+      'default': `Describe the specific product strategy challenges of ${businessName}: inefficient product development for ${keyProducts}, lacking market validation in ${targetMarket}, needed user experience optimization with ${teamStructure}, missing competitive analysis using ${technologyStack}...`
+    },
+    'innovacion-rd': {
+      'startup-temprano': `Describe the specific innovation foundation challenges of ${businessName}: rapid prototyping processes for ${keyProducts}, idea validation systematic in ${targetMarket}, lean innovation methodology with ${teamStructure}, technology scouting using ${technologyStack}. Example: "Ad-hoc innovation for ${keyProducts}, slow prototyping, untracked technology trends for ${businessGoals}"...`,
+      'pyme-crecimiento': `Describe the specific innovation scaling challenges of ${businessName}: systematic innovation processes for ${keyProducts}, technology partnerships in ${industry}, innovation pipeline management with ${teamStructure}, R&D investment optimization using ${technologyStack}. Example: "Unsystematic innovation projects for ${keyProducts}, lacking technology partnerships, unclear R&D ROI for ${businessGoals}"...`,
+      'pyme-establecida': `Describe the specific innovation transformation challenges of ${businessName}: innovation culture change for ${keyProducts}, digital innovation implementation in ${targetMarket}, technology adoption acceleration with ${teamStructure}, innovation portfolio diversification using ${technologyStack}. Example: "Resistant innovation culture for ${keyProducts}, slow technology adoption, unbalanced innovation portfolio in ${industry}"...`,
+      'gran-empresa': `Describe the specific corporate innovation challenges of ${businessName}: open innovation ecosystems for ${keyProducts}, innovation governance in ${targetMarket}, disruptive innovation initiatives with ${teamStructure}, technology transfer optimization using ${technologyStack}. Example: "Innovation silos for ${keyProducts}, complex governance, lacking disruptive innovation for ${businessGoals}"...`,
+      'default': `Describe the specific innovation challenges of ${businessName}: lacking innovation processes for ${keyProducts}, inefficient idea management in ${targetMarket}, slow technology development with ${teamStructure}, weak innovation culture using ${technologyStack}...`
+    },
+    'default': {
+      'default': `Describe your specific business challenge related to this module: inefficient processes in ${keyProducts}, optimization opportunities for ${teamStructure}, technology integration needs for ${technologyStack}, strategic improvements for ${targetMarket}...`
+    }
+  };
+
+  const placeholders = language === 'en' ? enPlaceholders : esPlaceholders;
+
+  const moduleKey = moduleId in placeholders ? moduleId : 'default';
   const contextKey = userProfile.businessStage in placeholders[moduleKey] ? userProfile.businessStage :
                    userProfile.businessType in placeholders[moduleKey] ? userProfile.businessType :
                    userProfile.employeeCount in placeholders[moduleKey] ? userProfile.employeeCount :
@@ -98,23 +175,27 @@ export function generateDynamicPlaceholder(
 export function generateModuleIntro(
   userProfile: UserProfileData | null,
   moduleId: string,
-  extendedProfile?: UserProfile | null
+  extendedProfile?: UserProfile | null,
+  language: SupportedLanguage = 'es'
 ): string {
   if (!userProfile) {
-    return 'Completa tu perfil empresarial para obtener análisis estratégicos personalizados de nivel consultoría McKinsey/BCG, con recomendaciones cuantificadas y roadmaps de implementación específicos para tu contexto.';
+    return language === 'en'
+      ? 'Complete your business profile to get personalized McKinsey/BCG-level strategic analysis, with quantified recommendations and implementation roadmaps specific to your context.'
+      : 'Completa tu perfil empresarial para obtener análisis estratégicos personalizados de nivel consultoría McKinsey/BCG, con recomendaciones cuantificadas y roadmaps de implementación específicos para tu contexto.';
   }
 
   // Información adicional del perfil extendido
-  const businessName = extendedProfile?.business_name || 'tu empresa';
+  const businessName = extendedProfile?.business_name || (language === 'en' ? 'your company' : 'tu empresa');
   const industry = extendedProfile?.industry || userProfile.businessType;
-  const businessDescription = extendedProfile?.business_description || `empresa ${userProfile.businessType}`;
-  const currentChallenges = extendedProfile?.current_challenges || 'optimización de procesos y crecimiento';
+  const businessDescription = extendedProfile?.business_description || (language === 'en' ? `${userProfile.businessType} company` : `empresa ${userProfile.businessType}`);
+  const currentChallenges = extendedProfile?.current_challenges || (language === 'en' ? 'process optimization and growth' : 'optimización de procesos y crecimiento');
   const businessGoals = extendedProfile?.business_goals || userProfile.mainObjective;
-  const competitiveAdvantage = extendedProfile?.competitive_advantage || 'enfoque en calidad y servicio al cliente';
-  const targetMarket = extendedProfile?.target_market || `mercado ${userProfile.revenueModel}`;
-  const monthlyRevenue = extendedProfile?.monthly_revenue || 'ingresos en crecimiento';
+  const competitiveAdvantage = extendedProfile?.competitive_advantage || (language === 'en' ? 'focus on quality and customer service' : 'enfoque en calidad y servicio al cliente');
+  const targetMarket = extendedProfile?.target_market || (language === 'en' ? `${userProfile.revenueModel} market` : `mercado ${userProfile.revenueModel}`);
+  const monthlyRevenue = extendedProfile?.monthly_revenue || (language === 'en' ? 'growing revenue' : 'ingresos en crecimiento');
 
-  const intros: Record<string, string> = {
+  // Spanish intros (original)
+  const esIntros: Record<string, string> = {
     'empresa-general': `Como ${businessName}, una ${businessDescription} especializada en ${industry} en etapa ${userProfile.businessStage} con ${userProfile.employeeCount} empleados y nivel de digitalización ${userProfile.digitalizationLevel}, tienes oportunidades específicas de transformación digital valoradas en potencial ROI del 35-50%. Tu enfoque en ${competitiveAdvantage} y ${currentChallenges} presenta un contexto ideal para optimización. Analicemos tu situación específica para crear una estrategia integral de optimización organizacional con caso de negocio cuantificado y hoja de ruta de implementación adaptado a ${businessGoals} y ${targetMarket}.`,
     
     'marketing-digital': `${businessName} con modelo ${userProfile.revenueModel} especializada en ${industry} requiere estrategias de marketing de crecimiento específicas con enfoque en optimización del costo de adquisición de clientes y maximización del valor de vida del cliente para ${targetMarket}. Con tu nivel de digitalización ${userProfile.digitalizationLevel} y enfoque en ${businessGoals}, podemos identificar oportunidades de automatización de marketing y modelado de atribución que típicamente generan 25-40% de mejora en ROAS. Tu ${competitiveAdvantage} y ${monthlyRevenue} proporcionan una base sólida para escalamiento.`,
@@ -134,5 +215,30 @@ export function generateModuleIntro(
     'innovacion-rd': `${businessName} en etapa ${userProfile.businessStage} como ${businessDescription} especializada en ${industry} es ideal para implementar procesos de innovación sistemáticos que aceleren el desarrollo de ventaja competitiva en ${targetMarket}. La optimización del marco de innovación puede resultar en 30-50% de tiempo más rápido al mercado y 40-60% de mejora en la tasa de éxito de innovación. Tu ${competitiveAdvantage} y enfoque en ${businessGoals} crean una base sólida para ${currentChallenges}.`
   };
 
-  return intros[moduleId] || `Basándome en el perfil específico de ${businessName} como ${businessDescription} especializada en ${industry} con ${userProfile.employeeCount} empleados, podemos identificar oportunidades de optimización y automatización cuantificadas en este módulo que se alineen estratégicamente con tu objetivo de ${businessGoals} y ${competitiveAdvantage}, generando ROI medible en 6-12 meses para ${targetMarket} considerando ${currentChallenges}.`;
+  // English intros (new)
+  const enIntros: Record<string, string> = {
+    'empresa-general': `As ${businessName}, a ${businessDescription} specialized in ${industry} in ${userProfile.businessStage} stage with ${userProfile.employeeCount} employees and digitalization level ${userProfile.digitalizationLevel}, you have specific digital transformation opportunities valued at a potential ROI of 35-50%. Your focus on ${competitiveAdvantage} and ${currentChallenges} presents an ideal context for optimization. Let's analyze your specific situation to create a comprehensive organizational optimization strategy with a quantified business case and implementation roadmap adapted to ${businessGoals} and ${targetMarket}.`,
+    
+    'marketing-digital': `${businessName} with a ${userProfile.revenueModel} model specialized in ${industry} requires specific growth marketing strategies with a focus on optimizing customer acquisition cost and maximizing customer lifetime value for ${targetMarket}. With your digitalization level ${userProfile.digitalizationLevel} and focus on ${businessGoals}, we can identify marketing automation and attribution modeling opportunities that typically generate 25-40% improvement in ROAS. Your ${competitiveAdvantage} and ${monthlyRevenue} provide a solid foundation for scaling.`,
+    
+    'ventas-crm': `For ${businessName}, a ${userProfile.revenueModel} business in ${industry} with a goal of ${businessGoals}, sales process optimization is critical for revenue growth in ${targetMarket}. Similar companies with ${userProfile.employeeCount} employees have achieved 30-45% improvement in conversion rates and 20-35% reduction in sales cycle duration through sales automation and systematic CRM optimization. Your ${competitiveAdvantage} and ${currentChallenges} indicate specific improvement opportunities.`,
+    
+    'finanzas-contabilidad': `${businessName} with ${userProfile.employeeCount} employees, ${userProfile.revenueModel} model in ${industry} and ${monthlyRevenue}, efficient financial management can generate 15-25% cost savings and 40-60% improvement in financial reporting accuracy. Your focus on ${businessGoals} and ${currentChallenges} presents specific opportunities. Let's identify financial automation and business intelligence opportunities that accelerate decision-making and optimize cash flow management for ${targetMarket}.`,
+    
+    'recursos-humanos': `${businessName} with a team of ${userProfile.employeeCount} people in ${userProfile.businessStage} stage specialized in ${industry} requires personnel operations optimization that typically results in 20-30% improvement in employee satisfaction and 25-40% reduction in recruitment time. Your ${competitiveAdvantage} and focus on ${businessGoals} create a solid foundation. Let's optimize talent management with personnel analytics and HR automation specific to ${targetMarket}.`,
+    
+    'atencion-cliente': `As ${businessName}, a ${businessDescription} with a ${userProfile.revenueModel} model focused on ${targetMarket}, customer experience optimization is key to your goal of ${businessGoals}. Similar companies in ${industry} have achieved 35-50% improvement in customer satisfaction and 40-60% reduction in support costs through customer success automation and omnichannel optimization. Your ${competitiveAdvantage} and ${currentChallenges} indicate specific improvement opportunities.`,
+    
+    'contenido-digital': `${businessName} as a ${businessDescription} in ${userProfile.businessStage} stage specialized in ${industry} presents unique opportunities in content marketing that can generate 25-40% increase in organic traffic and 30-50% improvement in content ROI for ${targetMarket}. Your ${competitiveAdvantage} and focus on ${businessGoals} provide a solid foundation. Let's develop a data-driven content strategy with SEO optimization and content automation specific to ${currentChallenges}.`,
+    
+    'estrategia-producto': `${businessName} with a goal of ${businessGoals} and digitalization level ${userProfile.digitalizationLevel} in ${industry}, we can significantly optimize your product strategy and go-to-market approach for ${targetMarket}. Product optimization typically results in 20-35% improvement in user activation and 25-45% increase in product-market fit scores. Your ${competitiveAdvantage} and ${currentChallenges} indicate specific improvement opportunities.`,
+    
+    'innovacion-rd': `${businessName} in ${userProfile.businessStage} stage as a ${businessDescription} specialized in ${industry} is ideal for implementing systematic innovation processes that accelerate the development of competitive advantage in ${targetMarket}. Innovation framework optimization can result in 30-50% faster time to market and 40-60% improvement in innovation success rate. Your ${competitiveAdvantage} and focus on ${businessGoals} create a solid foundation for ${currentChallenges}.`
+  };
+
+  const intros = language === 'en' ? enIntros : esIntros;
+
+  return intros[moduleId] || (language === 'en' 
+    ? `Based on the specific profile of ${businessName} as a ${businessDescription} specialized in ${industry} with ${userProfile.employeeCount} employees, we can identify optimization and automation opportunities quantified in this module that strategically align with your goal of ${businessGoals} and ${competitiveAdvantage}, generating measurable ROI in 6-12 months for ${targetMarket} considering ${currentChallenges}.`
+    : `Basándome en el perfil específico de ${businessName} como ${businessDescription} especializada en ${industry} con ${userProfile.employeeCount} empleados, podemos identificar oportunidades de optimización y automatización cuantificadas en este módulo que se alineen estratégicamente con tu objetivo de ${businessGoals} y ${competitiveAdvantage}, generando ROI medible en 6-12 meses para ${targetMarket} considerando ${currentChallenges}.`);
 }

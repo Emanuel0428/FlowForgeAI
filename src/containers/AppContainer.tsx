@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { User } from '@supabase/supabase-js';
 import { UserProfileData, AppState } from '../types';
 import { UserProfile, AIReport } from '../types/database';
@@ -11,6 +11,7 @@ import { businessModules } from '../data/modules';
 import AppLayout from '../components/AppLayout';
 import AuthModal from '../components/AuthModal';
 import ReportHistory from '../components/ReportHistory';
+import { useLanguage } from '../config/language';
 
 // Estados de la aplicación
 enum AppStatus {
@@ -20,6 +21,7 @@ enum AppStatus {
 }
 
 const AppContainer: React.FC = () => {
+  const { language } = useLanguage();
   const [state, setState] = useState<AppState>({
     userProfile: null,
     activeModuleId: 'empresa-general',
@@ -330,21 +332,31 @@ const AppContainer: React.FC = () => {
     }
   }, []);
 
-  // Generar contenido dinámico
-  const dynamicPlaceholder = generateDynamicPlaceholder(
-    state.userProfile,
-    state.activeModuleId,
-    dbProfile
-  );
+  // Calcular placeholder dinámico basado en el perfil y módulo
+  const getDynamicPlaceholder = useCallback(() => {
+    return generateDynamicPlaceholder(
+      state.userProfile,
+      state.activeModuleId,
+      dbProfile,
+      language
+    );
+  }, [state.userProfile, state.activeModuleId, dbProfile, language]);
 
-  const moduleIntro = generateModuleIntro(
-    state.userProfile,
-    state.activeModuleId,
-    dbProfile
-  );
+  // Calcular introducción de módulo basada en el perfil
+  const getModuleIntro = useCallback(() => {
+    return generateModuleIntro(
+      state.userProfile,
+      state.activeModuleId,
+      dbProfile,
+      language
+    );
+  }, [state.userProfile, state.activeModuleId, dbProfile, language]);
 
   // Obtener título del módulo actual
-  const currentModuleTitle = businessModules.find(m => m.id === state.activeModuleId)?.name || 'Reporte FlowForge AI';
+  const currentModuleTitle = useMemo(() => {
+    const activeModule = businessModules.find(m => m.id === state.activeModuleId);
+    return activeModule ? activeModule.name[language] : '';
+  }, [state.activeModuleId, language]);
 
   // Pantalla de inicialización
   if (appStatus === AppStatus.INITIALIZING) {
@@ -426,8 +438,8 @@ const AppContainer: React.FC = () => {
       isProfileComplete={state.isProfileComplete}
       isDarkMode={state.isDarkMode}
       isSidebarOpen={isSidebarOpen}
-      dynamicPlaceholder={dynamicPlaceholder}
-      moduleIntro={moduleIntro}
+      dynamicPlaceholder={getDynamicPlaceholder()}
+      moduleIntro={getModuleIntro()}
       currentModuleTitle={currentModuleTitle}
       showWelcome={showWelcome}
       onProfileSubmit={handleProfileSubmit}
@@ -437,7 +449,8 @@ const AppContainer: React.FC = () => {
       onToggleDarkMode={handleToggleDarkMode}
       onToggleSidebar={handleToggleSidebar}
       onRetry={handleRetry}
-      onShowAuth={() => setShowAuthModal(true)}      onShowHistory={() => setShowReportHistory(true)}
+      onShowAuth={() => setShowAuthModal(true)}
+      onShowHistory={() => setShowReportHistory(true)}
       onSignOut={handleSignOut}
       onGetStarted={handleGetStarted}
       onShowWelcome={handleShowWelcome}

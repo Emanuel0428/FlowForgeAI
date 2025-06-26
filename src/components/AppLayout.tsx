@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { User } from '@supabase/supabase-js';
-import { Moon, Sun, Menu, X, Brain, Cpu, Sparkles, LogOut, History, UserCircle, MoreVertical, Settings } from 'lucide-react';
+import { Moon, Sun, Menu, X, Brain, Cpu, Sparkles, LogOut, History, UserCircle, MoreVertical, Settings, Globe } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
 import { businessModules } from '../data/modules';
 import { UserProfileData } from '../types';
@@ -12,6 +12,8 @@ import LoadingSpinner from './LoadingSpinner';
 import ErrorMessage from './ErrorMessage';
 import UserProfileView from './UserProfileView';
 import WelcomeDashboard from './WelcomeDashboard';
+import { useLanguage } from '../config/language';
+import { SupportedLanguage } from '../config/elevenlabs';
 
 interface AppLayoutProps {
   user: User | null;
@@ -73,6 +75,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const activeModule = businessModules.find(module => module.id === activeModuleId);
+  const { language, setLanguage, t } = useLanguage();
 
   // Cerrar menú cuando se hace clic fuera
   useEffect(() => {
@@ -134,6 +137,12 @@ const AppLayout: React.FC<AppLayoutProps> = ({
     if (onShowWelcome) {
       onShowWelcome();
     }
+  };
+
+  // Handle language change
+  const handleLanguageChange = (newLanguage: SupportedLanguage) => {
+    setLanguage(newLanguage);
+    setIsUserMenuOpen(false);
   };
 
   // Show auth prompt if not authenticated
@@ -335,7 +344,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({
                       <UserCircle className="h-5 w-5 text-white" />
                     </div>
                     <div>
-                      <p className="font-semibold" style={{ color: 'var(--text-primary)' }}>Menú de Usuario</p>
+                      <p className="font-semibold" style={{ color: 'var(--text-primary)' }}>{t('menu', 'userMenu')}</p>
                       <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>{user?.email}</p>
                     </div>
                   </div>
@@ -362,8 +371,8 @@ const AppLayout: React.FC<AppLayoutProps> = ({
                   >
                     <History className="h-5 w-5 mr-4 text-iridescent-blue group-hover:text-iridescent-cyan transition-colors" />
                     <div>
-                      <span className="text-sm font-medium block">Historial de Reportes</span>
-                      <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>Ver reportes anteriores</span>
+                      <span className="text-sm font-medium block">{t('common', 'reportHistory')}</span>
+                      <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{t('common', 'viewPreviousReports')}</span>
                     </div>
                   </button>
                   
@@ -388,10 +397,42 @@ const AppLayout: React.FC<AppLayoutProps> = ({
                   >
                     <Brain className="h-5 w-5 mr-4 text-iridescent-violet group-hover:text-iridescent-cyan transition-colors" />
                     <div>
-                      <span className="text-sm font-medium block">Volver al Inicio</span>
-                      <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>Dashboard de bienvenida</span>
+                      <span className="text-sm font-medium block">{t('common', 'goToHome')}</span>
+                      <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{t('common', 'welcomeToDashboard')}</span>
                     </div>
                   </button>
+                  
+                  {/* Language Selection */}
+                  <div className="w-full px-6 py-4 transition-all duration-300 text-left group">
+                    <div className="flex items-center mb-2">
+                      <Globe className="h-5 w-5 mr-4 text-iridescent-blue" />
+                      <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
+                        {t('common', 'language')}
+                      </span>
+                    </div>
+                    <div className="flex items-center space-x-3 pl-9">
+                      <button
+                        onClick={() => handleLanguageChange('en')}
+                        className={`px-3 py-1 rounded-lg text-xs font-medium transition-all duration-200 ${
+                          language === 'en'
+                            ? 'bg-iridescent-blue text-white shadow-md'
+                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+                        }`}
+                      >
+                        🇺🇸 English
+                      </button>
+                      <button
+                        onClick={() => handleLanguageChange('es')}
+                        className={`px-3 py-1 rounded-lg text-xs font-medium transition-all duration-200 ${
+                          language === 'es'
+                            ? 'bg-iridescent-blue text-white shadow-md'
+                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+                        }`}
+                      >
+                        🇪🇸 Español
+                      </button>
+                    </div>
+                  </div>
                   
                   <button
                     onClick={handleToggleDarkMode}
@@ -415,9 +456,9 @@ const AppLayout: React.FC<AppLayoutProps> = ({
                     <div className="flex items-center">
                       <Settings className="h-5 w-5 mr-4 text-iridescent-violet group-hover:text-iridescent-cyan transition-colors" />
                       <div>
-                        <span className="text-sm font-medium block">Tema de Interfaz</span>
+                        <span className="text-sm font-medium block">{t('menu', 'interfaceTheme')}</span>
                         <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
-                          {isDarkMode ? 'Modo líquido oscuro' : 'Modo líquido claro'}
+                          {isDarkMode ? t('menu', 'darkLiquidMode') : t('menu', 'lightLiquidMode')}
                         </span>
                       </div>
                     </div>
@@ -445,8 +486,8 @@ const AppLayout: React.FC<AppLayoutProps> = ({
                   >
                     <LogOut className="h-5 w-5 mr-4 group-hover:text-red-400 transition-colors" />
                     <div>
-                      <span className="text-sm font-medium block">Cerrar Sesión</span>
-                      <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>Salir de la aplicación</span>
+                      <span className="text-sm font-medium block">{t('common', 'signOut')}</span>
+                      <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{t('common', 'exitApplication')}</span>
                     </div>
                   </button>
                 </div>
@@ -609,12 +650,12 @@ const AppLayout: React.FC<AppLayoutProps> = ({
                       <p className={`text-sm font-semibold truncate transition-colors ${
                         isActive ? 'text-white' : 'group-hover:text-white'
                       }`}>
-                        {module.name}
+                        {module.name[language]}
                       </p>
                       <p className={`text-xs truncate mt-1 transition-colors ${
                         isActive ? 'text-iridescent-blue/80' : 'text-gray-500 group-hover:text-gray-400'
                       }`}>
-                        {module.description}
+                        {module.description[language]}
                       </p>
                     </div>
                     {isActive && (
@@ -698,11 +739,11 @@ const AppLayout: React.FC<AppLayoutProps> = ({
                   )}
                   <div>
                     <h1 className="text-3xl sm:text-4xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
-                      {activeModule ? activeModule.name : 'Selecciona un Módulo'}
+                      {activeModule ? activeModule.name[language] : t('common', 'selectModule')}
                     </h1>
                     {activeModule && (
                       <p className="text-lg" style={{ color: 'var(--text-tertiary)' }}>
-                        {activeModule.description}
+                        {activeModule.description[language]}
                       </p>
                     )}
                   </div>

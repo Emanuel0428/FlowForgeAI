@@ -12,6 +12,7 @@ import {
 } from '../config/elevenlabs';
 import { isGeminiAvailable } from '../config/gemini';
 import { generateAIResponse } from '../services/aiConversationService';
+import { useLanguage } from '../config/language';
 
 interface AIConversationalAssistantProps {
   user: User;
@@ -47,8 +48,11 @@ const AIConversationalAssistant: React.FC<AIConversationalAssistantProps> = ({
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
-  const [selectedLanguage, setSelectedLanguage] = useState<SupportedLanguage>(ELEVENLABS_CONFIG.defaultLanguage);
   const [selectedVoiceIndex, setSelectedVoiceIndex] = useState<number>(ELEVENLABS_CONFIG.defaultVoiceIndex);
+  
+  // Language context
+  const { language, t, setLanguage } = useLanguage();
+  const [selectedLanguage, setSelectedLanguage] = useState<SupportedLanguage>(language);
   
   // Referencia al contenedor de mensajes para auto-scroll
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -57,6 +61,11 @@ const AIConversationalAssistant: React.FC<AIConversationalAssistantProps> = ({
   useEffect(() => {
     setIsVoiceEnabled(isElevenLabsConfigured());
   }, []);
+  
+  // Sync the selected language with the app language
+  useEffect(() => {
+    setSelectedLanguage(language);
+  }, [language]);
   
   // Verificar si el reconocimiento de voz está disponible
   useEffect(() => {
@@ -92,7 +101,9 @@ const AIConversationalAssistant: React.FC<AIConversationalAssistantProps> = ({
   // Mensaje inicial de bienvenida
   useEffect(() => {
     if (messages.length === 0) {
-      const welcomeMessage = `¡Hola ${user.email?.split('@')[0] || 'usuario'}! Soy tu asistente de FlowForge AI. ¿En qué puedo ayudarte hoy? Puedes preguntarme sobre los módulos de análisis disponibles o cómo puedo ayudarte con tu negocio ${userProfile.businessType}.`;
+      const welcomeMessage = language === 'en'
+        ? `Hello ${user.email?.split('@')[0] || 'user'}! I'm your FlowForge AI assistant. How can I help you today? You can ask me about the available analysis modules or how I can help with your ${userProfile.businessType} business.`
+        : `¡Hola ${user.email?.split('@')[0] || 'usuario'}! Soy tu asistente de FlowForge AI. ¿En qué puedo ayudarte hoy? Puedes preguntarme sobre los módulos de análisis disponibles o cómo puedo ayudarte con tu negocio ${userProfile.businessType}.`;
       
       setMessages([
         {
@@ -326,6 +337,7 @@ const AIConversationalAssistant: React.FC<AIConversationalAssistantProps> = ({
   // Cambiar idioma
   const handleLanguageChange = (language: SupportedLanguage) => {
     setSelectedLanguage(language);
+    setLanguage(language);
     setSelectedVoiceIndex(0);
     
     // Detener audio actual si existe
@@ -379,10 +391,10 @@ const AIConversationalAssistant: React.FC<AIConversationalAssistantProps> = ({
           </div>
           <div>
             <h3 className="font-semibold" style={{ color: 'var(--text-primary)' }}>
-              Asistente Conversacional
+              {t('welcome', 'conversationalAssistant')}
             </h3>
             <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
-              {isVoiceEnabled ? 'ElevenLabs activo' : 'Voz no configurada'} • {isGeminiAvailable ? 'Gemini activo' : 'Modo básico'}
+              {isVoiceEnabled ? t('welcome', 'fullyFunctional') : t('welcome', 'notConfigured')} • {isGeminiAvailable ? 'Gemini activo' : 'Modo básico'}
             </p>
           </div>
         </div>
@@ -392,14 +404,14 @@ const AIConversationalAssistant: React.FC<AIConversationalAssistantProps> = ({
           <div className="relative group">
             <button 
               className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-              title="Configuración"
+              title={t('common', 'language')}
             >
               <Settings className="h-4 w-4" style={{ color: 'var(--text-secondary)' }} />
             </button>
             
             <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-3 hidden group-hover:block z-10">
               <div className="mb-3">
-                <p className="text-xs font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Idioma:</p>
+                <p className="text-xs font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>{t('common', 'language')}:</p>
                 <div className="flex space-x-2">
                   {Object.entries(ELEVENLABS_CONFIG.languages).map(([langCode, langConfig]) => (
                     <button
@@ -418,7 +430,7 @@ const AIConversationalAssistant: React.FC<AIConversationalAssistantProps> = ({
               </div>
               
               <div>
-                <p className="text-xs font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Voz:</p>
+                <p className="text-xs font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>{t('welcome', 'voice')}:</p>
                 <div className="flex space-x-2">
                   {[0, 1, 2].map((voiceIndex) => (
                     <button
@@ -448,7 +460,7 @@ const AIConversationalAssistant: React.FC<AIConversationalAssistantProps> = ({
                   ? 'bg-gray-200 dark:bg-gray-700 cursor-not-allowed' 
                   : 'hover:bg-gray-200 dark:hover:bg-gray-700'
               }`}
-              title={isPlaying ? 'Pausar' : 'Reproducir'}
+              title={isPlaying ? t('welcome', 'pause') : t('welcome', 'play')}
             >
               {isGeneratingAudio ? (
                 <Loader2 className="h-4 w-4 animate-spin" style={{ color: 'var(--text-secondary)' }} />

@@ -31,11 +31,16 @@ export interface ExtendedUserProfileData extends UserProfileData {
   successMetrics?: string;
 }
 
+export interface LocalizedText {
+  en: string;
+  es: string;
+}
+
 export interface ModuleDefinition {
   id: string;
-  name: string;
+  name: LocalizedText;
   icon: string;
-  description: string;
+  description: LocalizedText;
 }
 
 export interface AppState {

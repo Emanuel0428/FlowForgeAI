@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Send, Lightbulb, CheckCircle, ArrowRight, Sparkles, Zap, Eye, EyeOff, Mic } from 'lucide-react';
 import VoiceToTextButton from './VoiceToTextButton';
+import { SupportedLanguage } from '../config/elevenlabs';
+import { useLanguage } from '../config/language';
 
 interface ModuleInputFormProps {
   onSubmit: (input: string) => void;
@@ -16,7 +18,9 @@ const ModuleInputForm: React.FC<ModuleInputFormProps> = ({
   dynamicPlaceholder,
   moduleIntro,
   activeModuleId
-}) => {  const [input, setInput] = useState('');
+}) => {  
+  const { language, t } = useLanguage();
+  const [input, setInput] = useState('');
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [inputMode, setInputMode] = useState<'options' | 'custom'>('options');
   const [error, setError] = useState('');
@@ -27,15 +31,21 @@ const ModuleInputForm: React.FC<ModuleInputFormProps> = ({
   const highlightImportantTerms = (text: string) => {
     const importantTerms = [
       // Siglas en inglés
-      'ROI', 'ROAS', 'CRM', 'SEO', 'RRHH',
-      // Términos en español
-      'marketing de crecimiento', 'automatización', 'optimización', 'digital', 'inteligencia',
-      'ingresos', 'ahorro en costos', 'mejora', 'adquisición de clientes', 'conversión',
-      'análisis', 'escalabilidad', 'eficiencia', 'transformación', 'innovación',
-      'ventaja competitiva', 'mercado', 'proceso', 'estrategia', 'rendimiento',
-      'crecimiento', 'automatización de marketing', 'experiencia del cliente',
-      'toma de decisiones', 'flujo de efectivo', 'satisfacción', 'tráfico orgánico',
-      'contenido', 'producto', 'tiempo al mercado', 'éxito'
+      'ROI', 'ROAS', 'CRM', 'SEO', 'HRIS',
+      // Términos en inglés y español
+      'marketing de crecimiento', 'growth marketing', 'automatización', 'automation',
+      'optimización', 'optimization', 'digital', 'intelligence', 'inteligencia',
+      'ingresos', 'revenue', 'ahorro en costos', 'cost savings', 'mejora', 'improvement',
+      'adquisición de clientes', 'customer acquisition', 'conversión', 'conversion',
+      'análisis', 'analysis', 'escalabilidad', 'scalability', 'eficiencia', 'efficiency',
+      'transformación', 'transformation', 'innovación', 'innovation',
+      'ventaja competitiva', 'competitive advantage', 'mercado', 'market',
+      'proceso', 'process', 'estrategia', 'strategy', 'rendimiento', 'performance',
+      'crecimiento', 'growth', 'automatización de marketing', 'marketing automation',
+      'experiencia del cliente', 'customer experience', 'toma de decisiones', 'decision-making',
+      'flujo de efectivo', 'cash flow', 'satisfacción', 'satisfaction',
+      'tráfico orgánico', 'organic traffic', 'contenido', 'content',
+      'producto', 'product', 'tiempo al mercado', 'time to market', 'éxito', 'success'
     ];
     
     let highlightedText = text;
@@ -50,7 +60,7 @@ const ModuleInputForm: React.FC<ModuleInputFormProps> = ({
 
   // Opciones específicas por módulo
   const getModuleOptions = () => {
-    const options: Record<string, string[]> = {
+    const esOptions: Record<string, string[]> = {
       'empresa-general': [
         'Necesito una estrategia integral de transformación digital para optimizar todos mis procesos',
         'Quiero automatizar workflows manuales que consumen el 40% del tiempo de mi equipo',
@@ -116,6 +126,73 @@ const ModuleInputForm: React.FC<ModuleInputFormProps> = ({
       ]
     };
 
+    const enOptions: Record<string, string[]> = {
+      'empresa-general': [
+        'I need a comprehensive digital transformation strategy to optimize all my processes',
+        'I want to automate manual workflows that consume 40% of my team\'s time',
+        'I\'m looking to implement an integrated ERP/CRM to centralize business information',
+        'I need to create real-time KPIs and dashboards to improve decision making',
+        'I want to develop a data-driven culture and scalable processes for growth'
+      ],
+      'marketing-digital': [
+        'I need to reduce my CAC and improve ROAS of my Google Ads and Facebook campaigns',
+        'I want to implement marketing automation for lead nurturing and email marketing',
+        'I\'m looking to optimize my conversion funnel from visitor to recurring customer',
+        'I need to improve my organic SEO and content marketing strategy to generate more leads',
+        'I want to create an attribution modeling system to measure the real ROI of each channel'
+      ],
+      'ventas-crm': [
+        'I need to automate my sales pipeline and opportunity tracking',
+        'I want to implement automated lead scoring and qualification to prioritize prospects',
+        'I\'m looking to reduce my sales cycle and improve lead-to-customer conversion rate',
+        'I need to create automatic proposals and quotes to speed up the sales process',
+        'I want to integrate my CRM with marketing and customer success for a 360° view of the customer'
+      ],
+      'finanzas-contabilidad': [
+        'I need to automate bank reconciliation and daily accounting records',
+        'I want to implement real-time expense control and automatic budgets',
+        'I\'m looking to create automatic financial reports and predictive cash flow dashboards',
+        'I need to optimize automatic invoicing and accounts receivable tracking',
+        'I want to implement profitability analysis by product/service and cost centers'
+      ],
+      'recursos-humanos': [
+        'I need to automate the recruitment process from posting to onboarding',
+        'I want to implement digital performance evaluations and development plans',
+        'I\'m looking to optimize payroll, vacation and employee benefits management',
+        'I need to create an online training system and skills tracking',
+        'I want to implement people analytics to predict turnover and improve retention'
+      ],
+      'atencion-cliente': [
+        'I need to implement an intelligent chatbot for 24/7 handling of frequent inquiries',
+        'I want to automate the ticket system and escalation of complex cases',
+        'I\'m looking to create a self-service help center with knowledge base',
+        'I need to improve response times and implement automatic SLAs',
+        'I want to integrate all channels (email, chat, phone, social) into one platform'
+      ],
+      'contenido-digital': [
+        'I need to automate the creation and scheduling of social media content',
+        'I want to optimize my SEO strategy and keyword positioning',
+        'I\'m looking to implement an editorial calendar and content approval workflow',
+        'I need to create a multichannel distribution system and content repurposing',
+        'I want to measure the ROI of my content marketing and optimize based on performance'
+      ],
+      'estrategia-producto': [
+        'I need to validate product ideas with user research and market analysis',
+        'I want to optimize my product roadmap based on feedback and usage metrics',
+        'I\'m looking to implement agile methodologies and feature prioritization frameworks',
+        'I need to create a competitive analysis and market intelligence system',
+        'I want to improve the user experience and optimize product onboarding'
+      ],
+      'innovacion-rd': [
+        'I need to establish a systematic innovation process and idea management',
+        'I want to create an experimentation and rapid prototyping laboratory',
+        'I\'m looking to implement design thinking and lean startup methodologies',
+        'I need to develop technology partnerships and trend scouting',
+        'I want to create innovation metrics and a balanced R&D project portfolio'
+      ]
+    };
+
+    const options = language === 'en' ? enOptions : esOptions;
     return options[activeModuleId] || options['empresa-general'];
   };
 
@@ -127,12 +204,16 @@ const ModuleInputForm: React.FC<ModuleInputFormProps> = ({
     const finalInput = inputMode === 'options' ? selectedOption : input;
     
     if (!finalInput?.trim()) {
-      setError('Por favor, selecciona una opción o describe tu necesidad específica');
+      setError(language === 'en' 
+        ? 'Please select an option or describe your specific need'
+        : 'Por favor, selecciona una opción o describe tu necesidad específica');
       return;
     }
 
     if (inputMode === 'custom' && finalInput.trim().length < 20) {
-      setError('Por favor, proporciona más detalles (mínimo 20 caracteres)');
+      setError(language === 'en'
+        ? 'Please provide more details (minimum 20 characters)'
+        : 'Por favor, proporciona más detalles (mínimo 20 caracteres)');
       return;
     }
 
@@ -166,15 +247,23 @@ const ModuleInputForm: React.FC<ModuleInputFormProps> = ({
               <Lightbulb className="h-6 w-6 text-iridescent-cyan" />
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-semibold text-white mb-2">📊 Análisis Empresarial Personalizado</h3>
-              <p className="text-sm text-gray-400">Basado en tu perfil específico y objetivos de negocio</p>
+              <h3 className="text-lg font-semibold text-white mb-2">
+                📊 {language === 'en' ? 'Personalized Business Analysis' : 'Análisis Empresarial Personalizado'}
+              </h3>
+              <p className="text-sm text-gray-400">
+                {language === 'en' 
+                  ? 'Based on your specific profile and business objectives'
+                  : 'Basado en tu perfil específico y objetivos de negocio'}
+              </p>
             </div>
           </div>
           <button
             onClick={() => setShowProfileInfo(!showProfileInfo)}
             className="p-2 rounded-xl bg-liquid-surface/30 hover:bg-liquid-surface/50 border border-liquid-border/30 hover:border-iridescent-blue/30 transition-all duration-300 liquid-button group"
             type="button"
-            title={showProfileInfo ? "Ocultar información" : "Mostrar información"}
+            title={showProfileInfo 
+              ? (language === 'en' ? "Hide information" : "Ocultar información")
+              : (language === 'en' ? "Show information" : "Mostrar información")}
           >
             {showProfileInfo ? (
               <EyeOff className="h-5 w-5 text-gray-400 group-hover:text-iridescent-blue transition-colors" />
@@ -226,7 +315,7 @@ const ModuleInputForm: React.FC<ModuleInputFormProps> = ({
               }`}
             >
               <Sparkles className="w-5 h-5 mr-2 inline" />
-              Opciones Inteligentes
+              {language === 'en' ? 'Smart Options' : 'Opciones Inteligentes'}
             </button>
             <button
               type="button"
@@ -238,7 +327,7 @@ const ModuleInputForm: React.FC<ModuleInputFormProps> = ({
               }`}
             >
               <Zap className="w-5 h-5 mr-2 inline" />
-              Descripción Personalizada
+              {language === 'en' ? 'Custom Description' : 'Descripción Personalizada'}
             </button>
           </div>
         </div>
@@ -246,181 +335,113 @@ const ModuleInputForm: React.FC<ModuleInputFormProps> = ({
         <div className="p-4 sm:p-6 md:p-8 relative">
           <div className="mb-8">
             <h2 className="text-3xl font-bold text-white mb-3">
-              {inputMode === 'options' ? 'Selecciona tu Desafío Principal' : 'Cuéntanos tu Desafío Específico'}
-            </h2>
-            <p className="text-gray-400 text-lg">
               {inputMode === 'options' 
-                ? 'Elige la opción que mejor describa tu necesidad actual en este módulo'
-                : 'Mientras más específico seas, más personalizado será tu reporte de recomendaciones.'
+                ? (language === 'en' ? 'Select Your Main Challenge' : 'Selecciona tu Desafío Principal')
+                : (language === 'en' ? 'Tell Us Your Specific Challenge' : 'Cuéntanos tu Desafío Específico')
+              }
+            </h2>
+            <p className="text-gray-400 text-base">
+              {inputMode === 'options'
+                ? (language === 'en' 
+                   ? 'Choose the option that best describes your current business need'
+                   : 'Elige la opción que mejor describa tu necesidad empresarial actual')
+                : (language === 'en'
+                   ? 'Describe in detail your specific challenge to get a customized analysis'
+                   : 'Describe en detalle tu desafío específico para obtener un análisis personalizado')
               }
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {inputMode === 'options' ? (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {moduleOptions.map((option, index) => (
-                  <button
+                  <div 
                     key={index}
-                    type="button"
                     onClick={() => handleOptionSelect(option)}
-                    className={`w-full text-left p-6 rounded-2xl border transition-all duration-500 hover:shadow-lg liquid-button group relative overflow-hidden ${
-                      selectedOption === option
-                        ? 'border-iridescent-blue/50 bg-gradient-to-r from-iridescent-blue/10 to-iridescent-violet/10 shadow-lg liquid-glow'
-                        : 'border-liquid-border hover:border-iridescent-blue/30 bg-liquid-surface/20 hover:bg-liquid-surface/40'
+                    className={`p-5 rounded-2xl border transition-all duration-300 cursor-pointer liquid-button ${
+                      selectedOption === option 
+                        ? 'bg-gradient-to-r from-iridescent-blue/20 to-iridescent-violet/20 border-iridescent-blue/40 shadow-lg liquid-glow'
+                        : 'bg-liquid-surface/30 border-liquid-border/30 hover:bg-liquid-surface/50 hover:border-iridescent-blue/20'
                     }`}
                   >
-                    <div className="flex items-start relative z-10">
-                      <div className={`w-6 h-6 rounded-full border-2 mr-4 mt-0.5 flex items-center justify-center transition-all duration-300 ${
-                        selectedOption === option
-                          ? 'border-iridescent-blue bg-gradient-to-br from-iridescent-blue to-iridescent-violet liquid-glow'
-                          : 'border-gray-500 group-hover:border-iridescent-blue/50'
+                    <div className="flex items-center">
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center mr-4 transition-all duration-300 ${
+                        selectedOption === option 
+                          ? 'bg-iridescent-blue text-white'
+                          : 'bg-liquid-surface/50 text-gray-400'
                       }`}>
-                        {selectedOption === option && (
-                          <CheckCircle className="w-4 h-4 text-white" />
+                        {selectedOption === option ? (
+                          <CheckCircle className="w-5 h-5" />
+                        ) : (
+                          <div className="w-3 h-3 rounded-full bg-gray-600"></div>
                         )}
                       </div>
-                      <div className="flex-1">
-                        <p className="text-gray-200 font-medium leading-relaxed text-lg">
-                          {option}
-                        </p>
-                      </div>
-                      <ArrowRight className={`w-6 h-6 ml-4 transition-all duration-300 ${
-                        selectedOption === option
-                          ? 'text-iridescent-cyan animate-pulse'
-                          : 'text-gray-500 group-hover:text-iridescent-blue'
-                      }`} />
+                      <p className={`flex-1 ${
+                        selectedOption === option ? 'text-white' : 'text-gray-300'
+                      }`}>
+                        {option}
+                      </p>
                     </div>
-                    {selectedOption === option && (
-                      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-iridescent-blue to-iridescent-violet"></div>
-                    )}
-                  </button>
+                  </div>
                 ))}
               </div>
             ) : (
-              <div>
-                <label htmlFor="challenge-input" className="block text-lg font-semibold text-gray-200 mb-4">
-                  Describe tu necesidad específica
-                </label>                <div className="relative">
-                  <textarea
-                    id="challenge-input"
-                    rows={8}
-                    value={input}
-                    onChange={(e) => handleInputChange(e.target.value)}
-                    placeholder={dynamicPlaceholder}
-                    className={`block w-full px-6 py-4 border rounded-2xl shadow-lg focus:outline-none transition-all duration-500 resize-none backdrop-blur-sm ${
-                      error 
-                        ? 'border-red-400 bg-red-900/20' 
-                        : 'border-liquid-border bg-liquid-surface/30 focus:border-iridescent-blue/50 focus:bg-liquid-surface/50'
-                    } text-gray-100 placeholder-gray-500 text-lg liquid-button`}
-                    disabled={isLoading}
-                  />
-                  <div className="absolute inset-0 rounded-2xl bg-glow-gradient opacity-0 hover:opacity-10 transition-opacity duration-300 pointer-events-none"></div>                  {/* Botón de voz a texto con mejor posicionamiento y feedback */}
-                  <div className="absolute right-4 bottom-4 flex items-center">
-                    <VoiceToTextButton                      onTranscriptionResult={(text) => {
-                        // Añadir el texto reconocido al contenido actual
-                        if (text && text.trim()) {
-                          const newText = input ? `${input} ${text}` : text;
-                          handleInputChange(newText);
-                          
-                          // Mostrar un mensaje de éxito en la consola
-                          console.log("✅ Texto dictado añadido correctamente:", text);
-                        }
-                      }}
-                      onRecordingStateChange={(isRecording) => {
-                        setIsVoiceActive(isRecording);
-                      }}
+              <div className="relative">
+                <div className="flex">
+                  <div className="flex-1 relative">
+                    <textarea
+                      value={input}
+                      onChange={(e) => handleInputChange(e.target.value)}
+                      placeholder={dynamicPlaceholder}
+                      className="w-full min-h-[200px] p-5 rounded-l-2xl bg-liquid-surface/30 border border-liquid-border/30 focus:border-iridescent-blue/40 focus:outline-none focus:ring-0 transition-all duration-300 placeholder-gray-500 text-white resize-none"
                       disabled={isLoading}
-                      className="shadow-lg"
-                      stopAfterInactivity={3000} // Dar más tiempo (3 segundos) para detectar silencios
                     />
-                  </div>
-                    {/* Indicador de estado de transcripción mejorado */}
-                  {isVoiceActive && (
-                    <div className="absolute left-6 bottom-4 flex items-center bg-liquid-surface/80 py-2 px-4 rounded-full border border-iridescent-cyan/30 shadow-lg">
-                      <div className="mr-2 w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
-                      <span className="text-sm font-medium text-iridescent-cyan">Escuchando tu voz... Habla con claridad</span>
-                    </div>
-                  )}
-                </div>                <div className="mt-3 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-2 sm:space-y-0">
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center text-sm text-gray-500 space-y-2 sm:space-y-0">
-                    <p className="mr-4">
-                      Mínimo 20 caracteres para un análisis completo
-                    </p>
-                    <div className="flex items-center px-2 py-1 bg-iridescent-blue/10 rounded-full">
-                      <Mic className="w-4 h-4 mr-2 text-iridescent-cyan" /> 
-                      <span className="text-iridescent-cyan">
-                        Haz clic en el micrófono para <strong>dictar tu texto</strong>
-                      </span>
+                    
+                    {/* Voice to text button */}
+                    <div className="absolute bottom-4 right-4">
+                      <VoiceToTextButton
+                        onTranscription={handleInputChange}
+                        isActive={isVoiceActive}
+                        setIsActive={setIsVoiceActive}
+                        language={language}
+                      />
                     </div>
                   </div>
-                  <p className={`text-sm font-medium ${
-                    input.length < 20 
-                      ? 'text-gray-500' 
-                      : 'text-iridescent-cyan'
-                  }`}>
-                    {input.length} caracteres
-                  </p>
                 </div>
               </div>
             )}
-
+            
             {error && (
-              <div className="liquid-card bg-red-900/20 border border-red-500/30 p-4 rounded-2xl">
-                <p className="text-red-300 font-medium">
-                  {error}
-                </p>
+              <div className="text-red-400 text-sm px-2">
+                {error}
               </div>
             )}
 
-            <div className="flex justify-end pt-6 border-t border-liquid-border/30">
+            <div className="flex justify-end">
               <button
                 type="submit"
-                disabled={isLoading || (inputMode === 'options' ? !selectedOption : !input.trim())}
-                className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-iridescent-blue to-iridescent-violet hover:from-iridescent-cyan hover:to-iridescent-blue text-white font-bold rounded-2xl transition-all duration-500 transform hover:scale-105 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-lg liquid-glow-hover relative overflow-hidden"
+                disabled={isLoading || (!selectedOption && inputMode === 'options') || (input.trim().length < 20 && inputMode === 'custom')}
+                className={`px-8 py-4 rounded-xl font-semibold transition-all duration-500 flex items-center space-x-2 ${
+                  isLoading || (!selectedOption && inputMode === 'options') || (input.trim().length < 20 && inputMode === 'custom')
+                    ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-iridescent-blue to-iridescent-violet hover:from-iridescent-cyan hover:to-iridescent-blue text-white transform hover:scale-105 shadow-lg liquid-glow-hover'
+                }`}
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-iridescent-violet to-iridescent-cyan opacity-0 hover:opacity-20 transition-opacity duration-300"></div>
                 {isLoading ? (
                   <>
-                    <div className="liquid-loader w-5 h-5 mr-3"></div>
-                    Generando Reporte Inteligente...
+                    <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin mr-2"></div>
+                    <span>{language === 'en' ? 'Processing...' : 'Procesando...'}</span>
                   </>
                 ) : (
                   <>
-                    Generar Reporte Profesional
-                    <Send className="w-5 h-5 ml-3" />
+                    <span>{language === 'en' ? 'Generate Analysis' : 'Generar Análisis'}</span>
+                    <ArrowRight className="w-5 h-5 ml-2" />
                   </>
                 )}
               </button>
             </div>
           </form>
-
-          {/* Tips Section */}
-          <div className="mt-8 liquid-card bg-gradient-to-r from-liquid-surface/30 to-iridescent-blue/5 p-6 border border-iridescent-blue/20 relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-iridescent-blue to-iridescent-violet"></div>
-            <h3 className="text-lg font-semibold text-gray-200 mb-4 flex items-center">
-              <Lightbulb className="w-5 h-5 mr-2 text-iridescent-cyan animate-pulse" />
-              Consejos para obtener mejores recomendaciones:
-            </h3>
-            <ul className="text-sm text-gray-400 space-y-3">
-              <li className="flex items-start">
-                <span className="text-iridescent-blue mr-3 text-lg">•</span>
-                Menciona herramientas o procesos específicos que ya uses
-              </li>
-              <li className="flex items-start">
-                <span className="text-iridescent-violet mr-3 text-lg">•</span>
-                Incluye métricas o números si los tienes disponibles
-              </li>
-              <li className="flex items-start">
-                <span className="text-iridescent-cyan mr-3 text-lg">•</span>
-                Describe el resultado ideal que te gustaría lograr
-              </li>
-              <li className="flex items-start">
-                <span className="text-iridescent-emerald mr-3 text-lg">•</span>
-                Menciona limitaciones de tiempo, presupuesto o recursos
-              </li>
-            </ul>
-          </div>
         </div>
       </div>
     </div>
