@@ -29,6 +29,7 @@ import {
   getWelcomeMessage,
   type SupportedLanguage 
 } from '../config/elevenlabs';
+import AIConversationalAssistant from './AIConversationalAssistant';
 
 interface WelcomeDashboardProps {
   user: User;
@@ -53,6 +54,7 @@ const WelcomeDashboard: React.FC<WelcomeDashboardProps> = ({
   const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
   const [selectedLanguage, setSelectedLanguage] = useState<SupportedLanguage>(ELEVENLABS_CONFIG.defaultLanguage);
   const [selectedVoiceIndex, setSelectedVoiceIndex] = useState<number>(ELEVENLABS_CONFIG.defaultVoiceIndex);
+  const [showConversationalAssistant, setShowConversationalAssistant] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -62,16 +64,26 @@ const WelcomeDashboard: React.FC<WelcomeDashboardProps> = ({
     setIsVoiceEnabled(isElevenLabsConfigured());
   }, []);
 
+  // Efecto para limpiar recursos de audio al desmontar o cuando cambian
   useEffect(() => {
-    return () => {
+    // Función para limpiar recursos de audio
+    const cleanupAudioResources = () => {
       if (audioElement) {
+        // Detener reproducción y eliminar listeners
+        audioElement.oncanplaythrough = null;
+        audioElement.onerror = null;
+        audioElement.onended = null;
         audioElement.pause();
         audioElement.src = '';
       }
+      
       if (audioUrl) {
         URL.revokeObjectURL(audioUrl);
       }
     };
+    
+    // Limpiar al desmontar o cuando cambian las dependencias
+    return cleanupAudioResources;
   }, [audioElement, audioUrl]);
 
   const getGreeting = () => {
@@ -151,33 +163,32 @@ const WelcomeDashboard: React.FC<WelcomeDashboardProps> = ({
         }
       );
 
-      // Crear URL del blob con verificación de seguridad
-      let audioUrl: string;
-      try {
-        audioUrl = URL.createObjectURL(audioBlob);
-      } catch (error) {
-        console.error('Error creando blob URL:', error);
-        throw new Error('No se pudo crear el archivo de audio. Verifica la configuración del navegador.');
+      // Verificar que el blob de audio sea válido
+      if (!audioBlob || audioBlob.size === 0) {
+        throw new Error('El servidor devolvió un blob de audio vacío o inválido');
       }
       
+      // Crear un nuevo blob con el tipo MIME correcto explícito
+      const safeBlob = new Blob([await audioBlob.arrayBuffer()], { 
+        type: audioBlob.type || 'audio/mpeg' 
+      });
+      
+      // Crear URL del blob
+      const audioUrl = URL.createObjectURL(safeBlob);
       setAudioUrl(audioUrl);
       
-      // Reproducir automáticamente con manejo mejorado de errores
+      // Crear un nuevo elemento de audio
       const audio = new Audio();
       
-      // Configurar manejo de errores antes de asignar src
-      audio.onerror = (error) => {
-        console.error('Error al cargar/reproducir audio:', error);
+      // Configurar opciones importantes
+      audio.crossOrigin = "anonymous";
+      audio.preload = "auto";
+      
+      // Configurar manejadores de eventos antes de asignar src
+      audio.onerror = () => {
+        // Limpiar recursos en caso de error
         setIsPlaying(false);
         setVoicePreview(false);
-        
-        // Limpiar recursos
-        if (audioUrl) {
-          URL.revokeObjectURL(audioUrl);
-          setAudioUrl(null);
-        }
-        
-        alert('Error al reproducir el audio. Esto puede deberse a las políticas de seguridad del navegador.');
       };
       
       audio.onended = () => {
@@ -185,26 +196,29 @@ const WelcomeDashboard: React.FC<WelcomeDashboardProps> = ({
         setVoicePreview(false);
       };
       
-      audio.oncanplaythrough = () => {
-        // Audio está listo para reproducir
-        audio.play().catch((playError) => {
-          console.error('Error al iniciar reproducción:', playError);
-          setIsPlaying(false);
-          setVoicePreview(false);
-          alert('No se pudo reproducir el audio automáticamente. Haz clic en el botón para reproducir manualmente.');
-        });
-      };
-      
-      // Asignar src después de configurar los event listeners
+      // Asignar el src al audio y esperar a que se cargue
       audio.src = audioUrl;
+      
+      // Guardar referencia al elemento de audio
       setAudioElement(audio);
       
-      setIsPlaying(true);
-      setVoicePreview(true);
+      // Esperar a que el audio esté listo para reproducir
+      audio.oncanplaythrough = () => {
+        audio.play()
+          .then(() => {
+            setIsPlaying(true);
+            setVoicePreview(true);
+          })
+          .catch((playError) => {
+            console.error('Error al iniciar reproducción:', playError);
+            setIsPlaying(false);
+            setVoicePreview(false);
+          });
+      };
       
     } catch (error) {
       console.error('Error con ElevenLabs:', error);
-      alert(`Error al generar el audio: ${error instanceof Error ? error.message : 'Error desconocido'}`);
+      alert('Error al generar el audio. Por favor, inténtalo de nuevo.');
     } finally {
       setIsGeneratingAudio(false);
     }
@@ -221,27 +235,21 @@ const WelcomeDashboard: React.FC<WelcomeDashboardProps> = ({
       audioElement.pause();
       setIsPlaying(false);
       setVoicePreview(false);
-    } else if (audioUrl && audioElement) {
-      // Reproducir audio existente con manejo de errores
-      audioElement.play().catch((error) => {
-        console.error('Error al reproducir audio existente:', error);
-        setIsPlaying(false);
-        setVoicePreview(false);
-        
-        // Si hay error, intentar regenerar el audio
-        if (audioUrl) {
-          URL.revokeObjectURL(audioUrl);
-          setAudioUrl(null);
-        }
-        setAudioElement(null);
-        
-        // Mostrar mensaje informativo
-        alert('Error de reproducción. Generando nuevo audio...');
-        setTimeout(() => generateVoiceMessage(), 500);
-      });
-      setIsPlaying(true);
-      setVoicePreview(true);
     } else {
+      // Siempre generar nuevo audio para evitar problemas de recursos
+      // Limpiar recursos anteriores primero
+      if (audioElement) {
+        audioElement.pause();
+        audioElement.src = '';
+      }
+      
+      if (audioUrl) {
+        URL.revokeObjectURL(audioUrl);
+        setAudioUrl(null);
+      }
+      
+      setAudioElement(null);
+      
       // Generar nuevo audio
       generateVoiceMessage();
     }
@@ -280,6 +288,11 @@ const WelcomeDashboard: React.FC<WelcomeDashboardProps> = ({
     }
   };
 
+  // Función para alternar entre el asistente conversacional y el panel de bienvenida
+  const toggleConversationalAssistant = () => {
+    setShowConversationalAssistant(prev => !prev);
+  };
+
   const getIcon = (iconName: string) => {
     const Icon = (LucideIcons as any)[iconName] || Circle;
     return Icon;
@@ -302,7 +315,8 @@ const WelcomeDashboard: React.FC<WelcomeDashboardProps> = ({
           <br />
           Transformamos datos en decisiones estratégicas con inteligencia artificial a tu medida.
         </p>          
-        {/* Voice Assistant Section - ElevenLabs Integration Active */}
+        
+        {/* Asistente Conversacional o Asistente de Voz */}
         <div className="max-w-2xl mx-auto mb-6 lg:mb-8 px-4">
           <div 
             className="liquid-card p-4 lg:p-6 border relative overflow-hidden"
@@ -317,126 +331,168 @@ const WelcomeDashboard: React.FC<WelcomeDashboardProps> = ({
                 : 'from-gray-400 to-gray-500'
             }`}></div>
             
-            <div className="flex items-center justify-center mb-3 lg:mb-4">
-              <div className={`p-2 lg:p-3 rounded-xl mr-3 ${
-                isVoiceEnabled 
-                  ? 'bg-gradient-to-br from-iridescent-violet/30 to-iridescent-cyan/30' 
-                  : 'bg-gray-500/30'
-              }`}>
-                <Volume2 className={`h-5 lg:h-6 w-5 lg:w-6 ${
-                  isVoiceEnabled ? 'text-white' : 'text-gray-400'
-                }`} />
+            {/* Botones para alternar entre asistentes */}
+            <div className="flex justify-center mb-4">
+              <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-1 flex">
+                <button
+                  onClick={() => setShowConversationalAssistant(false)}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                    !showConversationalAssistant 
+                      ? 'bg-gradient-to-r from-iridescent-blue to-iridescent-violet text-white' 
+                      : 'text-gray-600 dark:text-gray-300'
+                  }`}
+                >
+                  Asistente de Voz
+                </button>
+                <button
+                  onClick={() => setShowConversationalAssistant(true)}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                    showConversationalAssistant 
+                      ? 'bg-gradient-to-r from-iridescent-blue to-iridescent-violet text-white' 
+                      : 'text-gray-600 dark:text-gray-300'
+                  }`}
+                >
+                  Asistente Conversacional
+                </button>
               </div>
-              <h3 className="text-base lg:text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
-                {isVoiceEnabled ? 'Asistente de Voz IA' : 'Asistente de Voz IA (Sin configurar)'}
-              </h3>
             </div>
-              <p className="text-xs lg:text-sm mb-3 lg:mb-4 text-center" style={{ color: 'var(--text-tertiary)' }}>
-              {isVoiceEnabled 
-                ? 'Interactúa con FlowForge usando tu voz. Powered by ElevenLabs.'
-                : 'Configura tu API key de ElevenLabs para activar el asistente de voz.'
-              }
-              <br />
-              <em>{isVoiceEnabled ? '¡Totalmente funcional!' : 'Agrega VITE_ELEVENLABS_API_KEY a tu .env'}</em>
-            </p>
             
-            {/* Language and Voice Selection */}
-            {isVoiceEnabled && (
-              <div className="mb-4 p-3 rounded-lg bg-gradient-to-r from-iridescent-blue/5 to-iridescent-violet/5 border border-iridescent-blue/20">
-                <div className="flex flex-col space-y-3">
-                  {/* Language Selection */}
-                  <div className="flex items-center justify-center space-x-3">
-                    <Globe className="w-4 h-4 text-iridescent-blue" />
-                    <span className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>Idioma:</span>
-                    <div className="flex space-x-2">
-                      {Object.entries(ELEVENLABS_CONFIG.languages).map(([langCode, langConfig]) => (
-                        <button
-                          key={langCode}
-                          onClick={() => handleLanguageChange(langCode as SupportedLanguage)}
-                          className={`px-3 py-1 rounded-lg text-xs font-medium transition-all duration-200 ${
-                            selectedLanguage === langCode
-                              ? 'bg-iridescent-blue text-white shadow-md'
-                              : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
-                          }`}
-                        >
-                          {langConfig.flag} {langConfig.name}
-                        </button>
-                      ))}
+            {showConversationalAssistant ? (
+              // Mostrar el asistente conversacional
+              <div className="h-[400px]">
+                <AIConversationalAssistant 
+                  user={user}
+                  userProfile={userProfile}
+                  isDarkMode={isDarkMode}
+                />
+              </div>
+            ) : (
+              // Mostrar el asistente de voz original
+              <>
+                <div className="flex items-center justify-center mb-3 lg:mb-4">
+                  <div className={`p-2 lg:p-3 rounded-xl mr-3 ${
+                    isVoiceEnabled 
+                      ? 'bg-gradient-to-br from-iridescent-violet/30 to-iridescent-cyan/30' 
+                      : 'bg-gray-500/30'
+                  }`}>
+                    <Volume2 className={`h-5 lg:h-6 w-5 lg:w-6 ${
+                      isVoiceEnabled ? 'text-white' : 'text-gray-400'
+                    }`} />
+                  </div>
+                  <h3 className="text-base lg:text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
+                    {isVoiceEnabled ? 'Asistente de Voz IA' : 'Asistente de Voz IA (Sin configurar)'}
+                  </h3>
+                </div>
+                  <p className="text-xs lg:text-sm mb-3 lg:mb-4 text-center" style={{ color: 'var(--text-tertiary)' }}>
+                  {isVoiceEnabled 
+                    ? 'Interactúa con FlowForge usando tu voz. Powered by ElevenLabs.'
+                    : 'Configura tu API key de ElevenLabs para activar el asistente de voz.'
+                  }
+                  <br />
+                  <em>{isVoiceEnabled ? '¡Totalmente funcional!' : 'Agrega VITE_ELEVENLABS_API_KEY a tu .env'}</em>
+                </p>
+                
+                {/* Language and Voice Selection */}
+                {isVoiceEnabled && (
+                  <div className="mb-4 p-3 rounded-lg bg-gradient-to-r from-iridescent-blue/5 to-iridescent-violet/5 border border-iridescent-blue/20">
+                    <div className="flex flex-col space-y-3">
+                      {/* Language Selection */}
+                      <div className="flex items-center justify-center space-x-3">
+                        <Globe className="w-4 h-4 text-iridescent-blue" />
+                        <span className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>Idioma:</span>
+                        <div className="flex space-x-2">
+                          {Object.entries(ELEVENLABS_CONFIG.languages).map(([langCode, langConfig]) => (
+                            <button
+                              key={langCode}
+                              onClick={() => handleLanguageChange(langCode as SupportedLanguage)}
+                              className={`px-3 py-1 rounded-lg text-xs font-medium transition-all duration-200 ${
+                                selectedLanguage === langCode
+                                  ? 'bg-iridescent-blue text-white shadow-md'
+                                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+                              }`}
+                            >
+                              {langConfig.flag} {langConfig.name}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      {/* Voice Selection */}
+                      <div className="flex items-center justify-center space-x-3">
+                        <Mic className="w-4 h-4 text-iridescent-violet" />
+                        <span className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>Voz:</span>
+                        <div className="flex space-x-2">
+                          {[0, 1, 2].map((voiceIndex) => (
+                            <button
+                              key={voiceIndex}
+                              onClick={() => handleVoiceChange(voiceIndex)}
+                              className={`px-3 py-1 rounded-lg text-xs font-medium transition-all duration-200 ${
+                                selectedVoiceIndex === voiceIndex
+                                  ? 'bg-iridescent-violet text-white shadow-md'
+                                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+                              }`}
+                              title={`Voz ${voiceIndex + 1} en ${ELEVENLABS_CONFIG.languages[selectedLanguage].name}`}
+                            >
+                              Voz {voiceIndex + 1}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  
-                  {/* Voice Selection */}
-                  <div className="flex items-center justify-center space-x-3">
-                    <Mic className="w-4 h-4 text-iridescent-violet" />
-                    <span className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>Voz:</span>
-                    <div className="flex space-x-2">
-                      {[0, 1, 2].map((voiceIndex) => (
-                        <button
-                          key={voiceIndex}
-                          onClick={() => handleVoiceChange(voiceIndex)}
-                          className={`px-3 py-1 rounded-lg text-xs font-medium transition-all duration-200 ${
-                            selectedVoiceIndex === voiceIndex
-                              ? 'bg-iridescent-violet text-white shadow-md'
-                              : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
-                          }`}
-                          title={`Voz ${voiceIndex + 1} en ${ELEVENLABS_CONFIG.languages[selectedLanguage].name}`}
-                        >
-                          Voz {voiceIndex + 1}
-                        </button>
-                      ))}
-                    </div>
+                )}
+                
+                <div className="flex items-center justify-center space-x-4">
+                  <button
+                    onClick={toggleVoicePreview}
+                    disabled={!isVoiceEnabled || isGeneratingAudio}
+                    className={`flex items-center px-3 lg:px-4 py-2 rounded-xl text-white text-sm transition-all duration-300 ${
+                      isVoiceEnabled && !isGeneratingAudio
+                        ? 'bg-gradient-to-r from-iridescent-violet to-iridescent-cyan hover:from-iridescent-blue hover:to-iridescent-violet transform hover:scale-105 cursor-pointer'
+                        : 'bg-gray-500/50 opacity-70 cursor-not-allowed'
+                    }`}
+                    title={isVoiceEnabled ? 'Escucha el mensaje de bienvenida' : 'Configura ElevenLabs API'}
+                  >
+                    {isGeneratingAudio ? (
+                      <>
+                        <div className="w-3 lg:w-4 h-3 lg:h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Generando...
+                      </>
+                    ) : (
+                      <>
+                        {isPlaying ? <Pause className="w-3 lg:w-4 h-3 lg:h-4 mr-2" /> : <Play className="w-3 lg:w-4 h-3 lg:h-4 mr-2" />}
+                        {isPlaying ? 'Pausar' : 'Escuchar'}
+                      </>
+                    )}
+                  </button>
+                  <div className="flex items-center space-x-2">
+                    <Mic className={`w-3 lg:w-4 h-3 lg:h-4 ${
+                      isVoiceEnabled ? 'text-iridescent-blue' : 'text-gray-400'
+                    }`} />
+                    <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
+                      {isVoiceEnabled ? 'ElevenLabs activo' : 'API no configurada'}
+                    </span>
                   </div>
                 </div>
-              </div>
+                  {/* Status Indicator */}
+                <div className={`mt-3 lg:mt-4 p-2 lg:p-3 rounded-lg border ${
+                  isVoiceEnabled 
+                    ? 'bg-gradient-to-r from-green-500/10 to-iridescent-cyan/10 border-green-500/20'
+                    : 'bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border-yellow-500/20'
+                }`}>
+                  <p className="text-xs text-center" style={{ color: 'var(--text-tertiary)' }}>
+                    {isVoiceEnabled 
+                      ? `✅ ElevenLabs activo • ${ELEVENLABS_CONFIG.languages[selectedLanguage].name} • ${ELEVENLABS_CONFIG.languages[selectedLanguage].model}`
+                      : '⚠️ Configura VITE_ELEVENLABS_API_KEY para activar'
+                    }
+                  </p>
+                </div>
+              </>
             )}
-            
-            <div className="flex items-center justify-center space-x-4">
-              <button
-                onClick={toggleVoicePreview}
-                disabled={!isVoiceEnabled || isGeneratingAudio}
-                className={`flex items-center px-3 lg:px-4 py-2 rounded-xl text-white text-sm transition-all duration-300 ${
-                  isVoiceEnabled && !isGeneratingAudio
-                    ? 'bg-gradient-to-r from-iridescent-violet to-iridescent-cyan hover:from-iridescent-blue hover:to-iridescent-violet transform hover:scale-105 cursor-pointer'
-                    : 'bg-gray-500/50 opacity-70 cursor-not-allowed'
-                }`}
-                title={isVoiceEnabled ? 'Escucha el mensaje de bienvenida' : 'Configura ElevenLabs API'}
-              >
-                {isGeneratingAudio ? (
-                  <>
-                    <div className="w-3 lg:w-4 h-3 lg:h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Generando...
-                  </>
-                ) : (
-                  <>
-                    {isPlaying ? <Pause className="w-3 lg:w-4 h-3 lg:h-4 mr-2" /> : <Play className="w-3 lg:w-4 h-3 lg:h-4 mr-2" />}
-                    {isPlaying ? 'Pausar' : 'Escuchar'}
-                  </>
-                )}
-              </button>
-              <div className="flex items-center space-x-2">
-                <Mic className={`w-3 lg:w-4 h-3 lg:h-4 ${
-                  isVoiceEnabled ? 'text-iridescent-blue' : 'text-gray-400'
-                }`} />
-                <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
-                  {isVoiceEnabled ? 'ElevenLabs activo' : 'API no configurada'}
-                </span>
-              </div>
-            </div>
-              {/* Status Indicator */}
-            <div className={`mt-3 lg:mt-4 p-2 lg:p-3 rounded-lg border ${
-              isVoiceEnabled 
-                ? 'bg-gradient-to-r from-green-500/10 to-iridescent-cyan/10 border-green-500/20'
-                : 'bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border-yellow-500/20'
-            }`}>
-              <p className="text-xs text-center" style={{ color: 'var(--text-tertiary)' }}>
-                {isVoiceEnabled 
-                  ? `✅ ElevenLabs activo • ${ELEVENLABS_CONFIG.languages[selectedLanguage].name} • ${ELEVENLABS_CONFIG.languages[selectedLanguage].model}`
-                  : '⚠️ Configura VITE_ELEVENLABS_API_KEY para activar'
-                }
-              </p>
-            </div>
           </div>
-        </div><div className="flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0 sm:space-x-6 px-4">
+        </div>
+
+        <div className="flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0 sm:space-x-6 px-4">
           <button
             onClick={onGetStarted}
             className="inline-flex items-center px-6 lg:px-8 py-3 lg:py-4 bg-gradient-to-r from-iridescent-blue to-iridescent-violet hover:from-iridescent-cyan hover:to-iridescent-blue text-white font-bold rounded-2xl transition-all duration-500 transform hover:scale-105 shadow-lg liquid-glow-hover relative overflow-hidden text-sm lg:text-base"
