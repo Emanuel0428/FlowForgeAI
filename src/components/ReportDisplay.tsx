@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Download, Share, BookOpen, Sparkles, Zap, TrendingUp, BarChart3, PieChart, Target, DollarSign, Clock, Users, Award, AlertTriangle, FileDown } from 'lucide-react';
 import { generateReportPDF } from '../utils/pdfGenerator';
+import { useLanguage } from '../config/language';
 
 interface ReportDisplayProps {
   reportContent: string;
@@ -11,13 +12,14 @@ interface ReportDisplayProps {
 
 const ReportDisplay: React.FC<ReportDisplayProps> = ({ reportContent, moduleTitle, userProfile }) => {
   const reportRef = useRef<HTMLDivElement>(null);
+  const { t } = useLanguage();
 
   const handleDownload = () => {
     const blob = new Blob([reportContent], { type: 'text/markdown' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `reporte-flowforge-ai-${new Date().toISOString().split('T')[0]}.md`;
+    a.download = `flowforge-ai-report-${new Date().toISOString().split('T')[0]}.md`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -31,14 +33,14 @@ const ReportDisplay: React.FC<ReportDisplayProps> = ({ reportContent, moduleTitl
       loadingToast.className = 'fixed top-4 right-4 bg-gradient-to-r from-iridescent-blue to-iridescent-violet text-white px-6 py-3 rounded-2xl shadow-lg z-50 flex items-center';
       loadingToast.innerHTML = `
         <div class="liquid-loader w-5 h-5 mr-3"></div>
-        Generando PDF profesional...
+        ${t('reportDisplay', 'generatingPDF')}
       `;
       document.body.appendChild(loadingToast);
       
       // Generar PDF
       await generateReportPDF(
         reportContent, 
-        moduleTitle || 'Reporte FlowForge AI',
+        moduleTitle || t('reportDisplay', 'shareReport'),
         userProfile
       );
       
@@ -52,7 +54,7 @@ const ReportDisplay: React.FC<ReportDisplayProps> = ({ reportContent, moduleTitl
         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
         </svg>
-        PDF descargado exitosamente
+        ${t('reportDisplay', 'pdfDownloaded')}
       `;
       document.body.appendChild(successToast);
       
@@ -72,7 +74,7 @@ const ReportDisplay: React.FC<ReportDisplayProps> = ({ reportContent, moduleTitl
         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
         </svg>
-        Error al generar PDF
+        ${t('reportDisplay', 'errorGeneratingPDF')}
       `;
       document.body.appendChild(errorToast);
       
@@ -88,8 +90,8 @@ const ReportDisplay: React.FC<ReportDisplayProps> = ({ reportContent, moduleTitl
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'Reporte FlowForge AI',
-          text: 'Mira este reporte personalizado generado por FlowForge AI',
+          title: t('reportDisplay', 'shareReport'),
+          text: t('reportDisplay', 'shareText'),
           url: window.location.href,
         });
       } catch (err) {
@@ -106,7 +108,7 @@ const ReportDisplay: React.FC<ReportDisplayProps> = ({ reportContent, moduleTitl
         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
         </svg>
-        Link copiado al portapapeles
+        ${t('reportDisplay', 'linkCopied')}
       `;
       document.body.appendChild(copyToast);
       
@@ -214,11 +216,11 @@ const ReportDisplay: React.FC<ReportDisplayProps> = ({ reportContent, moduleTitl
             <div>
               <h1 className="text-3xl font-bold mb-2 flex items-center">
                 <Sparkles className="w-8 h-8 mr-3 text-iridescent-cyan animate-pulse" />
-                Reporte Estratégico Profesional
+                {t('reportDisplay', 'strategicAnalysis')} {t('reportDisplay', 'professionalAnalysis')}
               </h1>
               <p className="text-iridescent-blue/80 text-lg flex items-center">
                 <Zap className="w-4 h-4 mr-2" />
-                Análisis de Consultoría Nivel McKinsey • Generado el {new Date().toLocaleDateString('es-ES', {
+                {t('reportDisplay', 'mcKinseyLevel')} {new Date().toLocaleDateString('en-US', {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric'
@@ -231,25 +233,25 @@ const ReportDisplay: React.FC<ReportDisplayProps> = ({ reportContent, moduleTitl
             <button
               onClick={handleShare}
               className="inline-flex items-center px-6 py-3 bg-liquid-surface/30 hover:bg-liquid-surface/50 rounded-2xl transition-all duration-300 liquid-button border border-iridescent-blue/30 hover:border-iridescent-cyan/50"
-              title="Compartir reporte"
+              title={t('reportDisplay', 'share')}
             >
               <Share className="h-5 w-5" />
             </button>
             <button
               onClick={handleDownload}
               className="inline-flex items-center px-6 py-3 bg-liquid-surface/30 hover:bg-liquid-surface/50 rounded-2xl transition-all duration-300 liquid-button border border-iridescent-blue/30 hover:border-iridescent-cyan/50"
-              title="Descargar Markdown"
+              title={t('reportDisplay', 'downloadMarkdown')}
             >
               <Download className="h-5 w-5" />
             </button>
             <button
               onClick={handleDownloadPDF}
               className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-bold rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-lg liquid-glow-hover relative overflow-hidden"
-              title="Descargar PDF Profesional"
+              title={t('reportDisplay', 'downloadPDF')}
             >
               <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-emerald-300 opacity-0 hover:opacity-20 transition-opacity duration-300"></div>
               <FileDown className="h-5 w-5 mr-2" />
-              PDF Profesional
+              {t('reportDisplay', 'downloadPDF')}
             </button>
           </div>
         </div>
@@ -260,17 +262,17 @@ const ReportDisplay: React.FC<ReportDisplayProps> = ({ reportContent, moduleTitl
         <div className="flex items-center justify-center space-x-6 text-sm">
           <div className="flex items-center text-iridescent-cyan">
             <TrendingUp className="w-4 h-4 mr-2" />
-            <span className="font-medium">Análisis Cuantitativo</span>
+            <span className="font-medium">{t('reportDisplay', 'quantitativeAnalysis')}</span>
           </div>
           <div className="w-1 h-4 bg-iridescent-blue/30"></div>
           <div className="flex items-center text-iridescent-emerald">
             <PieChart className="w-4 h-4 mr-2" />
-            <span className="font-medium">ROI Proyectado</span>
+            <span className="font-medium">{t('reportDisplay', 'projectedROILabel')}</span>
           </div>
           <div className="w-1 h-4 bg-iridescent-blue/30"></div>
           <div className="flex items-center text-iridescent-violet">
             <BarChart3 className="w-4 h-4 mr-2" />
-            <span className="font-medium">Benchmarks de Industria</span>
+            <span className="font-medium">{t('reportDisplay', 'industryBenchmarks')}</span>
           </div>
         </div>
       </div>
@@ -279,36 +281,36 @@ const ReportDisplay: React.FC<ReportDisplayProps> = ({ reportContent, moduleTitl
       <div className="liquid-card bg-liquid-surface/40 backdrop-blur-xl p-4 sm:p-6 md:p-8 border-x border-liquid-border" id="metrics-dashboard">
         <h2 className="text-2xl font-bold text-white mb-6 flex items-center">
           <Target className="w-6 h-6 mr-3 text-iridescent-cyan" />
-          Métricas Clave del Proyecto
+          {t('reportDisplay', 'keyMetrics')}
         </h2>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {createMetricCard(
             <DollarSign className="h-6 w-6 text-iridescent-emerald" />,
-            "ROI Proyectado",
-            "45%",
-            "+15% vs. benchmark",
+            t('reportDisplay', 'projectedROI'),
+            t('reportDisplay', 'projectedROIValue'),
+            t('reportDisplay', 'roiBenchmark'),
             "from-emerald-900/20 to-emerald-800/20"
           )}
           {createMetricCard(
             <Clock className="h-6 w-6 text-iridescent-blue" />,
-            "Tiempo de Implementación",
-            "12 meses",
-            "30% más rápido",
+            t('reportDisplay', 'implementationTime'),
+            t('reportDisplay', 'implementationTimeValue'),
+            t('reportDisplay', 'implementationSpeedUp'),
             "from-blue-900/20 to-blue-800/20"
           )}
           {createMetricCard(
             <Users className="h-6 h-6 text-iridescent-violet" />,
-            "Impacto en Productividad",
-            "35%",
-            "Mejora estimada",
+            t('reportDisplay', 'productivityImpact'),
+            t('reportDisplay', 'productivityImpactValue'),
+            t('reportDisplay', 'productivityEstimate'),
             "from-violet-900/20 to-violet-800/20"
           )}
           {createMetricCard(
             <Award className="h-6 w-6 text-iridescent-cyan" />,
-            "Nivel de Confianza",
-            "92%",
-            "Alta probabilidad",
+            t('reportDisplay', 'confidenceLevel'),
+            t('reportDisplay', 'confidenceLevelValue'),
+            t('reportDisplay', 'highProbability'),
             "from-cyan-900/20 to-cyan-800/20"
           )}
         </div>
@@ -317,31 +319,31 @@ const ReportDisplay: React.FC<ReportDisplayProps> = ({ reportContent, moduleTitl
         <div className="mb-8" id="implementation-progress-chart">
           <h3 className="text-xl font-semibold text-white mb-6 flex items-center">
             <BarChart3 className="w-6 h-6 mr-3 text-iridescent-blue" />
-            📈 Progreso de Implementación Proyectado
+            {t('reportDisplay', 'implementationProgressTitle')}
           </h3>
           {createBarChart([
-            { label: "Mes 1-3: Fundación", value: 25, color: "bg-gradient-to-r from-iridescent-blue to-iridescent-violet" },
-            { label: "Mes 4-6: Desarrollo", value: 50, color: "bg-gradient-to-r from-iridescent-violet to-iridescent-cyan" },
-            { label: "Mes 7-9: Integración", value: 75, color: "bg-gradient-to-r from-iridescent-cyan to-iridescent-emerald" },
-            { label: "Mes 10-12: Optimización", value: 100, color: "bg-gradient-to-r from-iridescent-emerald to-iridescent-blue" }
+            { label: t('reportDisplay', 'phase1'), value: 25, color: "bg-gradient-to-r from-iridescent-blue to-iridescent-violet" },
+            { label: t('reportDisplay', 'phase2'), value: 50, color: "bg-gradient-to-r from-iridescent-violet to-iridescent-cyan" },
+            { label: t('reportDisplay', 'phase3'), value: 75, color: "bg-gradient-to-r from-iridescent-cyan to-iridescent-emerald" },
+            { label: t('reportDisplay', 'phase4'), value: 100, color: "bg-gradient-to-r from-iridescent-emerald to-iridescent-blue" }
           ])}
           
           {/* Indicadores adicionales */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
             <div className="text-center p-3 rounded-xl bg-iridescent-blue/10 border border-iridescent-blue/20">
-              <div className="text-sm text-iridescent-blue font-medium">Automatización</div>
+              <div className="text-sm text-iridescent-blue font-medium">{t('reportDisplay', 'automation')}</div>
               <div className="text-lg font-bold text-white">75%</div>
             </div>
             <div className="text-center p-3 rounded-xl bg-iridescent-violet/10 border border-iridescent-violet/20">
-              <div className="text-sm text-iridescent-violet font-medium">Integración</div>
+              <div className="text-sm text-iridescent-violet font-medium">{t('reportDisplay', 'integration')}</div>
               <div className="text-lg font-bold text-white">85%</div>
             </div>
             <div className="text-center p-3 rounded-xl bg-iridescent-cyan/10 border border-iridescent-cyan/20">
-              <div className="text-sm text-iridescent-cyan font-medium">Capacitación</div>
+              <div className="text-sm text-iridescent-cyan font-medium">{t('reportDisplay', 'training')}</div>
               <div className="text-lg font-bold text-white">90%</div>
             </div>
             <div className="text-center p-3 rounded-xl bg-iridescent-emerald/10 border border-iridescent-emerald/20">
-              <div className="text-sm text-iridescent-emerald font-medium">Optimización</div>
+              <div className="text-sm text-iridescent-emerald font-medium">{t('reportDisplay', 'optimization')}</div>
               <div className="text-lg font-bold text-white">95%</div>
             </div>
           </div>
@@ -351,28 +353,28 @@ const ReportDisplay: React.FC<ReportDisplayProps> = ({ reportContent, moduleTitl
         <div className="mb-8" id="roadmap-timeline">
           <h3 className="text-xl font-semibold text-white mb-6 flex items-center">
             <Clock className="w-6 h-6 mr-3 text-iridescent-violet" />
-            🛤️ Hoja de Ruta de Implementación
+            {t('reportDisplay', 'roadmapTitle')}
           </h3>
           {createTimeline([
             {
-              title: "Fase 1: Fundación",
-              duration: "Semanas 1-8",
-              description: "Configuración inicial, selección de herramientas y primeras automatizaciones básicas"
+              title: t('reportDisplay', 'phase1Title'),
+              duration: t('reportDisplay', 'phase1Duration'),
+              description: t('reportDisplay', 'phase1Description')
             },
             {
-              title: "Fase 2: Implementación Core",
-              duration: "Semanas 9-20",
-              description: "Despliegue de sistemas principales e integración de procesos críticos de negocio"
+              title: t('reportDisplay', 'phase2Title'),
+              duration: t('reportDisplay', 'phase2Duration'),
+              description: t('reportDisplay', 'phase2Description')
             },
             {
-              title: "Fase 3: Optimización",
-              duration: "Semanas 21-32",
-              description: "Ajuste fino, capacitación avanzada y optimización de rendimiento del sistema"
+              title: t('reportDisplay', 'phase3Title'),
+              duration: t('reportDisplay', 'phase3Duration'),
+              description: t('reportDisplay', 'phase3Description')
             },
             {
-              title: "Fase 4: Innovación",
-              duration: "Semanas 33-52",
-              description: "Capacidades avanzadas de IA/ML y establecimiento de mejora continua"
+              title: t('reportDisplay', 'phase4Title'),
+              duration: t('reportDisplay', 'phase4Duration'),
+              description: t('reportDisplay', 'phase4Description')
             }
           ])}
           
@@ -381,37 +383,37 @@ const ReportDisplay: React.FC<ReportDisplayProps> = ({ reportContent, moduleTitl
             <div className="p-4 rounded-xl bg-emerald-900/20 border border-emerald-500/30">
               <div className="flex items-center mb-2">
                 <div className="w-3 h-3 bg-emerald-400 rounded-full mr-2"></div>
-                <span className="text-emerald-400 font-medium text-sm">COMPLETADA</span>
+                <span className="text-emerald-400 font-medium text-sm">{t('reportDisplay', 'completed')}</span>
               </div>
-              <div className="text-white font-semibold">Fase 1: Fundación</div>
-              <div className="text-emerald-300 text-sm mt-1">100% Finalizada</div>
+              <div className="text-white font-semibold">{t('reportDisplay', 'phase1Title')}</div>
+              <div className="text-emerald-300 text-sm mt-1">{t('reportDisplay', 'phase1Status')}</div>
             </div>
             
             <div className="p-4 rounded-xl bg-blue-900/20 border border-blue-500/30">
               <div className="flex items-center mb-2">
                 <div className="w-3 h-3 bg-blue-400 rounded-full mr-2 animate-pulse"></div>
-                <span className="text-blue-400 font-medium text-sm">EN PROGRESO</span>
+                <span className="text-blue-400 font-medium text-sm">{t('reportDisplay', 'inProgress')}</span>
               </div>
-              <div className="text-white font-semibold">Fase 2: Desarrollo</div>
-              <div className="text-blue-300 text-sm mt-1">75% Completada</div>
+              <div className="text-white font-semibold">{t('reportDisplay', 'phase2Title')}</div>
+              <div className="text-blue-300 text-sm mt-1">{t('reportDisplay', 'phase2Status')}</div>
             </div>
             
             <div className="p-4 rounded-xl bg-gray-700/20 border border-gray-500/30">
               <div className="flex items-center mb-2">
                 <div className="w-3 h-3 bg-gray-400 rounded-full mr-2"></div>
-                <span className="text-gray-400 font-medium text-sm">PLANIFICADA</span>
+                <span className="text-gray-400 font-medium text-sm">{t('reportDisplay', 'planned')}</span>
               </div>
-              <div className="text-white font-semibold">Fase 3: Optimización</div>
-              <div className="text-gray-300 text-sm mt-1">Próximos 2 meses</div>
+              <div className="text-white font-semibold">{t('reportDisplay', 'phase3Title')}</div>
+              <div className="text-gray-300 text-sm mt-1">{t('reportDisplay', 'phase3Status')}</div>
             </div>
             
             <div className="p-4 rounded-xl bg-gray-700/20 border border-gray-500/30">
               <div className="flex items-center mb-2">
                 <div className="w-3 h-3 bg-gray-400 rounded-full mr-2"></div>
-                <span className="text-gray-400 font-medium text-sm">PLANIFICADA</span>
+                <span className="text-gray-400 font-medium text-sm">{t('reportDisplay', 'planned')}</span>
               </div>
-              <div className="text-white font-semibold">Fase 4: Innovación</div>
-              <div className="text-gray-300 text-sm mt-1">Q4 2025</div>
+              <div className="text-white font-semibold">{t('reportDisplay', 'phase4Title')}</div>
+              <div className="text-gray-300 text-sm mt-1">{t('reportDisplay', 'phase4Status')}</div>
             </div>
           </div>
         </div>
@@ -420,45 +422,45 @@ const ReportDisplay: React.FC<ReportDisplayProps> = ({ reportContent, moduleTitl
         <div className="mb-8" id="roi-analysis-chart">
           <h3 className="text-xl font-semibold text-white mb-6 flex items-center">
             <DollarSign className="w-6 h-6 mr-3 text-iridescent-emerald" />
-            💰 Análisis Detallado de ROI
+            {t('reportDisplay', 'roiAnalysisTitle')}
           </h3>
           
           {/* Métricas de ROI destacadas */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <div className="p-4 rounded-xl bg-gradient-to-br from-red-900/20 to-red-800/20 border border-red-500/30">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-red-300 text-sm font-medium">Inversión Total</span>
+                <span className="text-red-300 text-sm font-medium">{t('reportDisplay', 'totalInvestment')}</span>
                 <span className="text-red-400">💸</span>
               </div>
               <div className="text-2xl font-bold text-white">$125K</div>
-              <div className="text-red-300 text-xs">Inversión inicial</div>
+              <div className="text-red-300 text-xs">{t('reportDisplay', 'initialInvestment')}</div>
             </div>
             
             <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-900/20 to-emerald-800/20 border border-emerald-500/30">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-emerald-300 text-sm font-medium">ROI Proyectado</span>
+                <span className="text-emerald-300 text-sm font-medium">{t('reportDisplay', 'projectedROIDetailed')}</span>
                 <span className="text-emerald-400">📈</span>
               </div>
               <div className="text-2xl font-bold text-white">245%</div>
-              <div className="text-emerald-300 text-xs">A los 24 meses</div>
+              <div className="text-emerald-300 text-xs">{t('reportDisplay', 'roiTimeframe')}</div>
             </div>
             
             <div className="p-4 rounded-xl bg-gradient-to-br from-blue-900/20 to-blue-800/20 border border-blue-500/30">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-blue-300 text-sm font-medium">Punto de Equilibrio</span>
+                <span className="text-blue-300 text-sm font-medium">{t('reportDisplay', 'breakEvenPoint')}</span>
                 <span className="text-blue-400">⚖️</span>
               </div>
               <div className="text-2xl font-bold text-white">8-10</div>
-              <div className="text-blue-300 text-xs">Meses</div>
+              <div className="text-blue-300 text-xs">{t('reportDisplay', 'breakEvenMonths')}</div>
             </div>
             
             <div className="p-4 rounded-xl bg-gradient-to-br from-violet-900/20 to-violet-800/20 border border-violet-500/30">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-violet-300 text-sm font-medium">Retorno Total</span>
+                <span className="text-violet-300 text-sm font-medium">{t('reportDisplay', 'totalReturn')}</span>
                 <span className="text-violet-400">💎</span>
               </div>
               <div className="text-2xl font-bold text-white">$430K</div>
-              <div className="text-violet-300 text-xs">Proyectado 36M</div>
+              <div className="text-violet-300 text-xs">{t('reportDisplay', 'totalReturnProjected')}</div>
             </div>
           </div>
           
@@ -466,14 +468,14 @@ const ReportDisplay: React.FC<ReportDisplayProps> = ({ reportContent, moduleTitl
           <div className="p-6 rounded-xl bg-liquid-surface/30 border border-liquid-border">
             <h4 className="text-lg font-semibold text-white mb-4 flex items-center">
               <TrendingUp className="w-5 h-5 mr-2 text-iridescent-emerald" />
-              Proyección de Retorno de Inversión
+              {t('reportDisplay', 'roiProjectionTitle')}
             </h4>
             <div className="space-y-4">
               {[
-                { period: 'Q1 2025', investment: -125000, return: 25000, net: -100000 },
-                { period: 'Q2 2025', investment: -25000, return: 75000, net: -50000 },
-                { period: 'Q3 2025', investment: -10000, return: 125000, net: 65000 },
-                { period: 'Q4 2025', investment: 0, return: 180000, net: 245000 }
+                { period: t('reportDisplay', 'quarter1'), investment: -125000, return: 25000, net: -100000 },
+                { period: t('reportDisplay', 'quarter2'), investment: -25000, return: 75000, net: -50000 },
+                { period: t('reportDisplay', 'quarter3'), investment: -10000, return: 125000, net: 65000 },
+                { period: t('reportDisplay', 'quarter4'), investment: 0, return: 180000, net: 245000 }
               ].map((data, index) => (
                 <div key={index} className="flex items-center space-x-4">
                   <div className="w-16 text-sm font-medium text-gray-300">{data.period}</div>
@@ -497,11 +499,11 @@ const ReportDisplay: React.FC<ReportDisplayProps> = ({ reportContent, moduleTitl
                     </div>
                     <div className="flex justify-between text-xs mt-1">
                       <span className="text-red-300">
-                        {data.investment < 0 ? `Inv: $${Math.abs(data.investment/1000)}K` : ''}
+                        {data.investment < 0 ? `${t('reportDisplay', 'investment')}: $${Math.abs(data.investment/1000)}K` : ''}
                       </span>
-                      <span className="text-emerald-300">Ret: ${data.return/1000}K</span>
+                      <span className="text-emerald-300">{t('reportDisplay', 'return')}: ${data.return/1000}K</span>
                       <span className={data.net >= 0 ? "text-emerald-300" : "text-red-300"}>
-                        Neto: ${data.net/1000}K
+                        {t('reportDisplay', 'net')}: ${data.net/1000}K
                       </span>
                     </div>
                   </div>
@@ -515,40 +517,40 @@ const ReportDisplay: React.FC<ReportDisplayProps> = ({ reportContent, moduleTitl
         <div className="liquid-card bg-gradient-to-r from-orange-900/20 to-red-900/20 p-6 rounded-2xl border border-orange-500/30 mb-8" id="risk-analysis">
           <h3 className="text-xl font-semibold text-white mb-4 flex items-center">
             <AlertTriangle className="w-5 h-5 mr-2 text-orange-400" />
-            Análisis de Riesgos y Mitigación
+            {t('reportDisplay', 'riskAnalysisTitle')}
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-3">
-              <h4 className="font-medium text-orange-300">Riesgos Identificados:</h4>
+              <h4 className="font-medium text-orange-300">{t('reportDisplay', 'identifiedRisks')}</h4>
               <ul className="space-y-2 text-sm text-gray-300">
                 <li className="flex items-start">
                   <span className="w-2 h-2 bg-red-400 rounded-full mr-2 mt-2 flex-shrink-0"></span>
-                  Resistencia al cambio organizacional
+                  {t('reportDisplay', 'organizationalResistance')}
                 </li>
                 <li className="flex items-start">
                   <span className="w-2 h-2 bg-orange-400 rounded-full mr-2 mt-2 flex-shrink-0"></span>
-                  Complejidad de integración técnica
+                  {t('reportDisplay', 'technicalComplexity')}
                 </li>
                 <li className="flex items-start">
                   <span className="w-2 h-2 bg-yellow-400 rounded-full mr-2 mt-2 flex-shrink-0"></span>
-                  Posibles sobrecostos de implementación
+                  {t('reportDisplay', 'implementationOvercosts')}
                 </li>
               </ul>
             </div>
             <div className="space-y-3">
-              <h4 className="font-medium text-green-300">Estrategias de Mitigación:</h4>
+              <h4 className="font-medium text-green-300">{t('reportDisplay', 'mitigationStrategies')}</h4>
               <ul className="space-y-2 text-sm text-gray-300">
                 <li className="flex items-start">
                   <span className="w-2 h-2 bg-green-400 rounded-full mr-2 mt-2 flex-shrink-0"></span>
-                  Programa de gestión del cambio
+                  {t('reportDisplay', 'changeManagement')}
                 </li>
                 <li className="flex items-start">
                   <span className="w-2 h-2 bg-blue-400 rounded-full mr-2 mt-2 flex-shrink-0"></span>
-                  Implementación por fases
+                  {t('reportDisplay', 'phasedImplementation')}
                 </li>
                 <li className="flex items-start">
                   <span className="w-2 h-2 bg-purple-400 rounded-full mr-2 mt-2 flex-shrink-0"></span>
-                  Reservas de contingencia del 15%
+                  {t('reportDisplay', 'contingencyReserves')}
                 </li>
               </ul>
             </div>
@@ -672,21 +674,21 @@ const ReportDisplay: React.FC<ReportDisplayProps> = ({ reportContent, moduleTitl
           <div className="flex items-center justify-center mb-6 space-x-8">
             <div className="flex items-center text-iridescent-cyan">
               <BarChart3 className="w-5 h-5 mr-2" />
-              <span className="text-sm font-medium">Análisis Cuantitativo</span>
+              <span className="text-sm font-medium">{t('reportDisplay', 'quantitativeAnalysisFooter')}</span>
             </div>
             <div className="flex items-center text-iridescent-emerald">
               <TrendingUp className="w-5 h-5 mr-2" />
-              <span className="text-sm font-medium">Proyecciones ROI</span>
+              <span className="text-sm font-medium">{t('reportDisplay', 'roiProjectionsFooter')}</span>
             </div>
             <div className="flex items-center text-iridescent-violet">
               <PieChart className="w-5 h-5 mr-2" />
-              <span className="text-sm font-medium">Benchmarks Industria</span>
+              <span className="text-sm font-medium">{t('reportDisplay', 'industryBenchmarksFooter')}</span>
             </div>
           </div>
           
           <p className="text-lg text-gray-300 mb-6 flex items-center justify-center">
             <Sparkles className="w-5 h-5 mr-2 text-iridescent-cyan" />
-            ¿Quieres explorar otro módulo o generar un análisis complementario?
+            {t('reportDisplay', 'exploreQuestion')}
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -696,7 +698,7 @@ const ReportDisplay: React.FC<ReportDisplayProps> = ({ reportContent, moduleTitl
             >
               <div className="absolute inset-0 bg-gradient-to-r from-iridescent-violet to-iridescent-cyan opacity-0 hover:opacity-20 transition-opacity duration-300"></div>
               <Zap className="w-5 h-5 mr-2" />
-              Explorar Otro Módulo
+              {t('reportDisplay', 'exploreAnotherModule')}
             </button>
             
             <button
@@ -705,7 +707,7 @@ const ReportDisplay: React.FC<ReportDisplayProps> = ({ reportContent, moduleTitl
             >
               <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-emerald-300 opacity-0 hover:opacity-20 transition-opacity duration-300"></div>
               <FileDown className="w-5 h-5 mr-2" />
-              Descargar PDF Completo
+              {t('reportDisplay', 'downloadCompletePDF')}
             </button>
           </div>
         </div>

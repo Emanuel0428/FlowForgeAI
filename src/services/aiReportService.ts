@@ -1,29 +1,65 @@
 import { supabase } from '../config/supabase';
 import { AIReport, AIReportInsert } from '../types/database';
 import { businessModules } from '../data/modules';
+import { useLanguage } from '../config/language';
+
+// Error message translations
+const errorMessages = {
+  en: {
+    userNotAuthenticated: 'User not authenticated',
+    unknownModule: 'Unknown Module',
+    errorSavingReport: 'Error saving the report',
+    noDataReturned: 'No data returned when saving the report',
+    errorFetchingReports: 'Error fetching reports',
+    errorFetchingReportsByModule: 'Error fetching reports by module',
+    errorFetchingReport: 'Error fetching the report',
+    errorDeletingReport: 'Error deleting the report',
+    errorFetchingStats: 'Error fetching report statistics',
+    errorFetchingRecentReports: 'Error fetching recent reports'
+  },
+  es: {
+    userNotAuthenticated: 'Usuario no autenticado',
+    unknownModule: 'Módulo Desconocido',
+    errorSavingReport: 'Error al guardar el reporte',
+    noDataReturned: 'No se recibieron datos al guardar el reporte',
+    errorFetchingReports: 'Error al obtener los reportes',
+    errorFetchingReportsByModule: 'Error al obtener los reportes del módulo',
+    errorFetchingReport: 'Error al obtener el reporte',
+    errorDeletingReport: 'Error al eliminar el reporte',
+    errorFetchingStats: 'Error al obtener estadísticas de reportes',
+    errorFetchingRecentReports: 'Error al obtener reportes recientes'
+  }
+};
+
+// Helper function to get error message based on current language
+const getErrorMessage = (key: keyof typeof errorMessages.en, language: 'en' | 'es' = 'es'): string => {
+  return errorMessages[language][key];
+};
 
 export class AIReportService {
   static async saveAIReport(
     profileId: string,
     moduleId: string,
     userInput: string,
-    reportContent: string
+    reportContent: string,
+    language: 'en' | 'es' = 'es'
   ): Promise<AIReport> {
     try {
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       
       if (authError || !user) {
         console.error('❌ User not authenticated for saving report:', authError);
-        throw new Error('Usuario no autenticado');
+        throw new Error(getErrorMessage('userNotAuthenticated', language));
       }
 
-      const moduleName = businessModules.find(m => m.id === moduleId)?.name || 'Módulo Desconocido';
+      const module = businessModules.find(m => m.id === moduleId);
+      const moduleName = module ? module.name[language] : getErrorMessage('unknownModule', language);
 
       const reportInsert: AIReportInsert = {
         user_id: user.id,
         profile_id: profileId,
         module_id: moduleId,
-        module_name: moduleName.toString(),
+        module_name: moduleName,
         user_input: userInput,
         report_content: reportContent,
       };
@@ -42,12 +78,12 @@ export class AIReportService {
           details: error.details,
           hint: error.hint
         });
-        throw new Error(`Error al guardar el reporte: ${error.message}`);
+        throw new Error(`${getErrorMessage('errorSavingReport', language)}: ${error.message}`);
       }
 
       if (!data) {
         console.error('❌ No data returned from insert operation');
-        throw new Error('No se recibieron datos al guardar el reporte');
+        throw new Error(getErrorMessage('noDataReturned', language));
       }
       return data;
     } catch (error) {
@@ -57,7 +93,7 @@ export class AIReportService {
   }
 
   // Obtener todos los reportes del usuario actual
-  static async getUserReports(): Promise<AIReport[]> {
+  static async getUserReports(language: 'en' | 'es' = 'es'): Promise<AIReport[]> {
     try {
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       
@@ -74,7 +110,7 @@ export class AIReportService {
 
       if (error) {
         console.error('❌ Error fetching user reports:', error);
-        throw new Error(`Error al obtener los reportes: ${error.message}`);
+        throw new Error(`${getErrorMessage('errorFetchingReports', language)}: ${error.message}`);
       }
 
       return data || [];
@@ -85,7 +121,7 @@ export class AIReportService {
   }
 
   // Obtener reportes por módulo
-  static async getReportsByModule(moduleId: string): Promise<AIReport[]> {
+  static async getReportsByModule(moduleId: string, language: 'en' | 'es' = 'es'): Promise<AIReport[]> {
     try {
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       
@@ -103,7 +139,7 @@ export class AIReportService {
 
       if (error) {
         console.error('❌ Error fetching reports by module:', error);
-        throw new Error(`Error al obtener los reportes del módulo: ${error.message}`);
+        throw new Error(`${getErrorMessage('errorFetchingReportsByModule', language)}: ${error.message}`);
       }
       return data || [];
     } catch (error) {
@@ -113,7 +149,7 @@ export class AIReportService {
   }
 
   // Obtener un reporte específico
-  static async getReport(reportId: string): Promise<AIReport | null> {
+  static async getReport(reportId: string, language: 'en' | 'es' = 'es'): Promise<AIReport | null> {
     try {
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       
@@ -135,7 +171,7 @@ export class AIReportService {
           return null;
         }
         console.error('❌ Error fetching report:', error);
-        throw new Error(`Error al obtener el reporte: ${error.message}`);
+        throw new Error(`${getErrorMessage('errorFetchingReport', language)}: ${error.message}`);
       }
 
       return data;
@@ -146,13 +182,13 @@ export class AIReportService {
   }
 
   // Eliminar un reporte
-  static async deleteReport(reportId: string): Promise<void> {
+  static async deleteReport(reportId: string, language: 'en' | 'es' = 'es'): Promise<void> {
     try {
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       
       if (authError || !user) {
         console.error('❌ User not authenticated for deleting report');
-        throw new Error('Usuario no autenticado');
+        throw new Error(getErrorMessage('userNotAuthenticated', language));
       }
 
       const { error } = await supabase
@@ -163,7 +199,7 @@ export class AIReportService {
 
       if (error) {
         console.error('❌ Error deleting report:', error);
-        throw new Error(`Error al eliminar el reporte: ${error.message}`);
+        throw new Error(`${getErrorMessage('errorDeletingReport', language)}: ${error.message}`);
       }
 
     } catch (error) {
@@ -173,7 +209,7 @@ export class AIReportService {
   }
 
   // Obtener estadísticas de reportes del usuario
-  static async getReportStats(): Promise<{
+  static async getReportStats(language: 'en' | 'es' = 'es'): Promise<{
     totalReports: number;
     reportsByModule: Record<string, number>;
     recentReports: AIReport[];
@@ -197,7 +233,7 @@ export class AIReportService {
 
       if (allError) {
         console.error('❌ Error fetching all reports for stats:', allError);
-        throw new Error(`Error al obtener estadísticas de reportes: ${allError.message}`);
+        throw new Error(`${getErrorMessage('errorFetchingStats', language)}: ${allError.message}`);
       }
 
       // Obtener reportes recientes (últimos 5)
@@ -210,7 +246,7 @@ export class AIReportService {
 
       if (recentError) {
         console.error('❌ Error fetching recent reports:', recentError);
-        throw new Error(`Error al obtener reportes recientes: ${recentError.message}`);
+        throw new Error(`${getErrorMessage('errorFetchingRecentReports', language)}: ${recentError.message}`);
       }
 
       // Calcular estadísticas

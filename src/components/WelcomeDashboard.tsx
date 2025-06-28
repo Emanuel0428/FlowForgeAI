@@ -111,14 +111,14 @@ const WelcomeDashboard: React.FC<WelcomeDashboardProps> = ({
     {
       icon: TrendingUp,
       label: t('welcome', 'aiAccuracy'),
-      value: '98%',
+      value: '95%',
       color: 'from-iridescent-violet to-iridescent-blue',
       description: t('welcome', 'accurateAnalysis')
     },
     {
       icon: Users,
       label: t('welcome', 'companiesBenefited'),
-      value: '10K+',
+      value: '2K+',
       color: 'from-iridescent-cyan to-iridescent-violet',
       description: t('welcome', 'successCases')
     }
@@ -308,12 +308,12 @@ const WelcomeDashboard: React.FC<WelcomeDashboardProps> = ({
   return (
     <div className="relative max-w-7xl mx-auto">
       {/* Welcome Header */}
-      <div className="text-center mb-8 lg:mb-12">
+      <div className="text-center mb-8 lg:mb-12 py-2">
         <div className="p-4 lg:p-6 rounded-3xl bg-gradient-to-br from-iridescent-blue to-iridescent-violet liquid-glow-hover organic-shape mb-6 lg:mb-8 mx-auto w-fit">
           <Brain className="h-16 lg:h-20 w-16 lg:w-20 text-white" />
         </div>
         
-        <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold mb-4 iridescent-text">
+        <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold mb-4 iridescent-text leading-normal py-2">
           {getGreeting()}, {user.email?.split('@')[0]}
         </h1>
         
@@ -468,7 +468,7 @@ const WelcomeDashboard: React.FC<WelcomeDashboardProps> = ({
                     ) : (
                       <>
                         {isPlaying ? <Pause className="w-3 lg:w-4 h-3 lg:h-4 mr-2" /> : <Play className="w-3 lg:w-4 h-3 lg:h-4 mr-2" />}
-                        {isPlaying ? 'Pausar' : 'Escuchar'}
+                        {isPlaying ? 'Pausar' : t('welcome', 'listen')}
                       </>
                     )}
                   </button>
@@ -477,7 +477,7 @@ const WelcomeDashboard: React.FC<WelcomeDashboardProps> = ({
                       isVoiceEnabled ? 'text-iridescent-blue' : 'text-gray-400'
                     }`} />
                     <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
-                      {isVoiceEnabled ? 'ElevenLabs activo' : 'API no configurada'}
+                      {isVoiceEnabled ? t('welcome', 'activeElevenLabs') : t('welcome', 'apiNotConfigured')}
                     </span>
                   </div>
                 </div>
@@ -489,8 +489,8 @@ const WelcomeDashboard: React.FC<WelcomeDashboardProps> = ({
                 }`}>
                   <p className="text-xs text-center" style={{ color: 'var(--text-tertiary)' }}>
                     {isVoiceEnabled 
-                      ? `✅ ElevenLabs activo • ${ELEVENLABS_CONFIG.languages[selectedLanguage].name} • ${ELEVENLABS_CONFIG.languages[selectedLanguage].model}`
-                      : '⚠️ Configura VITE_ELEVENLABS_API_KEY para activar'
+                      ? `✅ ${t('welcome', 'activeElevenLabs')} • ${ELEVENLABS_CONFIG.languages[selectedLanguage].name} • ${ELEVENLABS_CONFIG.languages[selectedLanguage].model}`
+                      : `⚠️ ${t('welcome', 'configureApiKeyElevenLabs')}`
                     }
                   </p>
                 </div>

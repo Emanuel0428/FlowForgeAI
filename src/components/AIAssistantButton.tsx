@@ -317,7 +317,8 @@ async function generateFieldSuggestion(
       profileForAPI,
       'ai-assistant',
       contextPrompt,
-      userProfile // Pasar el perfil extendido completo
+      userProfile, // Pasar el perfil extendido completo
+      'es' // Por ahora mantenemos español para el asistente
     );
 
     // Limpiar y optimizar la respuesta

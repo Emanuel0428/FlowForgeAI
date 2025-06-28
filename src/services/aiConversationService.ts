@@ -1,11 +1,25 @@
 import { UserProfileData } from '../types';
 import { genAI, modelConfig, isGeminiAvailable } from '../config/gemini';
 import { businessModules } from '../data/modules';
+import { translations } from '../config/language';
+import { SupportedLanguage } from '../config/elevenlabs';
 
 interface ConversationContext {
   userProfile: UserProfileData;
   userEmail: string;
   userName: string;
+  language?: SupportedLanguage;
+}
+
+// Translation helper function
+function t(section: keyof typeof translations, key: string, language: SupportedLanguage = 'es'): string {
+  const sectionTranslations = translations[section];
+  if (!sectionTranslations) return key;
+  
+  const langTranslations = sectionTranslations[language];
+  if (!langTranslations) return key;
+  
+  return langTranslations[key] || key;
 }
 
 interface ConversationMessage {
@@ -16,15 +30,19 @@ interface ConversationMessage {
 export async function generateAIResponse(
   userInput: string,
   conversationHistory: ConversationMessage[],
-  context: ConversationContext
+  context: ConversationContext,
+  language: SupportedLanguage = 'es'
 ): Promise<string> {
+  // Add language to context
+  const contextWithLanguage = { ...context, language };
+  
   if (!isGeminiAvailable || !genAI) {
-    return generateFallbackResponse(userInput, context);
+    return generateFallbackResponse(userInput, contextWithLanguage);
   }
 
   try {
     // Construir el contexto para Gemini
-    const contextPrompt = buildConversationPrompt(userInput, conversationHistory, context);
+    const contextPrompt = buildConversationPrompt(userInput, conversationHistory, contextWithLanguage);
     
     // Generar respuesta con Gemini
     const model = genAI.getGenerativeModel(modelConfig);
@@ -34,13 +52,13 @@ export async function generateAIResponse(
     
     // Verificar que la respuesta sea válida
     if (!text || text.trim().length < 10) {
-      throw new Error('Respuesta de Gemini demasiado corta o vacía');
+      throw new Error(language === 'en' ? 'Gemini response too short or empty' : 'Respuesta de Gemini demasiado corta o vacía');
     }
     
     return text;
   } catch (error) {
-    console.error('Error al generar respuesta con Gemini:', error);
-    return generateFallbackResponse(userInput, context);
+    console.error(language === 'en' ? 'Error generating response with Gemini:' : 'Error al generar respuesta con Gemini:', error);
+    return generateFallbackResponse(userInput, contextWithLanguage);
   }
 }
 
@@ -49,7 +67,7 @@ function buildConversationPrompt(
   conversationHistory: ConversationMessage[],
   context: ConversationContext
 ): string {
-  const { userProfile, userEmail, userName } = context;
+  const { userProfile, userEmail, userName, language = 'es' } = context;
   
   // Construir información sobre los módulos disponibles
   const modulesInfo = businessModules.map(module => 
@@ -58,7 +76,7 @@ function buildConversationPrompt(
   
   // Construir historial de conversación
   const historyText = conversationHistory
-    .map(msg => `${msg.role === 'user' ? 'Usuario' : 'Asistente'}: ${msg.content}`)
+    .map(msg => `${msg.role === 'user' ? t('assistant', 'user', language) : t('assistant', 'assistant', language)}: ${msg.content}`)
     .join('\n');
   
   // Obtener contexto específico para el tipo de negocio
@@ -72,55 +90,44 @@ function buildConversationPrompt(
   
   // Construir prompt completo
   return `
-    Eres un consultor empresarial experto de FlowForge AI, una plataforma de consultoría empresarial con inteligencia artificial. Tu objetivo es proporcionar asesoramiento práctico, específico y accionable adaptado al perfil exacto del negocio.
+    ${language === 'en' ? 
+      'You are an expert business consultant from FlowForge AI, a business consulting platform with artificial intelligence. Your goal is to provide practical, specific and actionable advice adapted to the exact business profile.' :
+      'Eres un consultor empresarial experto de FlowForge AI, una plataforma de consultoría empresarial con inteligencia artificial. Tu objetivo es proporcionar asesoramiento práctico, específico y accionable adaptado al perfil exacto del negocio.'
+    }
     
-    INFORMACIÓN DETALLADA DEL USUARIO:
-    - Nombre: ${userName}
+    ${t('assistant', 'detailedUserInfo', language)}
+    - ${language === 'en' ? 'Name' : 'Nombre'}: ${userName}
     - Email: ${userEmail}
-    - Tipo de negocio: ${userProfile.businessType}
-    - Modelo de ingresos: ${userProfile.revenueModel}
-    - Etapa del negocio: ${userProfile.businessStage}
-    - Objetivo principal: ${userProfile.mainObjective}
-    - Nivel de digitalización: ${userProfile.digitalizationLevel}
-    - Número de empleados: ${userProfile.employeeCount}
+    - ${language === 'en' ? 'Business type' : 'Tipo de negocio'}: ${userProfile.businessType}
+    - ${language === 'en' ? 'Revenue model' : 'Modelo de ingresos'}: ${userProfile.revenueModel}
+    - ${language === 'en' ? 'Business stage' : 'Etapa del negocio'}: ${userProfile.businessStage}
+    - ${language === 'en' ? 'Main objective' : 'Objetivo principal'}: ${userProfile.mainObjective}
+    - ${language === 'en' ? 'Digitalization level' : 'Nivel de digitalización'}: ${userProfile.digitalizationLevel}
+    - ${language === 'en' ? 'Number of employees' : 'Número de empleados'}: ${userProfile.employeeCount}
     
-    CONTEXTO ESPECÍFICO PARA ESTE TIPO DE NEGOCIO:
+    ${t('assistant', 'specificBusinessContext', language)}
     ${businessTypeContext}
     
-    RECOMENDACIONES BASADAS EN SU PERFIL:
+    ${t('assistant', 'profileBasedRecommendations', language)}
     ${profileBasedRecommendations}
     
-    DESAFÍOS COMUNES PARA ESTE TIPO DE NEGOCIO Y ETAPA:
+    ${t('assistant', 'commonChallenges', language)}
     ${commonChallenges}
     
-    MÓDULOS DISPONIBLES:
+    ${t('assistant', 'availableModules', language)}
     ${modulesInfo}
     
-    INSTRUCCIONES CRÍTICAS:
-    1. Responde en ESPAÑOL de forma útil, profesional y concisa.
-    2. Sé EXTREMADAMENTE ESPECÍFICO y PRÁCTICO en tus recomendaciones - evita consejos genéricos.
-    3. Adapta completamente tus respuestas al contexto empresarial específico del usuario.
-    4. Proporciona EJEMPLOS CONCRETOS y ACCIONES IMPLEMENTABLES que el usuario pueda ejecutar inmediatamente.
-    5. Cuando recomiendes herramientas o tecnologías, menciona opciones específicas con diferentes rangos de precios.
-    6. Mantén tus respuestas breves (máximo 3-4 párrafos) pero informativas, con un tono conversacional.
-    7. Usa datos cuantitativos y benchmarks relevantes para su industria y tamaño de empresa.
-    8. Si te preguntan sobre los módulos, explica cómo cada uno puede resolver sus desafíos específicos.
-    9. Si te preguntan sobre recomendaciones para su negocio, sé específico sobre qué hacer, cómo hacerlo, y qué resultados esperar.
-    10. Usa emojis ocasionalmente para hacer la conversación más amigable.
-    11. Si te preguntan sobre algo que no sabes, admite que no tienes esa información en lugar de inventar.
+    ${t('assistant', 'criticalInstructions', language)}
+    ${t('assistant', 'responseInstructions', language)}
     
-    FORMATO DE RESPUESTA:
-    - Para recomendaciones: Proporciona 1-3 acciones específicas con pasos concretos y resultados esperados
-    - Para explicaciones: Usa analogías relevantes a su industria y ejemplos prácticos
-    - Para comparativas: Incluye datos cuantitativos y benchmarks específicos
-    - Para herramientas: Menciona 2-3 opciones específicas con diferentes rangos de precios
+    ${t('assistant', 'responseFormat', language)}
     
-    Historial de conversación:
+    ${t('assistant', 'conversationHistory', language)}
     ${historyText}
     
-    Usuario: ${userInput}
+    ${t('assistant', 'user', language)}: ${userInput}
     
-    Asistente:
+    ${t('assistant', 'assistant', language)}:
   `;
 }
 
@@ -211,25 +218,49 @@ function getCommonChallenges(profile: UserProfileData): string {
 }
 
 function generateFallbackResponse(userInput: string, context: ConversationContext): string {
-  const { userProfile, userName } = context;
+  const { userProfile, userName, language = 'es' } = context;
   const inputLower = userInput.toLowerCase();
   
   // Respuestas para preguntas sobre módulos
   if (inputLower.includes('módulo') || inputLower.includes('modulo') || 
-      inputLower.includes('análisis') || inputLower.includes('analisis')) {
-    return `Para un negocio ${userProfile.businessType} en etapa ${userProfile.businessStage}, recomendaría estos módulos específicos:
+      inputLower.includes('análisis') || inputLower.includes('analisis') ||
+      inputLower.includes('module') || inputLower.includes('analysis')) {
+    if (language === 'en') {
+      return `For a ${userProfile.businessType} business in ${userProfile.businessStage} stage, I would recommend these specific modules:
+
+1️⃣ **${getRecommendedModule(userProfile)}**: This would be most relevant for your objective of ${userProfile.mainObjective} considering your current digitalization level.
+
+2️⃣ **${getSecondaryModule(userProfile)}**: This would perfectly complement the first module and help solve your specific challenges as a ${userProfile.businessType}.
+
+Would you like to know more about any of these modules in particular?`;
+    } else {
+      return `Para un negocio ${userProfile.businessType} en etapa ${userProfile.businessStage}, recomendaría estos módulos específicos:
 
 1️⃣ **${getRecommendedModule(userProfile)}**: Este sería el más relevante para tu objetivo de ${userProfile.mainObjective} considerando tu nivel actual de digitalización.
 
 2️⃣ **${getSecondaryModule(userProfile)}**: Complementaría perfectamente el primer módulo y ayudaría a resolver tus desafíos específicos como ${userProfile.businessType}.
 
 ¿Te gustaría saber más sobre alguno de estos módulos en particular?`;
+    }
   }
   
   // Respuestas para preguntas sobre el negocio
   if (inputLower.includes('negocio') || inputLower.includes('empresa') || 
-      inputLower.includes('recomendación') || inputLower.includes('recomendacion')) {
-    return `Basado en tu perfil de ${userProfile.businessType} en etapa ${userProfile.businessStage}, aquí tienes 3 recomendaciones específicas:
+      inputLower.includes('recomendación') || inputLower.includes('recomendacion') ||
+      inputLower.includes('business') || inputLower.includes('company') || 
+      inputLower.includes('recommendation')) {
+    if (language === 'en') {
+      return `Based on your ${userProfile.businessType} profile in ${userProfile.businessStage} stage, here are 3 specific recommendations:
+
+1️⃣ **${getTopRecommendation(userProfile)}**: This would generate immediate results for your objective of ${userProfile.mainObjective}.
+
+2️⃣ **${getMidTermRecommendation(userProfile)}**: Ideal to implement in the next 2-3 months, considering your digitalization level ${userProfile.digitalizationLevel}.
+
+3️⃣ **${getStrategicRecommendation(userProfile)}**: A strategic initiative that would transform your business long-term.
+
+Would you like me to elaborate on any of these recommendations?`;
+    } else {
+      return `Basado en tu perfil de ${userProfile.businessType} en etapa ${userProfile.businessStage}, aquí tienes 3 recomendaciones específicas:
 
 1️⃣ **${getTopRecommendation(userProfile)}**: Esto generaría resultados inmediatos para tu objetivo de ${userProfile.mainObjective}.
 
@@ -238,12 +269,25 @@ function generateFallbackResponse(userInput: string, context: ConversationContex
 3️⃣ **${getStrategicRecommendation(userProfile)}**: Una iniciativa estratégica que transformaría tu negocio a largo plazo.
 
 ¿Quieres que profundice en alguna de estas recomendaciones?`;
+    }
   }
   
   // Respuestas para preguntas sobre la plataforma
   if (inputLower.includes('flowforge') || inputLower.includes('plataforma') || 
-      inputLower.includes('funciona') || inputLower.includes('hace')) {
-    return `FlowForge AI es una plataforma de consultoría empresarial potenciada por inteligencia artificial. Para negocios ${userProfile.businessType} como el tuyo, ofrecemos:
+      inputLower.includes('funciona') || inputLower.includes('hace') ||
+      inputLower.includes('platform') || inputLower.includes('works') || inputLower.includes('does')) {
+    if (language === 'en') {
+      return `FlowForge AI is a business consulting platform powered by artificial intelligence. For ${userProfile.businessType} businesses like yours, we offer:
+
+1️⃣ **Personalized analysis**: We evaluate your specific situation considering your ${userProfile.businessStage} stage and objective of ${userProfile.mainObjective}.
+
+2️⃣ **Actionable recommendations**: We provide implementable strategies adapted to your digitalization level ${userProfile.digitalizationLevel}.
+
+3️⃣ **Specific tools**: We suggest proven technologies and methodologies for businesses of your size (${userProfile.employeeCount} employees).
+
+Is there any specific aspect of the platform you'd like to know more about?`;
+    } else {
+      return `FlowForge AI es una plataforma de consultoría empresarial potenciada por inteligencia artificial. Para negocios ${userProfile.businessType} como el tuyo, ofrecemos:
 
 1️⃣ **Análisis personalizado**: Evaluamos tu situación específica considerando tu etapa ${userProfile.businessStage} y objetivo de ${userProfile.mainObjective}.
 
@@ -252,24 +296,44 @@ function generateFallbackResponse(userInput: string, context: ConversationContex
 3️⃣ **Herramientas específicas**: Sugerimos tecnologías y metodologías probadas para negocios de tu tamaño (${userProfile.employeeCount} empleados).
 
 ¿Hay algún aspecto específico de la plataforma sobre el que quieras saber más?`;
+    }
   }
   
   // Respuesta para saludos
   if (inputLower.includes('hola') || inputLower.includes('buenos días') || 
-      inputLower.includes('buenas tardes') || inputLower.includes('buenas noches')) {
-    return `¡Hola ${userName}! 👋 Como consultor especializado en negocios ${userProfile.businessType}, estoy aquí para ayudarte con tu objetivo principal de ${userProfile.mainObjective}. 
+      inputLower.includes('buenas tardes') || inputLower.includes('buenas noches') ||
+      inputLower.includes('hello') || inputLower.includes('hi') || 
+      inputLower.includes('good morning') || inputLower.includes('good afternoon') || 
+      inputLower.includes('good evening')) {
+    if (language === 'en') {
+      return `Hello ${userName}! 👋 As a consultant specialized in ${userProfile.businessType} businesses, I'm here to help you with your main objective of ${userProfile.mainObjective}. 
+
+Considering you're in ${userProfile.businessStage} stage with a digitalization level of ${userProfile.digitalizationLevel}, I can offer specific recommendations for your situation.
+
+What specific area would you like to focus on today?`;
+    } else {
+      return `¡Hola ${userName}! 👋 Como consultor especializado en negocios ${userProfile.businessType}, estoy aquí para ayudarte con tu objetivo principal de ${userProfile.mainObjective}. 
 
 Considerando que estás en etapa ${userProfile.businessStage} con un nivel de digitalización ${userProfile.digitalizationLevel}, puedo ofrecerte recomendaciones específicas para tu situación.
 
 ¿En qué área específica te gustaría enfocarte hoy?`;
+    }
   }
   
   // Respuesta genérica
-  return `Gracias por tu consulta sobre ${extractTopic(userInput)}. Para un negocio ${userProfile.businessType} en etapa ${userProfile.businessStage}, esto es particularmente relevante.
+  if (language === 'en') {
+    return `Thank you for your inquiry about ${extractTopic(userInput, language)}. For a ${userProfile.businessType} business in ${userProfile.businessStage} stage, this is particularly relevant.
 
-Considerando tu objetivo de ${userProfile.mainObjective} y nivel de digitalización ${userProfile.digitalizationLevel}, te recomendaría enfocarte primero en ${getPriorityArea(userProfile)}.
+Considering your objective of ${userProfile.mainObjective} and digitalization level of ${userProfile.digitalizationLevel}, I would recommend focusing first on ${getPriorityArea(userProfile, language)}.
+
+Would you like me to elaborate on any specific aspect of this recommendation?`;
+  } else {
+    return `Gracias por tu consulta sobre ${extractTopic(userInput, language)}. Para un negocio ${userProfile.businessType} en etapa ${userProfile.businessStage}, esto es particularmente relevante.
+
+Considerando tu objetivo de ${userProfile.mainObjective} y nivel de digitalización ${userProfile.digitalizationLevel}, te recomendaría enfocarte primero en ${getPriorityArea(userProfile, language)}.
 
 ¿Te gustaría que profundizara en algún aspecto específico de esta recomendación?`;
+  }
 } 
 
 // Funciones auxiliares adicionales para respuestas fallback
@@ -365,7 +429,7 @@ function getStrategicRecommendation(profile: UserProfileData): string {
   return stageMap[profile.businessStage] || 'Desarrollar estrategia de transformación digital integral con roadmap a 3 años';
 }
 
-function getPriorityArea(profile: UserProfileData): string {
+function getPriorityArea(profile: UserProfileData, language: SupportedLanguage = 'es'): string {
   const priorityMap: Record<string, Record<string, string>> = {
     'bajo-manual': {
       'crecimiento-ventas': 'implementación de CRM básico y automatización de seguimiento de leads',
@@ -390,18 +454,26 @@ function getPriorityArea(profile: UserProfileData): string {
   return priorityMap[profile.digitalizationLevel]?.[profile.mainObjective] || 'desarrollo de estrategia digital integral adaptada a tu etapa de negocio';
 }
 
-function extractTopic(userInput: string): string {
-  const commonTopics = [
+function extractTopic(userInput: string, language: SupportedLanguage = 'es'): string {
+  const commonTopicsEs = [
     'marketing digital', 'ventas', 'automatización', 'clientes', 'procesos', 
     'tecnología', 'estrategia', 'crecimiento', 'optimización', 'innovación',
     'experiencia del cliente', 'finanzas', 'operaciones', 'equipo', 'competencia'
   ];
   
-  for (const topic of commonTopics) {
+  const commonTopicsEn = [
+    'digital marketing', 'sales', 'automation', 'customers', 'processes', 
+    'technology', 'strategy', 'growth', 'optimization', 'innovation',
+    'customer experience', 'finance', 'operations', 'team', 'competition'
+  ];
+  
+  const topics = language === 'en' ? commonTopicsEn : commonTopicsEs;
+  
+  for (const topic of topics) {
     if (userInput.toLowerCase().includes(topic)) {
       return topic;
     }
   }
   
-  return 'tu consulta';
+  return language === 'en' ? 'your inquiry' : 'tu consulta';
 }

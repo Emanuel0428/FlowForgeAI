@@ -17,7 +17,7 @@ const ReportHistory: React.FC<ReportHistoryProps> = ({ onSelectReport, onClose }
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedModule, setSelectedModule] = useState<string>('all');
   const [error, setError] = useState('');
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
 
   useEffect(() => {
     loadReports();
@@ -33,7 +33,7 @@ const ReportHistory: React.FC<ReportHistoryProps> = ({ onSelectReport, onClose }
       const userReports = await AIReportService.getUserReports();
       setReports(userReports);
     } catch (err) {
-      setError('Error al cargar el historial de reportes');
+      setError(t('reportHistory', 'errorLoading'));
       console.error('Error loading reports:', err);
     } finally {
       setIsLoading(false);
@@ -60,7 +60,7 @@ const ReportHistory: React.FC<ReportHistoryProps> = ({ onSelectReport, onClose }
   };
 
   const handleDeleteReport = async (reportId: string) => {
-    if (!confirm('¿Estás seguro de que quieres eliminar este reporte?')) {
+    if (!confirm(t('reportHistory', 'deleteConfirm'))) {
       return;
     }
 
@@ -68,7 +68,7 @@ const ReportHistory: React.FC<ReportHistoryProps> = ({ onSelectReport, onClose }
       await AIReportService.deleteReport(reportId);
       setReports(reports.filter(r => r.id !== reportId));
     } catch (err) {
-      setError('Error al eliminar el reporte');
+      setError(t('reportHistory', 'errorDeleting'));
       console.error('Error deleting report:', err);
     }
   };
@@ -78,7 +78,7 @@ const ReportHistory: React.FC<ReportHistoryProps> = ({ onSelectReport, onClose }
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `reporte-${report.module_name.toLowerCase().replace(/\s+/g, '-')}-${new Date(report.created_at).toISOString().split('T')[0]}.md`;
+    a.download = `reporte-${getModuleName(report).toLowerCase().replace(/\s+/g, '-')}-${new Date(report.created_at).toISOString().split('T')[0]}.md`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -86,7 +86,8 @@ const ReportHistory: React.FC<ReportHistoryProps> = ({ onSelectReport, onClose }
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('es-ES', {
+    const locale = language === 'en' ? 'en-US' : 'es-ES';
+    return new Date(dateString).toLocaleDateString(locale, {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
@@ -100,12 +101,55 @@ const ReportHistory: React.FC<ReportHistoryProps> = ({ onSelectReport, onClose }
     return module?.icon || 'FileText';
   };
 
+  // Helper function to get module name safely
+  const getModuleName = (report: AIReport) => {
+    
+    if (typeof report.module_name === 'string' && 
+        report.module_name !== '[object Object]' && 
+        report.module_name.trim() !== '' &&
+        !report.module_name.includes('[object')) {
+      return report.module_name;
+    }
+    
+    if (report.module_name && typeof report.module_name === 'object' && 
+        report.module_name !== null && 
+        !Array.isArray(report.module_name)) {
+      try {
+        const localizedName = report.module_name as any;
+        
+        if (localizedName[language]) {
+          return localizedName[language];
+        }
+        if (localizedName.es) {
+          return localizedName.es;
+        }
+        if (localizedName.en) {
+          return localizedName.en;
+        }
+        
+        const keys = Object.keys(localizedName);
+        if (keys.length > 0) {
+          return localizedName[keys[0]]; 
+        }
+      } catch (error) {
+        console.warn('Error procesando module_name como objeto:', error);
+      }
+    }
+    
+    const module = businessModules.find(m => m.id === report.module_id);
+    if (module) {
+      return module.name[language];
+    }
+    
+    return report.module_id ? report.module_id.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'Módulo Desconocido';
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20">
         <div className="text-center">
           <div className="liquid-loader w-12 h-12 mx-auto mb-4"></div>
-          <p className="text-gray-300">Cargando historial...</p>
+          <p className="text-gray-300">{t('reportHistory', 'loadingHistory')}</p>
         </div>
       </div>
     );
@@ -122,9 +166,9 @@ const ReportHistory: React.FC<ReportHistoryProps> = ({ onSelectReport, onClose }
               <Clock className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-white">Historial de Reportes</h2>
+              <h2 className="text-2xl font-bold text-white">{t('reportHistory', 'title')}</h2>
               <p className="text-gray-300">
-                {reports.length} reporte{reports.length !== 1 ? 's' : ''} generado{reports.length !== 1 ? 's' : ''}
+                {reports.length} {reports.length === 1 ? t('reportHistory', 'reportCount') : t('reportHistory', 'reportCountPlural')} {reports.length === 1 ? t('reportHistory', 'generated') : t('reportHistory', 'generatedPlural')}
               </p>
             </div>
           </div>
@@ -132,7 +176,7 @@ const ReportHistory: React.FC<ReportHistoryProps> = ({ onSelectReport, onClose }
             onClick={onClose}
             className="px-6 py-3 bg-liquid-surface/30 hover:bg-liquid-surface/50 rounded-2xl transition-all duration-300 liquid-button border border-liquid-border hover:border-iridescent-blue/30 text-gray-300 hover:text-white"
           >
-            Cerrar
+            {t('reportHistory', 'close')}
           </button>
         </div>
       </div>
@@ -148,7 +192,7 @@ const ReportHistory: React.FC<ReportHistoryProps> = ({ onSelectReport, onClose }
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Buscar en reportes..."
+                placeholder={t('reportHistory', 'searchPlaceholder')}
                 className="w-full pl-10 pr-4 py-3 bg-liquid-surface/30 border border-liquid-border rounded-2xl text-white placeholder-gray-500 focus:outline-none focus:border-iridescent-blue/50 transition-all duration-300 liquid-button"
               />
             </div>
@@ -163,7 +207,7 @@ const ReportHistory: React.FC<ReportHistoryProps> = ({ onSelectReport, onClose }
                 onChange={(e) => setSelectedModule(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 bg-liquid-surface/30 border border-liquid-border rounded-2xl text-white focus:outline-none focus:border-iridescent-blue/50 transition-all duration-300 liquid-button appearance-none"
               >
-                <option value="all">Todos los módulos</option>
+                <option value="all">{t('reportHistory', 'allModules')}</option>
                 {businessModules.map(module => (
                   <option key={module.id} value={module.id}>
                     {module.name[language]}
@@ -187,12 +231,12 @@ const ReportHistory: React.FC<ReportHistoryProps> = ({ onSelectReport, onClose }
         <div className="liquid-card bg-liquid-surface/40 p-12 text-center border border-liquid-border">
           <FileText className="h-16 w-16 text-gray-500 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-gray-300 mb-2">
-            {reports.length === 0 ? 'No hay reportes aún' : 'No se encontraron reportes'}
+            {reports.length === 0 ? t('reportHistory', 'noReportsYet') : t('reportHistory', 'noReportsFound')}
           </h3>
           <p className="text-gray-500">
             {reports.length === 0 
-              ? 'Genera tu primer reporte usando uno de los módulos de consultoría'
-              : 'Intenta ajustar los filtros de búsqueda'
+              ? t('reportHistory', 'generateFirst')
+              : t('reportHistory', 'adjustFilters')
             }
           </p>
         </div>
@@ -211,7 +255,7 @@ const ReportHistory: React.FC<ReportHistoryProps> = ({ onSelectReport, onClose }
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold text-white group-hover:text-iridescent-cyan transition-colors">
-                        {report.module_name}
+                        {getModuleName(report)}
                       </h3>
                       <p className="text-sm text-gray-400">
                         {formatDate(report.created_at)}
@@ -229,7 +273,7 @@ const ReportHistory: React.FC<ReportHistoryProps> = ({ onSelectReport, onClose }
                       className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-iridescent-blue/20 to-iridescent-violet/20 hover:from-iridescent-blue/30 hover:to-iridescent-violet/30 rounded-xl transition-all duration-300 liquid-button text-sm font-medium text-white border border-iridescent-blue/30"
                     >
                       <Eye className="h-4 w-4 mr-2" />
-                      Ver Reporte
+                      {t('reportHistory', 'viewReport')}
                     </button>
                     
                     <button
@@ -237,7 +281,7 @@ const ReportHistory: React.FC<ReportHistoryProps> = ({ onSelectReport, onClose }
                       className="inline-flex items-center px-4 py-2 bg-liquid-surface/30 hover:bg-liquid-surface/50 rounded-xl transition-all duration-300 liquid-button text-sm font-medium text-gray-300 hover:text-white border border-liquid-border hover:border-iridescent-cyan/30"
                     >
                       <Download className="h-4 w-4 mr-2" />
-                      Descargar
+                      {t('reportHistory', 'download')}
                     </button>
                   </div>
                 </div>

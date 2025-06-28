@@ -76,6 +76,11 @@ const AppLayout: React.FC<AppLayoutProps> = ({
   const buttonRef = useRef<HTMLButtonElement>(null);
   const activeModule = businessModules.find(module => module.id === activeModuleId);
   const { language, setLanguage, t } = useLanguage();
+  
+  // Helper function to translate profile values
+  const translateProfileValue = (value: string): string => {
+    return t('profileValues', value) || value;
+  };
 
   // Cerrar menú cuando se hace clic fuera
   useEffect(() => {
@@ -576,7 +581,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({
                   showWelcome ? 'text-iridescent-blue' : 'group-hover:text-iridescent-blue'
                 }`} style={{ color: showWelcome ? undefined : 'var(--text-tertiary)' }}>
                   <Sparkles className="w-3 h-3 mr-1 group-hover:animate-pulse" />
-                  {showWelcome ? 'Dashboard Activo' : 'Bussiness Intelligence'}
+                  {showWelcome ? t('common', 'DashboardActive') : t('common', 'businessIntelligence')}
                 </p>
               </div>            
             </button>
@@ -606,28 +611,28 @@ const AppLayout: React.FC<AppLayoutProps> = ({
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-iridescent-blue via-iridescent-violet to-iridescent-cyan"></div>
                 <h3 className="text-sm font-semibold mb-4 flex items-center" style={{ color: 'var(--text-secondary)' }}>
                   <div className="w-2 h-2 bg-iridescent-cyan rounded-full mr-2 animate-pulse"></div>
-                  Perfil Activo
+                  {t('sidebar', 'activeProfile')}
                   <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
                     <UserCircle className="w-4 h-4 text-iridescent-blue" />
                   </div>
                 </h3>
                 <div className="space-y-3 text-sm text-left">
                   <div className="flex justify-between items-center">
-                    <span style={{ color: 'var(--text-tertiary)' }}>Tipo:</span> 
-                    <span className="font-medium" style={{ color: 'var(--text-secondary)' }}>{userProfile.businessType}</span>
+                    <span style={{ color: 'var(--text-tertiary)' }}>{t('sidebar', 'type')}</span> 
+                    <span className="font-medium" style={{ color: 'var(--text-secondary)' }}>{translateProfileValue(userProfile.businessType)}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span style={{ color: 'var(--text-tertiary)' }}>Etapa:</span> 
-                    <span className="font-medium" style={{ color: 'var(--text-secondary)' }}>{userProfile.businessStage}</span>
+                    <span style={{ color: 'var(--text-tertiary)' }}>{t('sidebar', 'stage')}</span> 
+                    <span className="font-medium" style={{ color: 'var(--text-secondary)' }}>{translateProfileValue(userProfile.businessStage)}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span style={{ color: 'var(--text-tertiary)' }}>Empleados:</span> 
-                    <span className="font-medium" style={{ color: 'var(--text-secondary)' }}>{userProfile.employeeCount}</span>
+                    <span style={{ color: 'var(--text-tertiary)' }}>{t('sidebar', 'employees')}</span> 
+                    <span className="font-medium" style={{ color: 'var(--text-secondary)' }}>{translateProfileValue(userProfile.employeeCount)}</span>
                   </div>
                 </div>
                 <div className="mt-3 text-xs text-center" style={{ color: 'var(--text-tertiary)' }}>
                   <span className="group-hover:text-iridescent-blue transition-colors">
-                    Clic para ver/editar perfil completo
+                    {t('sidebar', 'clickToView')}
                   </span>
                 </div>
               </button>
@@ -638,8 +643,8 @@ const AppLayout: React.FC<AppLayoutProps> = ({
           <div className="flex-1 flex flex-col overflow-y-auto p-6 max-h-[calc(100vh-220px)]">
             <h2 className="text-sm font-semibold uppercase tracking-wider mb-6 flex items-center" style={{ color: 'var(--text-tertiary)' }}>
               <div className="w-6 h-0.5 bg-gradient-to-r from-iridescent-blue to-iridescent-violet mr-3 rounded-full"></div>
-              Módulos Inteligentes
-            </h2>            <nav className="space-y-3">
+              {t('sidebar', 'intelligentModules')}
+            </h2>            <nav className="space-y-3 pb-8">
               {businessModules.map((module) => {const Icon = getIcon(module.icon);
                 const isActive = !showWelcome && module.id === activeModuleId;
                 

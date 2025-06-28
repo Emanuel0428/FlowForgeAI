@@ -1,7 +1,10 @@
 import React from 'react';
 import { Brain, Zap, Sparkles, Cpu } from 'lucide-react';
+import { useLanguage } from '../config/language';
 
 const LoadingSpinner: React.FC = () => {
+  const { t } = useLanguage();
+  
   return (
     <div className="flex flex-col items-center justify-center py-20 px-8 relative">
       {/* Ambient Background */}
@@ -44,18 +47,18 @@ const LoadingSpinner: React.FC = () => {
       <div className="text-center relative z-10">
         <h3 className="text-4xl font-bold text-white mb-4 flex items-center justify-center">
           <Cpu className="w-10 h-10 text-iridescent-cyan mr-4 animate-pulse" />
-          Procesando con FlowForge AI
+          {t('loading', 'processing')}
           <Sparkles className="w-8 h-8 text-iridescent-violet ml-4 animate-pulse" />
         </h3>
         <p className="text-gray-300 max-w-lg mx-auto text-xl leading-relaxed mb-6">
-          Nuestro consultor digital está analizando tu perfil empresarial y generando recomendaciones estratégicas personalizadas
+          {t('loading', 'analyzing')}
         </p>
         
         {/* Status Indicator */}
         <div className="flex items-center justify-center mb-8">
           <div className="flex items-center px-6 py-3 bg-liquid-surface/40 rounded-2xl border border-iridescent-blue/30 backdrop-blur-sm">
             <Zap className="w-5 h-5 text-iridescent-cyan mr-3 animate-pulse" />
-            <span className="text-iridescent-blue font-medium">Inteligencia Artificial Trabajando</span>
+            <span className="text-iridescent-blue font-medium">{t('loading', 'aiWorking')}</span>
             <div className="ml-3 flex space-x-1">
               <div className="w-2 h-2 bg-iridescent-blue rounded-full animate-bounce organic-shape"></div>
               <div className="w-2 h-2 bg-iridescent-violet rounded-full animate-bounce organic-shape" style={{ animationDelay: '0.2s' }}></div>

@@ -7,17 +7,18 @@ export async function generateReport(
   profile: UserProfileData,
   moduleId: string,
   moduleInput: string,
-  extendedProfile?: any
+  extendedProfile?: any,
+  language: 'en' | 'es' = 'es'
 ): Promise<string> {
 
   if (!isGeminiAvailable) {
     await new Promise(resolve => setTimeout(resolve, 3000));
-    return generateEnhancedMockReport(profile, moduleId, moduleInput, extendedProfile);
+    return generateEnhancedMockReport(profile, moduleId, moduleInput, extendedProfile, language);
   }
 
   try {
     const model = genAI!.getGenerativeModel(modelConfig);
-    const prompt = buildAdvancedPrompt(profile, moduleId, moduleInput, extendedProfile);
+    const prompt = buildAdvancedPrompt(profile, moduleId, moduleInput, extendedProfile, language);
         
     const result = await model.generateContent(prompt);
     const response = await result.response;
@@ -32,7 +33,7 @@ export async function generateReport(
   } catch (error) {
     console.error('❌ Error al generar reporte con Gemini:', error);
     await new Promise(resolve => setTimeout(resolve, 2000));
-    return generateEnhancedMockReport(profile, moduleId, moduleInput, extendedProfile);
+    return generateEnhancedMockReport(profile, moduleId, moduleInput, extendedProfile, language);
   }
 }
 
@@ -40,7 +41,8 @@ function buildAdvancedPrompt(
   profile: UserProfileData,
   moduleId: string,
   moduleInput: string,
-  extendedProfile?: any
+  extendedProfile?: any,
+  language: 'en' | 'es' = 'es'
 ): string {
   const moduleConfig = modulePrompts[moduleId];
   const moduleName = getModuleName(moduleId);
@@ -107,14 +109,18 @@ ${moduleConfig.professionalSources.join('\n- ')}
 ${JSON.stringify(moduleConfig.benchmarkData, null, 2)}
 
 ---
-**INSTRUCCIONES CRÍTICAS PARA REPORTE EN ESPAÑOL:**
+**INSTRUCCIONES CRÍTICAS PARA REPORTE:**
 
-🇪🇸 INSTRUCCIONES CRÍTICAS DE IDIOMA: 
+${language === 'en' ? `🇺🇸 CRITICAL LANGUAGE INSTRUCTIONS: 
+- ALL content MUST be 100% IN ENGLISH
+- Use professional business terminology IN ENGLISH
+- Include relevant emojis to improve readability
+- Professional markdown format with clear structure` : `🇪🇸 INSTRUCCIONES CRÍTICAS DE IDIOMA: 
 - TODO el contenido DEBE estar 100% EN ESPAÑOL
 - NO usar términos en inglés (excepto nombres propios como "McKinsey", "BCG", "Google Analytics", etc.)
 - Usar terminología empresarial profesional EN ESPAÑOL
 - Incluir emojis relevantes para mejorar la legibilidad
-- Formato markdown profesional con estructura clara
+- Formato markdown profesional con estructura clara`}
 
 🔤 INSTRUCCIONES ESPECÍFICAS PARA PRESENTACIÓN DE DATOS:
 - NO USES TABLAS MARKDOWN TRADICIONALES para presentar datos comparativos o métricas
@@ -132,12 +138,19 @@ ${JSON.stringify(moduleConfig.benchmarkData, null, 2)}
 - Este formato mejora la legibilidad visual y es más estético en la presentación final
 - Para comparativas, benchmarking y métricas usa SIEMPRE este formato de listas estructuradas
 
-Genera un reporte ejecutivo de consultoría de nivel McKinsey/BCG COMPLETAMENTE EN ESPAÑOL con la siguiente estructura optimizada:
+${language === 'en' ? 
+`Generate a McKinsey/BCG level executive consulting report COMPLETELY IN ENGLISH with the following optimized structure:
+
+# 📊 Strategic Analysis: ${moduleName}
+
+## 🎯 Executive Summary
+[Executive synthesis of 3-4 paragraphs IN ENGLISH with key findings, strategic recommendations, and expected ROI. Include specific benchmarking metrics. PERSONALIZE with specific business information: ${extendedProfile?.business_name || 'the company'}, ${extendedProfile?.industry || 'their industry'}, etc. INCLUDE SPECIFIC NUMERICAL DATA about expected impact on revenue, costs or efficiency.]` :
+`Genera un reporte ejecutivo de consultoría de nivel McKinsey/BCG COMPLETAMENTE EN ESPAÑOL con la siguiente estructura optimizada:
 
 # 📊 Análisis Estratégico: ${moduleName}
 
 ## 🎯 Resumen Ejecutivo
-[Síntesis ejecutiva de 3-4 párrafos EN ESPAÑOL con hallazgos clave, recomendaciones estratégicas, y ROI esperado. Incluye métricas específicas del benchmarking. PERSONALIZA con la información específica del negocio: ${extendedProfile?.business_name || 'la empresa'}, ${extendedProfile?.industry || 'su industria'}, etc. INCLUYE DATOS NUMÉRICOS ESPECÍFICOS sobre el impacto esperado en ingresos, costos o eficiencia.]
+[Síntesis ejecutiva de 3-4 párrafos EN ESPAÑOL con hallazgos clave, recomendaciones estratégicas, y ROI esperado. Incluye métricas específicas del benchmarking. PERSONALIZA con la información específica del negocio: ${extendedProfile?.business_name || 'la empresa'}, ${extendedProfile?.industry || 'su industria'}, etc. INCLUYE DATOS NUMÉRICOS ESPECÍFICOS sobre el impacto esperado en ingresos, costos o eficiencia.]`}
 
 ## 📈 Análisis Situacional y Benchmarking
 ### Evaluación del Estado Actual
@@ -378,7 +391,8 @@ function generateEnhancedMockReport(
   profile: UserProfileData,
   moduleId: string,
   moduleInput: string,
-  extendedProfile?: any
+  extendedProfile?: any,
+  language: 'en' | 'es' = 'es'
 ): string {
   const moduleName = getModuleName(moduleId);
   const moduleConfig = modulePrompts[moduleId];
@@ -519,9 +533,9 @@ function generateEnhancedMockReport(
 - **Inversión:** €1,000 - €5,000
 `;
 
-  return `# 📊 Análisis Estratégico: ${moduleName}
+  return `# 📊 ${language === 'en' ? 'Strategic Analysis' : 'Análisis Estratégico'}: ${moduleName}
 
-## 🎯 Resumen Ejecutivo
+## 🎯 ${language === 'en' ? 'Executive Summary' : 'Resumen Ejecutivo'}
 
 Basándome en el análisis integral de **${businessName}**, una **${businessDescription}** especializada en **${industry}** con modelo **${profile.revenueModel}** en etapa **${profile.businessStage}**, he identificado oportunidades estratégicas de alto impacto en ${moduleName}. Su desafío específico "${moduleInput}" presenta un potencial de optimización significativo con **ROI proyectado del 35-50%** en los próximos 12-18 meses.
 

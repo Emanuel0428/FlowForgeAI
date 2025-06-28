@@ -13,6 +13,8 @@ import AuthModal from '../components/AuthModal';
 import ReportHistory from '../components/ReportHistory';
 import { useLanguage } from '../config/language';
 
+
+
 // Estados de la aplicación
 enum AppStatus {
   INITIALIZING = 'initializing',
@@ -21,7 +23,7 @@ enum AppStatus {
 }
 
 const AppContainer: React.FC = () => {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const [state, setState] = useState<AppState>({
     userProfile: null,
     activeModuleId: 'empresa-general',
@@ -178,7 +180,7 @@ const AppContainer: React.FC = () => {
       console.error('❌ Error guardando perfil:', error);
       setState(prev => ({
         ...prev,
-        errorMessage: `Error al guardar el perfil: ${error.message}`,
+        errorMessage: `${t('AppContainer', 'errorSavingProfile')}: ${error.message}`,
         isLoading: false,
       }));
     }
@@ -230,7 +232,8 @@ const AppContainer: React.FC = () => {
         state.userProfile,
         state.activeModuleId,
         input,
-        dbProfile // Pasar el perfil completo de la base de datos
+        dbProfile, // Pasar el perfil completo de la base de datos
+        language // Pasar el idioma seleccionado
       );
 
       // Guardar reporte en base de datos
@@ -238,7 +241,8 @@ const AppContainer: React.FC = () => {
         dbProfile.id,
         state.activeModuleId,
         input,
-        report
+        report,
+        language
       );
 
       setState(prev => ({
@@ -250,7 +254,7 @@ const AppContainer: React.FC = () => {
       console.error('❌ Error generando/guardando reporte:', error);
       setState(prev => ({
         ...prev,
-        errorMessage: `Error al generar el reporte: ${error.message}`,
+        errorMessage: `${t('AppContainer', 'errorGeneratingReport')}: ${error.message}`,
         isLoading: false,
       }));
     }
@@ -290,7 +294,8 @@ const AppContainer: React.FC = () => {
 
   // Manejar selección de reporte del historial
   const handleSelectReport = useCallback((report: AIReport) => {
-
+    console.log('📋 Seleccionando reporte:', report);
+    
     setState(prev => ({
       ...prev,
       activeModuleId: report.module_id,
@@ -298,7 +303,10 @@ const AppContainer: React.FC = () => {
       reportContent: report.report_content,
       errorMessage: null,
     }));
+    
+    // Cerrar historial y mostrar el reporte
     setShowReportHistory(false);
+    setShowWelcome(false); // Asegurar que salimos de la vista de bienvenida
   }, []);
 
   // Manejar cierre de sesión
@@ -326,7 +334,7 @@ const AppContainer: React.FC = () => {
       console.error('❌ Error cerrando sesión:', error);
       setState(prev => ({
         ...prev,
-        errorMessage: `Error al cerrar sesión: ${error.message}`,
+        errorMessage: `${t('AppContainer', 'errorSigningOut')}: ${error.message}`,
         isLoading: false,
       }));
     }
@@ -365,10 +373,10 @@ const AppContainer: React.FC = () => {
         <div className="text-center">
           <div className="liquid-loader w-16 h-16 mx-auto mb-4"></div>
           <p className="text-lg mb-2" style={{ color: 'var(--text-secondary)' }}>
-            Inicializando FlowForge AI...
+            {t('AppContainer', 'initializing')}...
           </p>
           <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>
-            Configurando servicios y verificando sesión
+            {t('AppContainer', 'settingUpServices')}
           </p>
         </div>
       </div>
@@ -386,16 +394,16 @@ const AppContainer: React.FC = () => {
             </svg>
           </div>
           <h1 className="text-2xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
-            Error de Inicialización
+            {t('AppContainer', 'initializationError')}
           </h1>
           <p className="text-lg mb-6" style={{ color: 'var(--text-secondary)' }}>
-            {initializationError || 'No se pudo inicializar la aplicación'}
+            {initializationError || t('AppContainer', 'couldNotInitialize')}
           </p>
           <button
             onClick={() => window.location.reload()}
             className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-iridescent-blue to-iridescent-violet hover:from-iridescent-cyan hover:to-iridescent-blue text-white font-bold rounded-2xl transition-all duration-500 transform hover:scale-105 shadow-lg"
           >
-            Reintentar
+            {t('AppContainer', 'retry')}
           </button>
         </div>
       </div>

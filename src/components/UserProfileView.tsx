@@ -6,6 +6,7 @@ import { UserProfileService } from '../services/userProfileService';
 import AIAssistantButton from './AIAssistantButton';
 import VoiceTextarea from './VoiceTextarea';
 import VoiceTextInput from './VoiceTextInput';
+import { useLanguage } from '../config/language';
 
 interface UserProfileViewProps {
   userProfile: UserProfile | null;
@@ -18,6 +19,12 @@ const UserProfileView: React.FC<UserProfileViewProps> = ({
   onClose, 
   onProfileUpdate 
 }) => {
+  const { t, language } = useLanguage();
+  
+  // Helper function to translate profile values
+  const translateProfileValue = (value: string): string => {
+    return t('profileValues', value) || value;
+  };
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -96,7 +103,7 @@ const UserProfileView: React.FC<UserProfileViewProps> = ({
       });
 
       if (Object.keys(updateData).length === 0) {
-        setSuccess('No hay cambios para guardar');
+        setSuccess(t('userProfile', 'noChanges'));
         setTimeout(() => setSuccess(''), 2000);
         setIsLoading(false);
         return;
@@ -105,7 +112,7 @@ const UserProfileView: React.FC<UserProfileViewProps> = ({
       const updatedProfile = await UserProfileService.updateUserProfile(updateData);
       onProfileUpdate(updatedProfile);
       setIsEditing(false);
-      setSuccess('Perfil actualizado exitosamente');
+      setSuccess(t('userProfile', 'profileUpdated'));
       
       setTimeout(() => setSuccess(''), 3000);
     } catch (err: any) {
@@ -154,85 +161,85 @@ const UserProfileView: React.FC<UserProfileViewProps> = ({
   const profileSections = [
     {
       id: 'basic',
-      title: 'Información Básica',
+      title: t('userProfile', 'basicInfo'),
       icon: Building2,
       color: 'from-iridescent-blue/10 to-iridescent-violet/10',
       borderColor: 'border-iridescent-blue/20',
       fields: [
-        { key: 'businessName', label: 'Nombre del Negocio', placeholder: 'Ej: TechStart Solutions', aiEnabled: true },
-        { key: 'businessDescription', label: 'Descripción del Negocio', placeholder: 'Describe brevemente tu negocio y lo que hace...', multiline: true, aiEnabled: true },
-        { key: 'industry', label: 'Industria/Sector', placeholder: 'Ej: Tecnología, Retail, Servicios Financieros', aiEnabled: true },
+        { key: 'businessName', label: t('userProfile', 'businessName'), placeholder: t('userProfile', 'businessNamePlaceholder'), aiEnabled: true },
+        { key: 'businessDescription', label: t('userProfile', 'businessDescription'), placeholder: t('userProfile', 'businessDescriptionPlaceholder'), multiline: true, aiEnabled: true },
+        { key: 'industry', label: t('userProfile', 'industry'), placeholder: t('userProfile', 'industryPlaceholder'), aiEnabled: true },
       ]
     },
     {
       id: 'market',
-      title: 'Mercado y Clientes',
+      title: t('userProfile', 'marketAndCustomers'),
       icon: Target,
       color: 'from-iridescent-violet/10 to-iridescent-cyan/10',
       borderColor: 'border-iridescent-violet/20',
       fields: [
-        { key: 'targetMarket', label: 'Mercado Objetivo', placeholder: 'Describe tu mercado objetivo y audiencia...', multiline: true, aiEnabled: true },
-        { key: 'mainCustomers', label: 'Principales Clientes', placeholder: 'Describe el perfil de tus clientes principales...', multiline: true, aiEnabled: true },
-        { key: 'geographicScope', label: 'Alcance Geográfico', placeholder: 'Ej: Local, Nacional, Internacional', aiEnabled: true },
+        { key: 'targetMarket', label: t('userProfile', 'targetMarket'), placeholder: t('userProfile', 'targetMarketPlaceholder'), multiline: true, aiEnabled: true },
+        { key: 'mainCustomers', label: t('userProfile', 'mainCustomers'), placeholder: t('userProfile', 'mainCustomersPlaceholder'), multiline: true, aiEnabled: true },
+        { key: 'geographicScope', label: t('userProfile', 'geographicScope'), placeholder: t('userProfile', 'geographicScopePlaceholder'), aiEnabled: true },
       ]
     },
     {
       id: 'strategy',
-      title: 'Estrategia y Objetivos',
+      title: t('userProfile', 'strategyAndObjectives'),
       icon: TrendingUp,
       color: 'from-iridescent-cyan/10 to-iridescent-emerald/10',
       borderColor: 'border-iridescent-cyan/20',
       fields: [
-        { key: 'businessGoals', label: 'Objetivos del Negocio', placeholder: 'Describe tus principales objetivos a corto y largo plazo...', multiline: true, aiEnabled: true },
-        { key: 'yearlyGrowthTarget', label: 'Meta de Crecimiento Anual', placeholder: 'Ej: 50% crecimiento en ventas, 100 nuevos clientes', aiEnabled: true },
-        { key: 'competitiveAdvantage', label: 'Ventaja Competitiva', placeholder: 'Qué te diferencia de la competencia...', multiline: true, aiEnabled: true },
+        { key: 'businessGoals', label: t('userProfile', 'businessGoals'), placeholder: t('userProfile', 'businessGoalsPlaceholder'), multiline: true, aiEnabled: true },
+        { key: 'yearlyGrowthTarget', label: t('userProfile', 'yearlyGrowthTarget'), placeholder: t('userProfile', 'yearlyGrowthTargetPlaceholder'), aiEnabled: true },
+        { key: 'competitiveAdvantage', label: t('userProfile', 'competitiveAdvantage'), placeholder: t('userProfile', 'competitiveAdvantagePlaceholder'), multiline: true, aiEnabled: true },
       ]
     },
     {
       id: 'operations',
-      title: 'Operaciones y Procesos',
+      title: t('userProfile', 'operationsAndProcesses'),
       icon: BarChart3,
       color: 'from-iridescent-emerald/10 to-iridescent-blue/10',
       borderColor: 'border-iridescent-emerald/20',
       fields: [
-        { key: 'keyProducts', label: 'Productos/Servicios Clave', placeholder: 'Describe tus principales productos o servicios...', multiline: true, aiEnabled: true },
-        { key: 'salesProcess', label: 'Proceso de Ventas', placeholder: 'Describe cómo vendes tus productos/servicios...', multiline: true, aiEnabled: true },
-        { key: 'marketingChannels', label: 'Canales de Marketing', placeholder: 'Ej: Redes sociales, Google Ads, Email marketing', aiEnabled: true },
+        { key: 'keyProducts', label: t('userProfile', 'keyProducts'), placeholder: t('userProfile', 'keyProductsPlaceholder'), multiline: true, aiEnabled: true },
+        { key: 'salesProcess', label: t('userProfile', 'salesProcess'), placeholder: t('userProfile', 'salesProcessPlaceholder'), multiline: true, aiEnabled: true },
+        { key: 'marketingChannels', label: t('userProfile', 'marketingChannels'), placeholder: t('userProfile', 'marketingChannelsPlaceholder'), aiEnabled: true },
       ]
     },
     {
       id: 'resources',
-      title: 'Recursos y Estructura',
+      title: t('userProfile', 'resourcesAndStructure'),
       icon: Users,
       color: 'from-iridescent-blue/10 to-iridescent-violet/10',
       borderColor: 'border-iridescent-blue/20',
       fields: [
-        { key: 'teamStructure', label: 'Estructura del Equipo', placeholder: 'Describe la organización de tu equipo...', multiline: true, aiEnabled: true },
-        { key: 'technologyStack', label: 'Stack Tecnológico', placeholder: 'Herramientas y tecnologías que utilizas...', aiEnabled: true },
-        { key: 'budgetRange', label: 'Rango de Presupuesto', placeholder: 'Ej: $5K-10K mensual para marketing', aiEnabled: true },
+        { key: 'teamStructure', label: t('userProfile', 'teamStructure'), placeholder: t('userProfile', 'teamStructurePlaceholder'), multiline: true, aiEnabled: true },
+        { key: 'technologyStack', label: t('userProfile', 'technologyStack'), placeholder: t('userProfile', 'technologyStackPlaceholder'), aiEnabled: true },
+        { key: 'budgetRange', label: t('userProfile', 'budgetRange'), placeholder: t('userProfile', 'budgetRangePlaceholder'), aiEnabled: true },
       ]
     },
     {
       id: 'challenges',
-      title: 'Desafíos y Métricas',
+      title: t('userProfile', 'challengesAndMetrics'),
       icon: Lightbulb,
       color: 'from-iridescent-violet/10 to-iridescent-cyan/10',
       borderColor: 'border-iridescent-violet/20',
       fields: [
-        { key: 'currentChallenges', label: 'Desafíos Actuales', placeholder: 'Principales retos que enfrenta tu negocio...', multiline: true, aiEnabled: true },
-        { key: 'successMetrics', label: 'Métricas de Éxito', placeholder: 'Cómo mides el éxito de tu negocio...', multiline: true, aiEnabled: true },
-        { key: 'timeframe', label: 'Marco Temporal', placeholder: 'Ej: Objetivos para los próximos 6-12 meses', aiEnabled: true },
+        { key: 'currentChallenges', label: t('userProfile', 'currentChallenges'), placeholder: t('userProfile', 'currentChallengesPlaceholder'), multiline: true, aiEnabled: true },
+        { key: 'successMetrics', label: t('userProfile', 'successMetrics'), placeholder: t('userProfile', 'successMetricsPlaceholder'), multiline: true, aiEnabled: true },
+        { key: 'timeframe', label: t('userProfile', 'timeframe'), placeholder: t('userProfile', 'timeframePlaceholder'), aiEnabled: true },
       ]
     },
     {
       id: 'financial',
-      title: 'Información Financiera',
+      title: t('userProfile', 'financialInformation'),
       icon: DollarSign,
       color: 'from-iridescent-cyan/10 to-iridescent-emerald/10',
       borderColor: 'border-iridescent-cyan/20',
       fields: [
-        { key: 'monthlyRevenue', label: 'Ingresos Mensuales Aproximados', placeholder: 'Ej: $10K-50K, $50K-100K, $100K+', aiEnabled: true },
-        { key: 'businessModel', label: 'Modelo de Negocio Detallado', placeholder: 'Describe cómo generas ingresos...', multiline: true, aiEnabled: true },
+        { key: 'monthlyRevenue', label: t('userProfile', 'monthlyRevenue'), placeholder: t('userProfile', 'monthlyRevenuePlaceholder'), aiEnabled: true },
+        { key: 'businessModel', label: t('userProfile', 'businessModel'), placeholder: t('userProfile', 'businessModelPlaceholder'), multiline: true, aiEnabled: true },
       ]
     }
   ];
@@ -243,10 +250,10 @@ const UserProfileView: React.FC<UserProfileViewProps> = ({
         <div className="text-center">
           <AlertCircle className="h-16 w-16 text-red-400 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-gray-300 mb-2">
-            No se encontró el perfil
+            {t('userProfile', 'profileNotFound')}
           </h3>
           <p className="text-gray-500">
-            No se pudo cargar la información del perfil
+            {t('userProfile', 'couldNotLoad')}
           </p>
         </div>
       </div>
@@ -273,11 +280,11 @@ const UserProfileView: React.FC<UserProfileViewProps> = ({
             <div>
               <h1 className="text-3xl lg:text-4xl font-bold text-white flex items-center">
                 <Brain className="w-8 h-8 mr-3 text-iridescent-cyan" />
-                Perfil de Negocio
+                {t('userProfile', 'businessProfile')}
               </h1>
               <p className="text-gray-300 flex items-center text-lg">
                 <Sparkles className="w-4 h-4 mr-2" />
-                {formData.businessName || 'Información detallada para análisis personalizados'}
+                {formData.businessName || t('userProfile', 'detailedInfo')}
               </p>
             </div>
           </div>
@@ -290,7 +297,7 @@ const UserProfileView: React.FC<UserProfileViewProps> = ({
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-iridescent-violet to-iridescent-cyan opacity-0 hover:opacity-20 transition-opacity duration-300"></div>
                 <Edit3 className="h-5 w-5 mr-2" />
-                Editar Perfil
+                {t('userProfile', 'editProfile')}
               </button>
             ) : (
               <div className="flex space-x-3">
@@ -332,7 +339,7 @@ const UserProfileView: React.FC<UserProfileViewProps> = ({
                   }}
                   className="px-6 py-3 bg-liquid-surface/30 hover:bg-liquid-surface/50 rounded-2xl transition-all duration-300 liquid-button border border-liquid-border hover:border-gray-400 text-gray-300 hover:text-white"
                 >
-                  Cancelar
+                  {t('userProfile', 'cancel')}
                 </button>
                 <button
                   onClick={handleSave}
@@ -343,12 +350,12 @@ const UserProfileView: React.FC<UserProfileViewProps> = ({
                   {isLoading ? (
                     <>
                       <div className="liquid-loader w-5 h-5 mr-2"></div>
-                      Guardando...
+                      {t('userProfile', 'saving')}
                     </>
                   ) : (
                     <>
                       <Save className="h-5 w-5 mr-2" />
-                      Guardar Cambios
+                      {t('userProfile', 'saveChanges')}
                     </>
                   )}
                 </button>
@@ -381,32 +388,32 @@ const UserProfileView: React.FC<UserProfileViewProps> = ({
       <div className="liquid-card bg-liquid-surface/40 backdrop-blur-xl p-8 mb-8 border border-liquid-border">
         <h2 className="text-2xl font-semibold text-white mb-6 flex items-center">
           <Building2 className="w-6 h-6 mr-3 text-iridescent-blue" />
-          Información Base del Perfil
+          {t('userProfile', 'baseProfileInfo')}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           <div className="liquid-card bg-gradient-to-br from-iridescent-blue/10 to-iridescent-violet/10 p-6 rounded-2xl border border-iridescent-blue/20">
-            <p className="text-sm text-gray-400 mb-2">Tipo de Negocio</p>
-            <p className="font-semibold text-white text-lg">{userProfile.business_type}</p>
+            <p className="text-sm text-gray-400 mb-2">{t('userProfile', 'businessType')}</p>
+            <p className="font-semibold text-white text-lg">{translateProfileValue(userProfile.business_type)}</p>
           </div>
           <div className="liquid-card bg-gradient-to-br from-iridescent-violet/10 to-iridescent-cyan/10 p-6 rounded-2xl border border-iridescent-violet/20">
-            <p className="text-sm text-gray-400 mb-2">Modelo de Ingresos</p>
-            <p className="font-semibold text-white text-lg">{userProfile.revenue_model}</p>
+            <p className="text-sm text-gray-400 mb-2">{t('userProfile', 'revenueModel')}</p>
+            <p className="font-semibold text-white text-lg">{translateProfileValue(userProfile.revenue_model)}</p>
           </div>
           <div className="liquid-card bg-gradient-to-br from-iridescent-cyan/10 to-iridescent-emerald/10 p-6 rounded-2xl border border-iridescent-cyan/20">
-            <p className="text-sm text-gray-400 mb-2">Etapa del Negocio</p>
-            <p className="font-semibold text-white text-lg">{userProfile.business_stage}</p>
+            <p className="text-sm text-gray-400 mb-2">{t('userProfile', 'businessStage')}</p>
+            <p className="font-semibold text-white text-lg">{translateProfileValue(userProfile.business_stage)}</p>
           </div>
           <div className="liquid-card bg-gradient-to-br from-iridescent-emerald/10 to-iridescent-blue/10 p-6 rounded-2xl border border-iridescent-emerald/20">
-            <p className="text-sm text-gray-400 mb-2">Objetivo Principal</p>
-            <p className="font-semibold text-white text-lg">{userProfile.main_objective}</p>
+            <p className="text-sm text-gray-400 mb-2">{t('userProfile', 'mainObjective')}</p>
+            <p className="font-semibold text-white text-lg">{translateProfileValue(userProfile.main_objective)}</p>
           </div>
           <div className="liquid-card bg-gradient-to-br from-iridescent-blue/10 to-iridescent-violet/10 p-6 rounded-2xl border border-iridescent-blue/20">
-            <p className="text-sm text-gray-400 mb-2">Nivel de Digitalización</p>
-            <p className="font-semibold text-white text-lg">{userProfile.digitalization_level}</p>
+            <p className="text-sm text-gray-400 mb-2">{t('userProfile', 'digitalizationLevel')}</p>
+            <p className="font-semibold text-white text-lg">{translateProfileValue(userProfile.digitalization_level)}</p>
           </div>
           <div className="liquid-card bg-gradient-to-br from-iridescent-violet/10 to-iridescent-cyan/10 p-6 rounded-2xl border border-iridescent-violet/20">
-            <p className="text-sm text-gray-400 mb-2">Número de Empleados</p>
-            <p className="font-semibold text-white text-lg">{userProfile.employee_count}</p>
+            <p className="text-sm text-gray-400 mb-2">{t('userProfile', 'employeeCount')}</p>
+            <p className="font-semibold text-white text-lg">{translateProfileValue(userProfile.employee_count)}</p>
           </div>
         </div>
       </div>
@@ -460,7 +467,7 @@ const UserProfileView: React.FC<UserProfileViewProps> = ({
                       <div className={`liquid-card bg-gradient-to-r ${section.color} p-6 rounded-2xl border ${section.borderColor} min-h-[4rem] flex items-center`}>
                         <p className="text-gray-300 text-base leading-relaxed">
                           {formData[field.key as keyof ExtendedUserProfileData] || (
-                            <span className="text-gray-500 italic">No especificado</span>
+                            <span className="text-gray-500 italic">{t('userProfile', 'notSpecified')}</span>
                           )}
                         </p>
                       </div>
@@ -483,16 +490,16 @@ const UserProfileView: React.FC<UserProfileViewProps> = ({
           <div className="flex-1">
             <h3 className="text-2xl font-semibold text-white mb-4 flex items-center">
               <Sparkles className="w-6 h-6 mr-3 text-iridescent-cyan" />
-              Análisis Potenciado por IA
+              {t('userProfile', 'aiPoweredAnalysis')}
             </h3>
             <p className="text-gray-300 leading-relaxed mb-4 text-lg">
-              Mientras más información proporciones sobre tu negocio, más específicos y personalizados serán los análisis y recomendaciones que genere FlowForge AI. Esta información adicional permite crear reportes de consultoría de nivel McKinsey adaptados exactamente a tu contexto empresarial.
+              {t('userProfile', 'aiEnhancementDescription')}
             </p>
             {isEditing && (
               <div className="flex items-center p-4 rounded-xl bg-iridescent-blue/10 border border-iridescent-blue/20">
                 <Sparkles className="w-5 h-5 text-iridescent-cyan mr-3 animate-pulse flex-shrink-0" />
                 <p className="text-base text-iridescent-cyan font-medium">
-                  Usa los botones de IA para obtener sugerencias personalizadas en cada campo
+                  {t('userProfile', 'aiSuggestionTip')}
                 </p>
               </div>
             )}

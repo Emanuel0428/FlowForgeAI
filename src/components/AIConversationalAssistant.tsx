@@ -54,8 +54,9 @@ const AIConversationalAssistant: React.FC<AIConversationalAssistantProps> = ({
   const { language, t, setLanguage } = useLanguage();
   const [selectedLanguage, setSelectedLanguage] = useState<SupportedLanguage>(language);
   
-  // Referencia al contenedor de mensajes para auto-scroll
+  // Referencias para el manejo del scroll
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   
   // Verificar si ElevenLabs está configurado
   useEffect(() => {
@@ -93,17 +94,35 @@ const AIConversationalAssistant: React.FC<AIConversationalAssistantProps> = ({
     return cleanupAudioResources;
   }, [audioElement, audioUrl]);
   
-  // Auto-scroll cuando se agregan nuevos mensajes
+  // Auto-scroll inteligente cuando se agregan nuevos mensajes
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const scrollToBottom = () => {
+      if (!messagesContainerRef.current || !messagesEndRef.current) return;
+      
+      const container = messagesContainerRef.current;
+      const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 100;
+      
+      // Solo hacer scroll si el usuario está cerca del final o si es el primer mensaje
+      if (isNearBottom || messages.length <= 1) {
+        messagesEndRef.current.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'end',
+          inline: 'nearest'
+        });
+      }
+    };
+
+    // Usar setTimeout para evitar múltiples scrolls rápidos
+    const timeoutId = setTimeout(scrollToBottom, 50);
+    return () => clearTimeout(timeoutId);
   }, [messages]);
   
   // Mensaje inicial de bienvenida
   useEffect(() => {
     if (messages.length === 0) {
-      const welcomeMessage = language === 'en'
-        ? `Hello ${user.email?.split('@')[0] || 'user'}! I'm your FlowForge AI assistant. How can I help you today? You can ask me about the available analysis modules or how I can help with your ${userProfile.businessType} business.`
-        : `¡Hola ${user.email?.split('@')[0] || 'usuario'}! Soy tu asistente de FlowForge AI. ¿En qué puedo ayudarte hoy? Puedes preguntarme sobre los módulos de análisis disponibles o cómo puedo ayudarte con tu negocio ${userProfile.businessType}.`;
+      const welcomeMessage = t('assistant', 'welcomeMessage')
+        .replace('{name}', user.email?.split('@')[0] || 'user')
+        .replace('{businessType}', userProfile.businessType);
       
       setMessages([
         {
@@ -134,7 +153,7 @@ const AIConversationalAssistant: React.FC<AIConversationalAssistantProps> = ({
     try {
       const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SpeechRecognitionAPI) {
-        throw new Error('SpeechRecognition API no disponible');
+        throw new Error(t('assistant', 'speechRecognitionNotAvailable'));
       }
       const recognition = new SpeechRecognitionAPI();
       
@@ -152,7 +171,7 @@ const AIConversationalAssistant: React.FC<AIConversationalAssistantProps> = ({
       };
       
       recognition.onerror = (event) => {
-        console.error('Error en reconocimiento de voz:', event.error);
+        console.error(t('assistant', 'voiceRecognitionError') + ':', event.error);
         setIsListening(false);
       };
       
@@ -160,11 +179,30 @@ const AIConversationalAssistant: React.FC<AIConversationalAssistantProps> = ({
       recognitionRef.current = recognition;
       setIsListening(true);
     } catch (error) {
-      console.error('Error al iniciar reconocimiento de voz:', error);
+      console.error(t('assistant', 'voiceRecognitionStartError') + ':', error);
       setRecognitionSupported(false);
     }
   };
   
+  // Función para limpiar texto para síntesis de voz
+  const cleanTextForVoice = (text: string): string => {
+    return text
+      // Remover markdown (asteriscos, guiones bajos, etc.)
+      .replace(/\*\*(.*?)\*\*/g, '$1') // **bold** -> bold
+      .replace(/\*(.*?)\*/g, '$1')     // *italic* -> italic
+      .replace(/__(.*?)__/g, '$1')     // __underline__ -> underline
+      .replace(/_(.*?)_/g, '$1')       // _italic_ -> italic
+      // Remover emojis de números
+      .replace(/[0-9]️⃣/g, '')
+      // Limpiar caracteres especiales que no se leen bien
+      .replace(/[#`]/g, '')
+      // Reemplazar guiones largos con pausas
+      .replace(/---+/g, '. ')
+      // Normalizar espacios múltiples
+      .replace(/\s+/g, ' ')
+      .trim();
+  };
+
   // Función para generar respuesta de voz con ElevenLabs
   const generateVoiceResponse = async (text: string) => {
     if (!isVoiceEnabled || isGeneratingAudio) return;
@@ -172,14 +210,17 @@ const AIConversationalAssistant: React.FC<AIConversationalAssistantProps> = ({
     setIsGeneratingAudio(true);
     
     try {
+      // Limpiar el texto para síntesis de voz
+      const cleanedText = cleanTextForVoice(text);
+      
       // Verificar que el texto no esté vacío
-      if (!text || text.trim().length === 0) {
+      if (!cleanedText || cleanedText.trim().length === 0) {
         throw new Error('El texto para generar voz está vacío');
       }
       
-      // Generar audio con ElevenLabs
+      // Generar audio con ElevenLabs usando el texto limpio
       const audioBlob = await generateSpeech(
-        text,
+        cleanedText,
         selectedLanguage,
         selectedVoiceIndex,
         {
@@ -240,7 +281,7 @@ const AIConversationalAssistant: React.FC<AIConversationalAssistantProps> = ({
       };
       
     } catch (error) {
-      console.error('Error con ElevenLabs:', error);
+      console.error(t('assistant', 'elevenLabsError') + ':', error);
     } finally {
       setIsGeneratingAudio(false);
     }
@@ -293,7 +334,8 @@ const AIConversationalAssistant: React.FC<AIConversationalAssistantProps> = ({
       const assistantResponse = await generateAIResponse(
         inputText,
         conversationHistory,
-        context
+        context,
+        selectedLanguage
       );
       
       // Crear mensaje con la respuesta
@@ -312,13 +354,13 @@ const AIConversationalAssistant: React.FC<AIConversationalAssistantProps> = ({
       }
       
     } catch (error) {
-      console.error('Error al procesar la respuesta:', error);
+      console.error(t('assistant', 'responseProcessingError') + ':', error);
       
       // Mensaje de error como respuesta del asistente
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: 'Lo siento, he tenido un problema al procesar tu solicitud. ¿Podrías intentarlo de nuevo?',
+        content: t('assistant', 'errorProcessing'),
         timestamp: new Date()
       };
       
@@ -394,7 +436,7 @@ const AIConversationalAssistant: React.FC<AIConversationalAssistantProps> = ({
               {t('welcome', 'conversationalAssistant')}
             </h3>
             <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
-              {isVoiceEnabled ? t('welcome', 'fullyFunctional') : t('welcome', 'notConfigured')} • {isGeminiAvailable ? 'Gemini activo' : 'Modo básico'}
+              {isVoiceEnabled ? t('welcome', 'fullyFunctional') : t('welcome', 'notConfigured')} • {isGeminiAvailable ? t('assistant', 'geminiActive') : t('assistant', 'basicMode')}
             </p>
           </div>
         </div>
@@ -475,7 +517,11 @@ const AIConversationalAssistant: React.FC<AIConversationalAssistantProps> = ({
       </div>
       
       {/* Área de mensajes */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4" style={{ background: isDarkMode ? 'rgba(26, 29, 41, 0.3)' : 'rgba(241, 245, 249, 0.3)' }}>
+      <div 
+        ref={messagesContainerRef}
+        className="flex-1 overflow-y-auto p-4 space-y-4" 
+        style={{ background: isDarkMode ? 'rgba(26, 29, 41, 0.3)' : 'rgba(241, 245, 249, 0.3)' }}
+      >
         {messages.map((message) => (
           <div 
             key={message.id} 
@@ -516,7 +562,7 @@ const AIConversationalAssistant: React.FC<AIConversationalAssistantProps> = ({
                   ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' 
                   : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
-            title={isListening ? 'Detener grabación' : 'Grabar voz'}
+            title={isListening ? t('assistant', 'stopRecording') : t('assistant', 'recordVoice')}
           >
             {isListening ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
           </button>
@@ -527,7 +573,7 @@ const AIConversationalAssistant: React.FC<AIConversationalAssistantProps> = ({
           type="text"
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
-          placeholder="Escribe tu mensaje..."
+          placeholder={t('assistant', 'placeholder')}
           className="flex-1 p-2 rounded-lg outline-none"
           style={{ 
             background: isDarkMode ? 'rgba(30, 33, 57, 0.8)' : 'white',
@@ -546,7 +592,7 @@ const AIConversationalAssistant: React.FC<AIConversationalAssistantProps> = ({
               ? 'bg-gray-300 dark:bg-gray-700 cursor-not-allowed'
               : 'bg-gradient-to-r from-iridescent-blue to-iridescent-violet hover:from-iridescent-violet hover:to-iridescent-cyan text-white'
           }`}
-          title="Enviar mensaje"
+          title={t('assistant', 'send')}
         >
           {isProcessing ? (
             <Loader2 className="h-5 w-5 animate-spin" />
