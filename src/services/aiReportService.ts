@@ -23,7 +23,7 @@ export class AIReportService {
         user_id: user.id,
         profile_id: profileId,
         module_id: moduleId,
-        module_name: moduleName,
+        module_name: moduleName.toString(),
         user_input: userInput,
         report_content: reportContent,
       };

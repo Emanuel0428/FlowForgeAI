@@ -62,7 +62,7 @@ const VoiceTextarea: React.FC<VoiceTextareaProps> = ({
       />
       <div className="absolute right-2 bottom-2 z-20">
         <VoiceToTextButton
-          onTranscriptionResult={handleVoiceResult}
+          onTranscription={handleVoiceResult}
           onRecordingStateChange={setIsVoiceActive}
           disabled={disabled}
           className="shadow-lg"

@@ -54,7 +54,7 @@ const VoiceTextInput: React.FC<VoiceTextInputProps> = ({
       />
       <div className="absolute right-4 bottom-4">
         <VoiceToTextButton
-          onTranscriptionResult={handleVoiceResult}
+          onTranscription={handleVoiceResult}
           onRecordingStateChange={setIsVoiceActive}
           disabled={disabled}
           className="shadow-lg"
