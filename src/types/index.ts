@@ -56,15 +56,15 @@ export interface AppState {
 
 export interface FormStep {
   id: string;
-  title: string;
+  title: LocalizedText;
   fields: FormField[];
 }
 
 export interface FormField {
   id: keyof UserProfileData;
-  label: string;
+  label: LocalizedText;
   type: 'radio' | 'select' | 'text' | 'textarea';
-  options?: { value: string; label: string }[];
+  options?: { value: string; label: LocalizedText }[];
   required: boolean;
   placeholder?: string;
 }

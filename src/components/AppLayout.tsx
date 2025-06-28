@@ -157,7 +157,9 @@ const AppLayout: React.FC<AppLayoutProps> = ({
             FlowForge AI
           </h1>
           <p className="text-xl mb-8 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-            Tu consultor digital inteligente te está esperando. Inicia sesión para acceder a análisis personalizados y recomendaciones estratégicas.
+            {language === 'en' 
+              ? 'Your intelligent digital consultant is waiting. Sign in to access personalized analysis and strategic recommendations.'
+              : 'Tu consultor digital inteligente te está esperando. Inicia sesión para acceder a análisis personalizados y recomendaciones estratégicas.'}
           </p>
           <button
             onClick={onShowAuth}
@@ -165,8 +167,36 @@ const AppLayout: React.FC<AppLayoutProps> = ({
           >
             <div className="absolute inset-0 bg-gradient-to-r from-iridescent-violet to-iridescent-cyan opacity-0 hover:opacity-20 transition-opacity duration-300"></div>
             <UserCircle className="w-6 h-6 mr-3" />
-            Iniciar Sesión / Registrarse
+            {language === 'en' ? 'Sign In / Register' : 'Iniciar Sesión / Registrarse'}
           </button>
+          
+          {/* Language Selector */}
+          <div className="mt-8 flex justify-center space-x-4">
+            <button
+              onClick={() => setLanguage('es')}
+              className={`p-2 rounded-lg transition-all duration-200 ${
+                language === 'es' ? 'bg-iridescent-blue/20 text-white' : 'text-gray-400 hover:text-white'
+              }`}
+              title="Español"
+            >
+              <div className="flex items-center">
+                <span className="mr-2">🇪🇸</span>
+                <span className={language === 'es' ? 'text-white' : 'text-gray-400'}>Español</span>
+              </div>
+            </button>
+            <button
+              onClick={() => setLanguage('en')}
+              className={`p-2 rounded-lg transition-all duration-200 ${
+                language === 'en' ? 'bg-iridescent-blue/20 text-white' : 'text-gray-400 hover:text-white'
+              }`}
+              title="English"
+            >
+              <div className="flex items-center">
+                <span className="mr-2">🇺🇸</span>
+                <span className={language === 'en' ? 'text-white' : 'text-gray-400'}>English</span>
+              </div>
+            </button>
+          </div>
         </div>
 
         {/* Bolt.new Badge - Required for Hackathon */}

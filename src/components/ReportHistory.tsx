@@ -3,6 +3,7 @@ import { Clock, FileText, Trash2, Eye, Download, Filter, Search } from 'lucide-r
 import { AIReport } from '../types/database';
 import { AIReportService } from '../services/aiReportService';
 import { businessModules } from '../data/modules';
+import { useLanguage } from '../config/language';
 
 interface ReportHistoryProps {
   onSelectReport: (report: AIReport) => void;
@@ -16,6 +17,7 @@ const ReportHistory: React.FC<ReportHistoryProps> = ({ onSelectReport, onClose }
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedModule, setSelectedModule] = useState<string>('all');
   const [error, setError] = useState('');
+  const { language } = useLanguage();
 
   useEffect(() => {
     loadReports();
@@ -164,7 +166,7 @@ const ReportHistory: React.FC<ReportHistoryProps> = ({ onSelectReport, onClose }
                 <option value="all">Todos los módulos</option>
                 {businessModules.map(module => (
                   <option key={module.id} value={module.id}>
-                    {module.name}
+                    {module.name[language]}
                   </option>
                 ))}
               </select>

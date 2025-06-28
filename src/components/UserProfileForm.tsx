@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, Check, Sparkles, Brain } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, Sparkles, Brain, Globe } from 'lucide-react';
 import { UserProfileData } from '../types';
 import { profileFormSteps } from '../data/profileForm';
 import VoiceTextarea from './VoiceTextarea';
 import VoiceTextInput from './VoiceTextInput';
+import { useLanguage } from '../config/language';
+import { SupportedLanguage } from '../config/elevenlabs';
 
 interface UserProfileFormProps {
   onSubmit: (data: UserProfileData) => void;
@@ -14,6 +16,7 @@ const UserProfileForm: React.FC<UserProfileFormProps> = ({ onSubmit, isLoading }
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<Partial<UserProfileData>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const { language, setLanguage, t } = useLanguage();
 
   const handleFieldChange = (fieldId: keyof UserProfileData, value: string) => {
     setFormData(prev => ({ ...prev, [fieldId]: value }));
@@ -28,7 +31,7 @@ const UserProfileForm: React.FC<UserProfileFormProps> = ({ onSubmit, isLoading }
     
     currentStepData.fields.forEach(field => {
       if (field.required && !formData[field.id]) {
-        newErrors[field.id] = `${field.label} es requerido`;
+        newErrors[field.id] = `${field.label[language]} ${t('profile', 'fieldRequired')}`;
       }
     });
 
@@ -68,6 +71,34 @@ const UserProfileForm: React.FC<UserProfileFormProps> = ({ onSubmit, isLoading }
         <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-iridescent-cyan/5 rounded-full blur-3xl animate-float" style={{ animationDelay: '4s' }}></div>
       </div>
 
+      {/* Language Selector */}
+      <div className="absolute top-6 right-6 flex items-center space-x-2 z-10">
+        <button
+          onClick={() => setLanguage('es')}
+          className={`p-2 rounded-lg transition-all duration-200 ${
+            language === 'es' ? 'bg-iridescent-blue/20 text-white' : 'text-gray-400 hover:text-white'
+          }`}
+          title="Español"
+        >
+          <div className="flex items-center">
+            <span className="mr-2">🇪🇸</span>
+            <span className={language === 'es' ? 'text-white' : 'text-gray-400'}>ES</span>
+          </div>
+        </button>
+        <button
+          onClick={() => setLanguage('en')}
+          className={`p-2 rounded-lg transition-all duration-200 ${
+            language === 'en' ? 'bg-iridescent-blue/20 text-white' : 'text-gray-400 hover:text-white'
+          }`}
+          title="English"
+        >
+          <div className="flex items-center">
+            <span className="mr-2">🇺🇸</span>
+            <span className={language === 'en' ? 'text-white' : 'text-gray-400'}>EN</span>
+          </div>
+        </button>
+      </div>
+
       <div className="min-h-full py-12 px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
@@ -78,10 +109,10 @@ const UserProfileForm: React.FC<UserProfileFormProps> = ({ onSubmit, isLoading }
               </div>
             </div>
             <h1 className="text-5xl font-bold text-white mb-4 iridescent-text">
-              Perfila tu Negocio
+              {t('profile', 'profileYourBusiness')}
             </h1>
             <p className="text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
-              Ayúdanos a entender tu negocio para ofrecerte recomendaciones personalizadas con inteligencia líquida
+              {t('profile', 'helpUsUnderstand')}
             </p>
           </div>
 
@@ -90,10 +121,10 @@ const UserProfileForm: React.FC<UserProfileFormProps> = ({ onSubmit, isLoading }
             <div className="flex justify-between items-center mb-4">
               <span className="text-lg font-medium text-gray-300 flex items-center">
                 <Sparkles className="w-5 h-5 mr-2 text-iridescent-cyan" />
-                Paso {currentStep + 1} de {profileFormSteps.length}
+                {t('profile', 'step')} {currentStep + 1} {t('profile', 'of')} {profileFormSteps.length}
               </span>
               <span className="text-lg font-medium text-iridescent-blue">
-                {Math.round(progress)}% completado
+                {Math.round(progress)}% {t('profile', 'completed')}
               </span>
             </div>
             <div className="w-full bg-liquid-surface/30 rounded-full h-3 backdrop-blur-sm">
@@ -110,7 +141,7 @@ const UserProfileForm: React.FC<UserProfileFormProps> = ({ onSubmit, isLoading }
             
             <div className="mb-10">
               <h2 className="text-3xl font-bold text-white mb-4">
-                {currentStepData.title}
+                {currentStepData.title[language]}
               </h2>
               <div className="w-20 h-1 bg-gradient-to-r from-iridescent-blue to-iridescent-violet rounded-full"></div>
             </div>
@@ -119,7 +150,7 @@ const UserProfileForm: React.FC<UserProfileFormProps> = ({ onSubmit, isLoading }
               {currentStepData.fields.map((field) => (
                 <div key={field.id} className="space-y-6">
                   <label className="block text-xl font-semibold text-white">
-                    {field.label}
+                    {field.label[language]}
                     {field.required && <span className="text-iridescent-violet ml-2">*</span>}
                   </label>
 
@@ -152,7 +183,7 @@ const UserProfileForm: React.FC<UserProfileFormProps> = ({ onSubmit, isLoading }
                             )}
                           </div>
                           <span className="text-gray-200 font-medium text-lg">
-                            {option.label}
+                            {option.label[language]}
                           </span>
                           {formData[field.id] === option.value && (
                             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-iridescent-blue to-iridescent-violet"></div>
@@ -160,6 +191,24 @@ const UserProfileForm: React.FC<UserProfileFormProps> = ({ onSubmit, isLoading }
                         </label>
                       ))}
                     </div>
+                  ) : field.type === 'select' && field.options ? (
+                    <select
+                      value={formData[field.id] || ''}
+                      onChange={(e) => handleFieldChange(field.id, e.target.value)}
+                      className="w-full px-5 py-4 rounded-2xl border-2 transition-all duration-300 focus:outline-none focus:ring-2 bg-liquid-surface/20 border-liquid-border focus:border-iridescent-blue/50 focus:ring-iridescent-blue/20 text-white text-lg"
+                      disabled={isLoading}
+                    >
+                      <option value="" className="bg-liquid-surface text-gray-400">{t('profile', 'selectOption')}</option>
+                      {field.options.map((option) => (
+                        <option 
+                          key={option.value} 
+                          value={option.value}
+                          className="bg-liquid-surface text-white"
+                        >
+                          {option.label[language]}
+                        </option>
+                      ))}
+                    </select>
                   ) : field.type === 'textarea' ? (
                     <VoiceTextarea
                       value={formData[field.id] || ''}
@@ -204,7 +253,7 @@ const UserProfileForm: React.FC<UserProfileFormProps> = ({ onSubmit, isLoading }
                 }`}
               >
                 <ChevronLeft className="w-5 h-5 mr-2" />
-                Anterior
+                {t('profile', 'previous')}
               </button>
 
               <button
@@ -216,12 +265,12 @@ const UserProfileForm: React.FC<UserProfileFormProps> = ({ onSubmit, isLoading }
                 <div className="absolute inset-0 bg-gradient-to-r from-iridescent-violet to-iridescent-cyan opacity-0 hover:opacity-20 transition-opacity duration-300"></div>
                 {currentStep === profileFormSteps.length - 1 ? (
                   <>
-                    Comenzar Análisis Líquido
+                    {t('profile', 'startAnalysis')}
                     <Check className="w-5 h-5 ml-2" />
                   </>
                 ) : (
                   <>
-                    Siguiente
+                    {t('profile', 'next')}
                     <ChevronRight className="w-5 h-5 ml-2" />
                   </>
                 )}
